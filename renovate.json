@@ -1,0 +1,36 @@
+{
+    "extends": [
+        "config:base",
+        ":disableDependencyDashboard",
+        ":gitSignOff"
+    ],
+    "assigneesFromCodeOwners": true,
+    "packageRules": [
+        {
+            "matchPackagePatterns": [
+                "*"
+            ],
+            "matchUpdateTypes": [
+                "minor",
+                "patch"
+            ],
+            "groupName": "all non-major dependencies",
+            "groupSlug": "all-minor-patch",
+            "labels": [
+                "dependencies"
+            ]
+        },
+        {
+            "matchPackagePatterns": [
+                "*"
+            ],
+            "matchUpdateTypes": [
+                "major"
+            ],
+            "labels": [
+                "dependencies",
+                "breaking"
+            ]
+        }
+    ]
+}
