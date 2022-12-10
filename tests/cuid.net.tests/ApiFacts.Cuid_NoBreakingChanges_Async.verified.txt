@@ -1,0 +1,9 @@
+﻿[assembly: System.Runtime.Versioning.TargetFramework(".NETCoreApp,Version=v6.0", FrameworkDisplayName="")]
+namespace Xaevik.Cuid
+{
+    public readonly struct Cuid
+    {
+        public Cuid() { }
+        public override string ToString() { }
+    }
+}
