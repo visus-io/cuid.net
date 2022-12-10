@@ -23,7 +23,7 @@ public readonly struct Cuid
 	public Cuid()
 	{
 		_counter = SafeCounter();
-		_fingerprint = State.Fingerprint;
+		_fingerprint = Context.Fingerprint;
 		_random = SecureRandom();
 		_timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 	}
@@ -76,7 +76,7 @@ public readonly struct Cuid
 
 	private static ulong SafeCounter()
 	{
-		_synchronizedCounter = _synchronizedCounter < State.DiscreteValues ? _synchronizedCounter : 0;
+		_synchronizedCounter = _synchronizedCounter < Context.DiscreteValues ? _synchronizedCounter : 0;
 		_synchronizedCounter++;
 
 		return _synchronizedCounter - 1;
@@ -93,12 +93,12 @@ public readonly struct Cuid
 		}
 
 		ulong item = BitConverter.ToUInt64(bytes);
-		item *= State.DiscreteValues;
+		item *= Context.DiscreteValues;
 
 		return Pad(Encode(item), BlockSize * 2);
 	}
 	
-	private static class State
+	private static class Context
 	{
 		public static readonly ulong DiscreteValues = (ulong) Math.Pow(Base, BlockSize);
 
