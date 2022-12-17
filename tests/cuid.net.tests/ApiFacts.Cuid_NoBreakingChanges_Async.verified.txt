@@ -1,9 +1,25 @@
 ﻿[assembly: System.Runtime.Versioning.TargetFramework(".NETCoreApp,Version=v6.0", FrameworkDisplayName="")]
 namespace Xaevik.Cuid
 {
-    public readonly struct Cuid
+    public readonly struct Cuid : System.IComparable, System.IComparable<Xaevik.Cuid.Cuid>, System.IEquatable<Xaevik.Cuid.Cuid>
     {
+        public static readonly Xaevik.Cuid.Cuid Empty;
         public Cuid() { }
+        public Cuid(string c) { }
+        public int CompareTo(Xaevik.Cuid.Cuid other) { }
+        public int CompareTo(object? obj) { }
+        public bool Equals(Xaevik.Cuid.Cuid other) { }
+        public override bool Equals(object? obj) { }
+        public override int GetHashCode() { }
         public override string ToString() { }
+        public static Xaevik.Cuid.Cuid Parse(System.ReadOnlySpan<char> input) { }
+        public static Xaevik.Cuid.Cuid Parse(string input) { }
+        public static bool TryParse(System.ReadOnlySpan<char> input, out Xaevik.Cuid.Cuid result) { }
+        public static bool operator !=(Xaevik.Cuid.Cuid left, Xaevik.Cuid.Cuid right) { }
+        public static bool operator <(Xaevik.Cuid.Cuid left, Xaevik.Cuid.Cuid right) { }
+        public static bool operator <=(Xaevik.Cuid.Cuid left, Xaevik.Cuid.Cuid right) { }
+        public static bool operator ==(Xaevik.Cuid.Cuid left, Xaevik.Cuid.Cuid right) { }
+        public static bool operator >(Xaevik.Cuid.Cuid left, Xaevik.Cuid.Cuid right) { }
+        public static bool operator >=(Xaevik.Cuid.Cuid left, Xaevik.Cuid.Cuid right) { }
     }
 }

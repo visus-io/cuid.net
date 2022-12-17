@@ -1,8 +1,10 @@
 ﻿namespace Xaevik.Cuid.Tests;
 
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using PublicApiGenerator;
 
+[ExcludeFromCodeCoverage]
 [UsesVerify]
 public class ApiFacts
 {
