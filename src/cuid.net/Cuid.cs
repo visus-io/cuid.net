@@ -189,16 +189,16 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>
 			return "0";
 		}
 
-		string result = string.Empty;
+		Stack<char> result = new();
 
 		while ( value > 0 )
 		{
 			ulong c = value % Base;
-			result = (char) ( c is >= 0 and <= 9 ? c + 48 : c + 'a' - 10 ) + result;
+			result.Push((char) ( c is >= 0 and <= 9 ? c + 48 : c + 'a' - 10 ));
 			value /= Base;
 		}
 
-		return result;
+		return new string(result.ToArray());
 	}
 
 	private static bool IsAlphaNum(ReadOnlySpan<char> input)
