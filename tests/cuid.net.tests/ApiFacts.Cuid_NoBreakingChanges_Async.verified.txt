@@ -15,6 +15,7 @@ namespace Xaevik.Cuid
         public static Xaevik.Cuid.Cuid Parse(System.ReadOnlySpan<char> input) { }
         public static Xaevik.Cuid.Cuid Parse(string input) { }
         public static bool TryParse(System.ReadOnlySpan<char> input, out Xaevik.Cuid.Cuid result) { }
+        public static bool TryParse([System.Diagnostics.CodeAnalysis.NotNullWhen(true)] string? input, out Xaevik.Cuid.Cuid result) { }
         public static bool operator !=(Xaevik.Cuid.Cuid left, Xaevik.Cuid.Cuid right) { }
         public static bool operator <(Xaevik.Cuid.Cuid left, Xaevik.Cuid.Cuid right) { }
         public static bool operator <=(Xaevik.Cuid.Cuid left, Xaevik.Cuid.Cuid right) { }

@@ -5,11 +5,16 @@ using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
-using System.Text;
 
+/// <summary>
+///     Represents a collision resistant unique identifier (CUID).
+/// </summary>
 [StructLayout(LayoutKind.Sequential)]
 public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>
 {
+	/// <summary>
+	///     A read-only instance of <see cref="Cuid" /> structure whose values are all zeros.
+	/// </summary>
 	public static readonly Cuid Empty;
 
 	private const int Base = 36;
@@ -30,6 +35,9 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>
 
 	private readonly long _t;
 
+	/// <summary>
+	///     Initializes a new instance of the <see cref="Cuid" /> structure.
+	/// </summary>
 	public Cuid()
 	{
 		_c = SafeCounter();
@@ -38,6 +46,13 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>
 		_t = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 	}
 
+	/// <summary>
+	///     Initializes a new instance of the <see cref="Cuid" /> structure by using the value represented by the specified
+	///     string.
+	/// </summary>
+	/// <param name="c">
+	///     A string that contains a CUID.
+	/// </param>
 	public Cuid(string c)
 	{
 		ArgumentNullException.ThrowIfNull(c);
@@ -79,6 +94,11 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>
 		return left.CompareTo(right) <= 0;
 	}
 
+	/// <summary>
+	///     Converts the string representation of a CUID to the equivalent <see cref="Cuid" /> structure.
+	/// </summary>
+	/// <param name="input">The string to convert.</param>
+	/// <returns>A structure that contains the value that was parsed.</returns>
 	public static Cuid Parse(string input)
 	{
 		ArgumentNullException.ThrowIfNull(input);
@@ -86,6 +106,11 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>
 		return Parse((ReadOnlySpan<char>) input);
 	}
 
+	/// <summary>
+	///     Converts a read-only character span that represents a CUID to the equivalent <see cref="Cuid" /> structure.
+	/// </summary>
+	/// <param name="input">A read-only span containing the bytes representing a CUID.</param>
+	/// <returns>A structure that contains the value that was parsed.</returns>
 	[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 	public static Cuid Parse(ReadOnlySpan<char> input)
 	{
@@ -96,6 +121,16 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>
 		return result.ToCuid();
 	}
 
+	/// <summary>
+	///     Converts the specified read-only span of characters containing the representation of a CUID to the equivalent
+	///     <see cref="Cuid" /> structure.
+	/// </summary>
+	/// <param name="input">A span containing the characters representing the CUID to convert.</param>
+	/// <param name="result">
+	///     When this method returns, contains the parsed value. If the method returns <c>true</c>,
+	///     <c>result</c> contains a valid Guid. If the method returns <c>false</c>, result equals <see cref="Empty" />.
+	/// </param>
+	/// <returns><c>true</c> if the parse operation was successful; otherwise, <c>false</c>.</returns>
 	public static bool TryParse(ReadOnlySpan<char> input, out Cuid result)
 	{
 		CuidResult parseResult = new();
@@ -109,6 +144,27 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>
 		return false;
 	}
 
+	/// <summary>
+	///     Converts the string representation of a CUID to the equivalent <see cref="Cuid" /> structure.
+	/// </summary>
+	/// <param name="input">A string containing the CUID to convert.</param>
+	/// <param name="result">
+	///     When this method returns, contains the parsed value. If the method returns <c>true</c>,
+	///     <c>result</c> contains a valid Guid. If the method returns <c>false</c>, result equals <see cref="Empty" />.
+	/// </param>
+	/// <returns><c>true</c> if the parse operation was successful; otherwise, <c>false</c>.</returns>
+	public static bool TryParse([NotNullWhen(true)] string? input, out Cuid result)
+	{
+		if ( input is not null )
+		{
+			return TryParse((ReadOnlySpan<char>) input, out result);
+		}
+
+		result = default;
+		return false;
+	}
+
+	/// <inheritdoc />
 	public int CompareTo(Cuid other)
 	{
 		int cComparison = _c.CompareTo(other._c);
@@ -127,6 +183,7 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>
 		return rComparison != 0 ? rComparison : _t.CompareTo(other._t);
 	}
 
+	/// <inheritdoc />
 	public int CompareTo(object? obj)
 	{
 		if ( ReferenceEquals(null, obj) )
@@ -139,17 +196,20 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>
 			: throw new ArgumentException($"Object must be of type {nameof(Cuid)}");
 	}
 
+	/// <inheritdoc />
 	public bool Equals(Cuid other)
 	{
 		return _c == other._c && string.Equals(_f, other._f, StringComparison.OrdinalIgnoreCase) &&
 		       _r == other._r && _t == other._t;
 	}
 
+	/// <inheritdoc />
 	public override bool Equals(object? obj)
 	{
 		return obj is Cuid other && Equals(other);
 	}
 
+	/// <inheritdoc />
 	public override int GetHashCode()
 	{
 		HashCode hashCode = new();
@@ -233,7 +293,7 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>
 	{
 		const int size = BlockSize * 2;
 
-		Span<byte> bytes = new byte[size];
+		Span<byte> bytes = stackalloc byte[size];
 		RandomNumberGenerator.Fill(bytes);
 
 		if ( BitConverter.IsLittleEndian )
