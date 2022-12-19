@@ -337,6 +337,7 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>
 	[StructLayout(LayoutKind.Explicit)]
 	private struct CuidResult
 	{
+#pragma warning disable S4487
 		[FieldOffset(8)] internal ulong _c;
 
 		[FieldOffset(0)] internal string _f;
@@ -344,6 +345,7 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>
 		[FieldOffset(16)] internal ulong _r;
 
 		[FieldOffset(24)] internal long _t;
+#pragma warning restore S4487
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public readonly Cuid ToCuid()
