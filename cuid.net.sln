@@ -8,6 +8,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "cuid.net.benchmarks", "test
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{D68C1229-0EB5-4E02-82D2-55B05D12BFFE}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{7039220C-882B-4D44-8B6D-5A691A0A3835}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{7A501B42-B686-42C7-ACAB-82B973106716}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\ci.yaml = .github\workflows\ci.yaml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +37,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{34E7094D-63C5-4321-96DA-9CB68520A689} = {D68C1229-0EB5-4E02-82D2-55B05D12BFFE}
 		{A7660FD5-9354-4E65-A572-CFA3486F4EE8} = {D68C1229-0EB5-4E02-82D2-55B05D12BFFE}
+		{7A501B42-B686-42C7-ACAB-82B973106716} = {7039220C-882B-4D44-8B6D-5A691A0A3835}
 	EndGlobalSection
 EndGlobal
