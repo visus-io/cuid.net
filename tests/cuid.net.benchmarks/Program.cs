@@ -10,6 +10,7 @@ using BenchmarkDotNet.Running;
 [GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)]
 [CategoriesColumn]
 [SuppressMessage("Performance", "CA1822:Mark members as static")]
+[ExcludeFromCodeCoverage]
 public class IdentifierPerformance
 {
 	[Benchmark]
