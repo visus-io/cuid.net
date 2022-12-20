@@ -41,10 +41,3 @@ Cuid cuid = Cuid.Parse("clbvi4441000007ld63liebkf");
 // implicit parsing
 bool success = Cuid.TryParse("clbvi4441000007ld63liebkf", out Cuid cuid);
 ```
-
-## Limitations
-
-As of right now (2022-12-19), `Cuid` does not currently implement the `[Serializable]` so serialization is not guaranteed. This will eventually be resolved in a future release.
-
-
-
