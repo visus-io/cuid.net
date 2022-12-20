@@ -55,4 +55,6 @@ jobs:
           dotnet pack -c release --no-restore --no-build \
             -p:PackageVersion=${{ steps.gitversion.outputs.fullSemVer }} \
             -o ${{ runner.temp }}/packages
-          
+      - name: Push
+        run: dotnet nuget push *.nupkg -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json --skip-duplicate
+        working-directory: ${{ runner.temp }}/packages
