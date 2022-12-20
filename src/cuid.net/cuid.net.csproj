@@ -5,15 +5,19 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <RootNamespace>Xaevik.Cuid</RootNamespace>
+    </PropertyGroup>
+    
+    <PropertyGroup>
         <Title>cuid.net</Title>
         <Authors>Alan Brault</Authors>
         <Description>A fast modern .NET implementation of collision-resistant ids.</Description>
+        <IncludeSymbols>true</IncludeSymbols>
         <PackageProjectUrl>https://github.com/xaevik/cuid.net</PackageProjectUrl>
         <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-        <RepositoryUrl>https://github.com/xaevik/cuid.net.git</RepositoryUrl>
-        <RepositoryType>git</RepositoryType>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-        <IncludeSymbols>true</IncludeSymbols>
+        <RepositoryUrl>https://github.com/xaevik/cuid.net</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     </PropertyGroup>
 
@@ -45,4 +49,8 @@
         </Compile>
     </ItemGroup>
 
+    <ItemGroup>
+        <None Include="..\..\README.md" Pack="true" PackagePath="\"/>
+    </ItemGroup>
+    
 </Project>

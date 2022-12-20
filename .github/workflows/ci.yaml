@@ -7,11 +7,12 @@ on:
     paths-ignore:
       - '**.md'
       - '**/renovate.json' 
+      - '.github/workflows/release.yaml'
   pull_request:
     paths-ignore:
       - '**.md'
       - '**/renovate.json'
-        
+      - '.github/workflows/release.yaml'
 jobs:
   build:
     name: Build, Analyze & Test

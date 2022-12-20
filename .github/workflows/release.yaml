@@ -2,8 +2,9 @@ name: Release
 
 on:
   workflow_dispatch:
-  tags:
-    - '*'
+  push:
+    tags:
+      - '*'
         
 jobs:
   build:
@@ -28,11 +29,30 @@ jobs:
       - name: Install .NET SDK
         uses: actions/setup-dotnet@v3
         with:
-          global-json-file: global.json          
+          global-json-file: global.json
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v0.9.15
+        with:
+          useConfigFile: true
+      - name: Determine Version
+        id: gitversion
+        uses: gittools/actions/gitversion/execute@v0.9.15
+        with:
+          useConfigFile: true        
       - name: Restore
         run: dotnet restore --verbosity Quiet
       - name: Build
-        run: dotnet build -c release --no-restore 
+        run: |
+          dotnet build -c release --no-restore \
+          -p:Version=${{ steps.gitversion.outputs.assemblySemVer }} \
+          -p:FileVersion=${{ steps.gitversion.outputs.assemblySemFileVer }} \
+          -p:InformationalVersion=${{ steps.gitversion.outputs.informationalVersion }}
+      - name: Test
+        run: dotnet test -c release --no-restore --no-build
+      - name: Pack
+        run: dotnet pack -c release --no-restore --no-build \
+          -p:PackageVersion=${{ steps.gitversion.outputs.fullSemVer }} \
+          -o ${{ runner.temp }}/packages
 
 
           
