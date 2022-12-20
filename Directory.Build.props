@@ -3,6 +3,9 @@
         <Version>0.0.1</Version>
         <Copyright>Copyright (c) 2022 Alan Brault</Copyright>
         <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
-        <RestoreLockedMode Condition="'$(CI)' == 'true'">true</RestoreLockedMode>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+        <RestoreLockedMode>true</RestoreLockedMode>
     </PropertyGroup>
 </Project>
