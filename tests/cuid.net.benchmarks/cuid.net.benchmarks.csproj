@@ -6,14 +6,15 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <RootNamespace>Xaevik.Cuid.Benchmarks</RootNamespace>
+        <IsPackable>false</IsPackable>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="BenchmarkDotNet" Version="0.13.2"/>
+        <PackageReference Include="BenchmarkDotNet" Version="0.13.2" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\cuid.net\cuid.net.csproj"/>
+        <ProjectReference Include="..\..\src\cuid.net\cuid.net.csproj" />
     </ItemGroup>
 
 </Project>
