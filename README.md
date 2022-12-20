@@ -2,13 +2,9 @@
 
 ![GitHub](https://img.shields.io/github/license/xaevik/cuid.net?logo=github&style=flat) [![Continuous Integration](https://github.com/xaevik/cuid.net/actions/workflows/ci.yaml/badge.svg)](https://github.com/xaevik/cuid.net/actions/workflows/ci.yaml) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=cuid.net&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=cuid.net) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=cuid.net&metric=coverage)](https://sonarcloud.io/summary/new_code?id=cuid.net) 
 
+[![Nuget](https://img.shields.io/nuget/v/cuid.net)](https://www.nuget.org/packages/cuid.net/) ![Nuget](https://img.shields.io/nuget/dt/cuid.net)
+
 A fast modern .NET implementation of collision-resistant ids. You can read more about CUIDs from the [official project website](https://usecuid.org/).
-
-## Installation
-
-As of right now, the library is only available as a `prerelease` package until such time that the implementation is deemed stable. To install simply run:
-
-`dotnet package add cuid.net --prerelease` 
 
 ## Usage
 
