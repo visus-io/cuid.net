@@ -10,7 +10,7 @@
         <Description>A fast modern .NET implementation of collision-resistant ids.</Description>
         <PackageProjectUrl>https://github.com/xaevik/cuid.net</PackageProjectUrl>
         <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-        <RepositoryUrl>https://github.com/xaevik/cuid.net</RepositoryUrl>
+        <RepositoryUrl>https://github.com/xaevik/cuid.net.git</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
         <IncludeSymbols>true</IncludeSymbols>
