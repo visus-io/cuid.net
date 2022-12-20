@@ -23,7 +23,7 @@ using Xaevik.Cuid;
 
 Cuid cuid = new();
 
-Console.WriteLine(cuid); // clbvht1pr000008mq75ys2hhz
+Console.WriteLine(cuid); // clbvi4441000007ld63liebkf
 ```
 
 **Instantiation from string**
