@@ -50,7 +50,6 @@ jobs:
           global-json-file: global.json          
       - name: Install Tools
         run: |
-          dotnet tool install --global JetBrains.dotCover.GlobalTool
           dotnet tool install --global dotnet-sonarscanner 
       - name: Restore
         run: dotnet restore --verbosity Quiet
@@ -58,11 +57,15 @@ jobs:
         run: |
           dotnet-sonarscanner begin /k:"cuid.net" /o:"xaevik" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
             /d:sonar.host.url="https://sonarcloud.io" \
-            /d:sonar.cs.dotcover.reportsPaths=dotCover.Output.html
+            /d:sonar.cs.opencover.reportsPaths=${{ runner.temp }}/coverage.opencover.xml
       - name: Build
         run: dotnet build -c release --no-restore 
       - name: Test
-        run: dotnet dotcover test -c release --no-restore --no-build --dcReportType=HTML
+        run: |
+          dotnet test -c release --no-restore --no-build \
+            -p:CollectCoverage=true \
+            -p:CoverletOutputFormat=opencover \
+            -p:CoverletOutput=${{ runner.temp }}/coverage.opencover.xml
       - name: End SonarScanner
         if: success() || failure()
         run: dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"

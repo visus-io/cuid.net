@@ -63,7 +63,7 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>
 
 		this = result.ToCuid();
 	}
-
+	
 	public static bool operator ==(Cuid left, Cuid right)
 	{
 		return left.Equals(right);
