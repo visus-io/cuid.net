@@ -5,12 +5,19 @@ using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
+using System.Text.Json.Serialization;
+using System.Xml;
+using System.Xml.Schema;
+using System.Xml.Serialization;
+using Serialization.Json.Converters;
 
 /// <summary>
 ///     Represents a collision resistant unique identifier (CUID).
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
-public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>
+[JsonConverter(typeof(CuidConverter))]
+[XmlRoot("cuid")]
+public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, IXmlSerializable
 {
 	/// <summary>
 	///     A read-only instance of <see cref="Cuid" /> structure whose values are all zeros.
@@ -36,17 +43,6 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>
 	private readonly long _t;
 
 	/// <summary>
-	///     Initializes a new instance of the <see cref="Cuid" /> structure.
-	/// </summary>
-	public Cuid()
-	{
-		_c = SafeCounter();
-		_f = Context.Fingerprint;
-		_r = SecureRandom();
-		_t = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-	}
-
-	/// <summary>
 	///     Initializes a new instance of the <see cref="Cuid" /> structure by using the value represented by the specified
 	///     string.
 	/// </summary>
@@ -63,7 +59,24 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>
 
 		this = result.ToCuid();
 	}
-	
+
+	/// <summary>
+	///     Initializes a new instance of the <see cref="Cuid" /> structure.
+	/// </summary>
+	/// <returns>A new CUID object.</returns>
+	public static Cuid NewCuid()
+	{
+		CuidResult result = new()
+		{
+			_c = SafeCounter(),
+			_f = Context.Fingerprint,
+			_r = SecureRandom(),
+			_t = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
+		};
+
+		return result.ToCuid();
+	}
+
 	public static bool operator ==(Cuid left, Cuid right)
 	{
 		return left.Equals(right);
@@ -333,20 +346,32 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>
 		return true;
 	}
 
+	[ExcludeFromCodeCoverage]
+	XmlSchema? IXmlSerializable.GetSchema()
+	{
+		return null;
+	}
+	
+	void IXmlSerializable.ReadXml(XmlReader reader)
+	{
+		reader.Read();
+
+		CuidResult result = new();
+
+		_ = TryParseCuid(reader.Value, true, ref result);
+
+		Unsafe.AsRef(this) = result.ToCuid();
+	}
+	
+	void IXmlSerializable.WriteXml(XmlWriter writer)
+	{
+		writer.WriteString(ToString());
+	}
+
 	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	[StructLayout(LayoutKind.Explicit)]
 	private struct CuidResult
 	{
-#pragma warning disable S4487
-		[FieldOffset(8)] internal ulong _c;
-
-		[FieldOffset(0)] internal string _f;
-
-		[FieldOffset(16)] internal ulong _r;
-
-		[FieldOffset(24)] internal long _t;
-#pragma warning restore S4487
-
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public readonly Cuid ToCuid()
 		{
@@ -360,6 +385,15 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>
 		{
 			throw new FormatException(message);
 		}
+#pragma warning disable S4487
+		[FieldOffset(8)] internal ulong _c;
+
+		[FieldOffset(0)] internal string _f;
+
+		[FieldOffset(16)] internal ulong _r;
+
+		[FieldOffset(24)] internal long _t;
+#pragma warning restore S4487
 	}
 
 	private static class Context

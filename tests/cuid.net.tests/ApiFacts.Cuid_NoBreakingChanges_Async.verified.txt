@@ -2,10 +2,11 @@
 [assembly: System.Runtime.Versioning.TargetFramework(".NETCoreApp,Version=v6.0", FrameworkDisplayName="")]
 namespace Xaevik.Cuid
 {
-    public readonly struct Cuid : System.IComparable, System.IComparable<Xaevik.Cuid.Cuid>, System.IEquatable<Xaevik.Cuid.Cuid>
+    [System.Text.Json.Serialization.JsonConverter(typeof(Xaevik.Cuid.Serialization.Json.Converters.CuidConverter))]
+    [System.Xml.Serialization.XmlRoot("cuid")]
+    public readonly struct Cuid : System.IComparable, System.IComparable<Xaevik.Cuid.Cuid>, System.IEquatable<Xaevik.Cuid.Cuid>, System.Xml.Serialization.IXmlSerializable
     {
         public static readonly Xaevik.Cuid.Cuid Empty;
-        public Cuid() { }
         public Cuid(string c) { }
         public int CompareTo(Xaevik.Cuid.Cuid other) { }
         public int CompareTo(object? obj) { }
@@ -13,6 +14,7 @@ namespace Xaevik.Cuid
         public override bool Equals(object? obj) { }
         public override int GetHashCode() { }
         public override string ToString() { }
+        public static Xaevik.Cuid.Cuid NewCuid() { }
         public static Xaevik.Cuid.Cuid Parse(System.ReadOnlySpan<char> input) { }
         public static Xaevik.Cuid.Cuid Parse(string input) { }
         public static bool TryParse(System.ReadOnlySpan<char> input, out Xaevik.Cuid.Cuid result) { }
@@ -23,5 +25,14 @@ namespace Xaevik.Cuid
         public static bool operator ==(Xaevik.Cuid.Cuid left, Xaevik.Cuid.Cuid right) { }
         public static bool operator >(Xaevik.Cuid.Cuid left, Xaevik.Cuid.Cuid right) { }
         public static bool operator >=(Xaevik.Cuid.Cuid left, Xaevik.Cuid.Cuid right) { }
+    }
+}
+namespace Xaevik.Cuid.Serialization.Json.Converters
+{
+    public class CuidConverter : System.Text.Json.Serialization.JsonConverter<Xaevik.Cuid.Cuid>
+    {
+        public CuidConverter() { }
+        public override Xaevik.Cuid.Cuid Read(ref System.Text.Json.Utf8JsonReader reader, System.Type typeToConvert, System.Text.Json.JsonSerializerOptions options) { }
+        public override void Write(System.Text.Json.Utf8JsonWriter writer, Xaevik.Cuid.Cuid value, System.Text.Json.JsonSerializerOptions options) { }
     }
 }
