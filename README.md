@@ -75,7 +75,7 @@ using (TextReader sr = new StringReader(xml))
 {
     using XmlReader xr = XmlReader.Create(sr);
     
-    Cuid cuid = serializer.Deserialize(xr);
+    Cuid cuid = (Cuid) serializer.Deserialize(xr);
 }
 ```
 ## Performance
