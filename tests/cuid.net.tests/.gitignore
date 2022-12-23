@@ -1,0 +1,3 @@
+﻿# PublicApiGenerator Artifacts
+*.received.txt
+*.verified.txt.bak

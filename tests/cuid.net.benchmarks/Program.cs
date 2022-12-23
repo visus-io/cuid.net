@@ -14,28 +14,28 @@ using BenchmarkDotNet.Running;
 public class IdentifierPerformance
 {
 	[Benchmark]
-	[BenchmarkCategory("Constructor")]
-	public void Cuid_New()
+	[BenchmarkCategory("New()")]
+	public void Cuid_NewCuid()
 	{
 		for ( var i = 0; i < 1000000; i++ )
 		{
-			_ = new Cuid();
+			_ = Cuid.NewCuid();
 		}
 	}
 
 	[Benchmark]
-	[BenchmarkCategory("ToString()")]
+	[BenchmarkCategory("New()+ToString()")]
 	public void Cuid_ToString()
 	{
 		for ( var i = 0; i < 1000000; i++ )
 		{
-			_ = new Cuid().ToString();
+			_ = Cuid.NewCuid().ToString();
 		}
 	}
 
 	[Benchmark(Baseline = true)]
-	[BenchmarkCategory("Constructor")]
-	public void Guid_New()
+	[BenchmarkCategory("New()")]
+	public void Guid_NewGuid()
 	{
 		for ( var i = 0; i < 1000000; i++ )
 		{
@@ -44,7 +44,7 @@ public class IdentifierPerformance
 	}
 
 	[Benchmark(Baseline = true)]
-	[BenchmarkCategory("ToString()")]
+	[BenchmarkCategory("New()+ToString()")]
 	public void Guid_ToString()
 	{
 		for ( var i = 0; i < 1000000; i++ )
@@ -54,6 +54,7 @@ public class IdentifierPerformance
 	}
 }
 
+[ExcludeFromCodeCoverage]
 public static class Program
 {
 	public static void Main()
