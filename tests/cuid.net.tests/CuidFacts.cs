@@ -148,7 +148,7 @@ public class CuidFacts
 	[Fact]
 	public void Cuid_TryParse_Null_ReturnsFalse()
 	{
-		var result = Cuid.TryParse(null, out var cuid);
+		var result = Cuid.TryParse(null, out _);
 
 		Assert.False(result);
 	}
@@ -169,6 +169,23 @@ public class CuidFacts
 
 		Assert.True(result);
 		Assert.Equal(CuidString, cuid.ToString());
+	}
+
+	[Fact]
+	public void Cuid_Uniqueness()
+	{
+		var cuids = new HashSet<Cuid>();
+
+		for ( var i = 0; i < 1000000; i++ )
+		{
+			var cuid = Cuid.NewCuid();
+			if ( cuids.Contains(cuid) )
+			{
+				Assert.Fail($"Collision detected at iteration {i}");
+			}
+
+			cuids.Add(cuid);
+		}
 	}
 
 	[Fact]
