@@ -77,31 +77,67 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 		return result.ToCuid();
 	}
 
+	/// <summary>
+	///     Indicates whether the values of two specified <see cref="Cuid" /> objects are equal.
+	/// </summary>
+	/// <param name="left">The first object to compare.</param>
+	/// <param name="right">The second object to compare.</param>
+	/// <returns><c>true</c> if <c>left</c> and <c>right</c> are equal; otherwise, <c>false</c>.</returns>
 	public static bool operator ==(Cuid left, Cuid right)
 	{
 		return left.Equals(right);
 	}
 
+	/// <summary>
+	///     Compares two values to determine which is greater.
+	/// </summary>
+	/// <param name="left">The first object to compare.</param>
+	/// <param name="right">The second object to compare.</param>
+	/// <returns><c>true</c> if <c>left</c> is greater than <c>right</c>; otherwise, <c>false</c>.</returns>
 	public static bool operator >(Cuid left, Cuid right)
 	{
 		return left.CompareTo(right) > 0;
 	}
 
+	/// <summary>
+	///     Compares two values to determine which is greater or equal.
+	/// </summary>
+	/// <param name="left">The first object to compare.</param>
+	/// <param name="right">The second object to compare.</param>
+	/// <returns><c>true</c> if <c>left</c> is greater than or equal to <c>right</c>; otherwise, <c>false</c>.</returns>
 	public static bool operator >=(Cuid left, Cuid right)
 	{
 		return left.CompareTo(right) >= 0;
 	}
 
+	/// <summary>
+	///     Indicates whether the values of two specified <see cref="Cuid" /> objects are not equal.
+	/// </summary>
+	/// <param name="left">The first object to compare.</param>
+	/// <param name="right">The second object to compare.</param>
+	/// <returns><c>true</c> if <c>left</c> and <c>right</c> are not equal; otherwise, <c>false</c>.</returns>
 	public static bool operator !=(Cuid left, Cuid right)
 	{
 		return !left.Equals(right);
 	}
 
+	/// <summary>
+	///     Compares two values to determine which is less.
+	/// </summary>
+	/// <param name="left">The first object to compare.</param>
+	/// <param name="right">The second object to compare.</param>
+	/// <returns><c>true</c> if <c>left</c> is less than <c>right</c>; otherwise, <c>false</c>.</returns>
 	public static bool operator <(Cuid left, Cuid right)
 	{
 		return left.CompareTo(right) < 0;
 	}
 
+	/// <summary>
+	///     Compares two values to determine which is less or equal.
+	/// </summary>
+	/// <param name="left">The first object to compare.</param>
+	/// <param name="right">The second object to compare.</param>
+	/// <returns><c>true</c> if <c>left</c> is less than or equal to <c>right</c>; otherwise, <c>false</c>.</returns>
 	public static bool operator <=(Cuid left, Cuid right)
 	{
 		return left.CompareTo(right) <= 0;
@@ -235,6 +271,10 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 		return hashCode.ToHashCode();
 	}
 
+	/// <summary>
+	///     Returns a string representation of the value of this instance.
+	/// </summary>
+	/// <returns>The value of this <see cref="Cuid" />.</returns>
 	public override string ToString()
 	{
 		string[] result = new string[5];
@@ -351,7 +391,7 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 	{
 		return null;
 	}
-	
+
 	void IXmlSerializable.ReadXml(XmlReader reader)
 	{
 		reader.Read();
@@ -362,7 +402,7 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 
 		Unsafe.AsRef(this) = result.ToCuid();
 	}
-	
+
 	void IXmlSerializable.WriteXml(XmlWriter writer)
 	{
 		writer.WriteString(ToString());
