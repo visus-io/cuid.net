@@ -93,11 +93,11 @@ Job=.NET 6.0  Runtime=.NET 6.0
 ```
 | Method        | Categories       |      Mean |    Error |   StdDev | Ratio | RatioSD |
 |---------------|------------------|----------:|---------:|---------:|------:|--------:|
-| Cuid_NewCuid  | New()            | 122.95 ms | 0.461 ms | 0.408 ms |  1.90 |    0.02 |
-| Guid_NewGuid  | New()            |  64.61 ms | 0.575 ms | 0.510 ms |  1.00 |    0.00 |
+| Cuid_NewCuid  | New()            | 123.90 ms | 1.091 ms | 1.020 ms |  1.92 |    0.02 |
+| Guid_NewGuid  | New()            |  64.57 ms | 0.382 ms | 0.357 ms |  1.00 |    0.00 |
 |               |                  |           |          |          |       |         |
-| Cuid_ToString | New()+ToString() | 513.62 ms | 4.347 ms | 4.066 ms |  2.69 |    0.03 |
-| Guid_ToString | New()+ToString() | 190.67 ms | 1.326 ms | 1.240 ms |  1.00 |    0.00 |
+| Cuid_ToString | New()+ToString() | 349.98 ms | 3.485 ms | 3.089 ms |  1.99 |    0.02 |
+| Guid_ToString | New()+ToString() | 175.71 ms | 1.298 ms | 1.214 ms |  1.00 |    0.00 |
 
 **Note:** Results are based on the creation of 1 million objects.
 

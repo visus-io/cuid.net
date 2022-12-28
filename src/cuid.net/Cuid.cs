@@ -297,21 +297,17 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 
 	private static string Encode(ulong value)
 	{
-		if ( value is 0 )
-		{
-			return "0";
-		}
+		int i = 32;
+		Span<char> buffer = new char[i];
 
-		Stack<char> result = new();
-
-		while ( value > 0 )
+		do
 		{
 			ulong c = value % Base;
-			result.Push((char) ( c is >= 0 and <= 9 ? c + 48 : c + 'a' - 10 ));
+			buffer[--i] = (char) ( c is >= 0 and <= 9 ? c + 48 : c + 'a' - 10 );
 			value /= Base;
-		}
+		} while ( value > 0 );
 
-		return new string(result.ToArray());
+		return new string(buffer.Slice(i, 32 - i));
 	}
 
 	private static bool IsAlphaNum(ReadOnlySpan<char> input)
