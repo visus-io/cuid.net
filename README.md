@@ -80,7 +80,7 @@ using (TextReader sr = new StringReader(xml))
 ```
 ## Performance
 
-cuid.net was written to be as fast as possible (though there is still room for improvement). The baseline is measured against that of `Guid`.
+cuid.net was written to be as fast as possible. The baseline is measured against that of `Guid`.
 
 ``` ini
 BenchmarkDotNet=v0.13.2, OS=Windows 11 (10.0.22621.963)
@@ -91,13 +91,13 @@ Intel Core i7-8700 CPU 3.20GHz (Coffee Lake), 1 CPU, 12 logical and 6 physical c
 
 Job=.NET 6.0  Runtime=.NET 6.0  
 ```
-| Method        | Categories       |      Mean |    Error |   StdDev | Ratio | RatioSD |
-|---------------|------------------|----------:|---------:|---------:|------:|--------:|
-| Cuid_NewCuid  | New()            | 123.90 ms | 1.091 ms | 1.020 ms |  1.92 |    0.02 |
-| Guid_NewGuid  | New()            |  64.57 ms | 0.382 ms | 0.357 ms |  1.00 |    0.00 |
-|               |                  |           |          |          |       |         |
-| Cuid_ToString | New()+ToString() | 349.98 ms | 3.485 ms | 3.089 ms |  1.99 |    0.02 |
-| Guid_ToString | New()+ToString() | 175.71 ms | 1.298 ms | 1.214 ms |  1.00 |    0.00 |
+| Method        | Categories       |      Mean |    Error |   StdDev | Ratio |
+|---------------|------------------|----------:|---------:|---------:|------:|
+| Cuid_NewCuid  | New()            |  44.88 ms | 0.270 ms | 0.253 ms |  0.69 |
+| Guid_NewGuid  | New()            |  64.82 ms | 0.451 ms | 0.422 ms |  1.00 |
+|               |                  |           |          |          |       |
+| Cuid_ToString | New()+ToString() | 264.79 ms | 2.313 ms | 2.050 ms |  1.38 |
+| Guid_ToString | New()+ToString() | 191.59 ms | 1.147 ms | 1.073 ms |  1.00 |
 
 **Note:** Results are based on the creation of 1 million objects.
 
