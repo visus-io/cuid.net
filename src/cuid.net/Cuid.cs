@@ -4,7 +4,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Security.Cryptography;
 using System.Text.Json.Serialization;
 using System.Xml;
 using System.Xml.Schema;
@@ -70,7 +69,7 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 		{
 			_c = SafeCounter(),
 			_f = Context.Fingerprint,
-			_r = SecureRandom(),
+			_r = Random(),
 			_t = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
 		};
 
@@ -298,7 +297,7 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 	private static string Encode(ulong value)
 	{
 		int i = 32;
-		Span<char> buffer = new char[i];
+		Span<char> buffer = stackalloc char[32];
 
 		do
 		{
@@ -330,20 +329,12 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 		return result[^size..];
 	}
 
-	private static ulong SafeCounter()
-	{
-		_synchronizedCounter = _synchronizedCounter < Context.DiscreteValues ? _synchronizedCounter : 0;
-		_synchronizedCounter++;
-
-		return _synchronizedCounter - 1;
-	}
-
-	private static ulong SecureRandom()
+	private static ulong Random()
 	{
 		const int size = BlockSize * 2;
 
 		Span<byte> bytes = stackalloc byte[size];
-		RandomNumberGenerator.Fill(bytes);
+		Context.RandomNumberGenerator.NextBytes(bytes);
 
 		if ( BitConverter.IsLittleEndian )
 		{
@@ -354,6 +345,14 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 		item *= Context.DiscreteValues;
 
 		return item;
+	}
+
+	private static ulong SafeCounter()
+	{
+		_synchronizedCounter = _synchronizedCounter < Context.DiscreteValues ? _synchronizedCounter : 0;
+		_synchronizedCounter++;
+
+		return _synchronizedCounter - 1;
 	}
 
 	private static bool TryParseCuid(ReadOnlySpan<char> cuidString, bool throwException, ref CuidResult result)
@@ -437,6 +436,8 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 		public static readonly ulong DiscreteValues = (ulong) Math.Pow(Base, BlockSize);
 
 		public static readonly string Fingerprint = GenerateFingerprint();
+
+		public static readonly Random RandomNumberGenerator = new();
 
 		private static string GenerateFingerprint()
 		{
