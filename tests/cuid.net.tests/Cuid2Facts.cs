@@ -9,6 +9,7 @@ public class Cuid2Facts
 	public void Cuid2_Constructor()
 	{
 		var cuid = new Cuid2();
+		var cuid2 = new Cuid2();
 
 		var cuidString = cuid.ToString();
 
@@ -16,5 +17,24 @@ public class Cuid2Facts
 		             && cuidString.All(char.IsLetterOrDigit);
 
 		Assert.True(result);
+	}
+
+	[Fact]
+	public void Cuid2_Constructor_DefinedLength()
+	{
+		var cuid = new Cuid2(10);
+
+		var cuidString = cuid.ToString();
+
+		var result = cuidString.Length == 10
+		             && cuidString.All(char.IsLetterOrDigit);
+
+		Assert.True(result);
+	}
+
+	[Fact]
+	public void Cuid2_Constructor_ThrowsArgumentOutOfRangeException()
+	{
+		Assert.Throws<ArgumentOutOfRangeException>(() => new Cuid2(64));
 	}
 }

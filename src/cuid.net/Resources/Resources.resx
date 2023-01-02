@@ -21,4 +21,7 @@
     <data name="Format_CuidUnrecognized" xml:space="preserve">
         <value>Unrecognized Cuid format.</value>
     </data>
+    <data name="Arg_Cuid2IntCtor" xml:space="preserve">
+        <value>Value cannot be less than {0} or greater than {1}.</value>
+    </data>
 </root>

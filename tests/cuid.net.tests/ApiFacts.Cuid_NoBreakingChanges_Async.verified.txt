@@ -1,5 +1,5 @@
 ﻿[assembly: System.Reflection.AssemblyMetadata("RepositoryUrl", "https://github.com/xaevik/cuid.net")]
-[assembly: System.Runtime.Versioning.TargetFramework(".NETCoreApp,Version=v6.0", FrameworkDisplayName="")]
+[assembly: System.Runtime.Versioning.TargetFramework(".NETCoreApp,Version=v6.0", FrameworkDisplayName=".NET 6.0")]
 namespace Xaevik.Cuid
 {
     [System.Obsolete("Cuid is deprecated and should not be used. Use Cuid2 instead.", DiagnosticId="XAELIB0001")]
@@ -30,6 +30,7 @@ namespace Xaevik.Cuid
     public readonly struct Cuid2
     {
         public Cuid2() { }
+        public Cuid2(int maxLength) { }
         public override string ToString() { }
     }
 }

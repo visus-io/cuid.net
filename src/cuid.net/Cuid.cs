@@ -1,5 +1,6 @@
 ﻿namespace Xaevik.Cuid;
 
+using System.Buffers.Binary;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Runtime.CompilerServices;
@@ -335,17 +336,10 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 
 	private static ulong Random()
 	{
-		const int size = BlockSize * 2;
+		Span<byte> bytes = stackalloc byte[16];
+		Context.InsecureRandomSource.NextBytes(bytes);
 
-		Span<byte> bytes = stackalloc byte[size];
-		Context.RandomNumberGenerator.NextBytes(bytes);
-
-		if ( BitConverter.IsLittleEndian )
-		{
-			bytes.Reverse();
-		}
-
-		ulong item = BitConverter.ToUInt64(bytes);
+		ulong item = BinaryPrimitives.ReadUInt64LittleEndian(bytes);
 		item *= Context.DiscreteValues;
 
 		return item;
@@ -441,11 +435,24 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 
 		public static readonly string Fingerprint = GenerateFingerprint();
 
-		public static readonly Random RandomNumberGenerator = new();
+		public static readonly Random InsecureRandomSource = new();
 
 		private static string GenerateFingerprint()
 		{
-			string machineName = Environment.MachineName;
+			string machineName;
+			try
+			{
+				machineName = Environment.MachineName;
+				if ( string.IsNullOrWhiteSpace(machineName) )
+				{
+					machineName = GenerateMachineName();
+				}
+			}
+			catch ( InvalidOperationException )
+			{
+				machineName = GenerateMachineName();
+			}
+
 			int processIdentifier = Environment.ProcessId;
 
 			int machineIdentifier = machineName.Length + Base;
@@ -456,6 +463,14 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 				processIdentifier.ToString(CultureInfo.InvariantCulture).TrimPad(2).WriteTo(ref dest);
 				machineIdentifier.ToString(CultureInfo.InvariantCulture).TrimPad(2).WriteTo(ref dest);
 			});
+		}
+
+		private static string GenerateMachineName()
+		{
+			Span<byte> bytes = new byte[16];
+			BinaryPrimitives.WriteUInt64LittleEndian(bytes, (ulong) InsecureRandomSource.NextInt64());
+
+			return Convert.ToBase64String(bytes).ToUpperInvariant()[..15];
 		}
 	}
 }

@@ -60,6 +60,15 @@ namespace Xaevik.Cuid.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Value cannot be less than {0} or greater than {1}..
+        /// </summary>
+        internal static string Arg_Cuid2IntCtor {
+            get {
+                return ResourceManager.GetString("Arg_Cuid2IntCtor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unrecognized Cuid format..
         /// </summary>
         internal static string Format_CuidUnrecognized {
