@@ -4,7 +4,6 @@ using System.Buffers.Binary;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
-using System.Text;
 
 /// <summary>
 ///     Represents a collision resistant unique identifier (CUID).
@@ -23,6 +22,8 @@ public readonly struct Cuid2
 	private readonly char _p;
 
 	private readonly ulong _r;
+
+	private readonly byte[] _s;
 
 	private readonly long _t;
 
@@ -54,6 +55,8 @@ public readonly struct Cuid2
 		}
 
 		_p = GeneratePrefix();
+		_s = GenerateSalt();
+
 		_t = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 		_r = GenerateSecureRandom();
 		_f = Context.Fingerprint;
@@ -71,24 +74,20 @@ public readonly struct Cuid2
 		bool success;
 
 		Span<byte> buffer = stackalloc byte[20];
-		Span<byte> salt = stackalloc byte[8];
-		
 		Span<byte> result = stackalloc byte[64];
 
-		RandomNumberGenerator.Fill(salt);
-		
 		BinaryPrimitives.WriteInt64LittleEndian(buffer[..8], _t);
 		BinaryPrimitives.WriteUInt64LittleEndian(buffer.Slice(8, 8), _r);
 		BinaryPrimitives.WriteUInt32LittleEndian(buffer.Slice(16, 4), _c);
-		
+
 		using ( IncrementalHash hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA512) )
 		{
 			//var x = buffer.Length + _f.Length + salt.Length;
-			
+
 			hash.AppendData(buffer);
 			hash.AppendData(_f);
-			hash.AppendData(salt);
-			
+			hash.AppendData(_s);
+
 			success = hash.TryGetHashAndReset(result, out bytesWritten);
 		}
 
@@ -130,6 +129,20 @@ public readonly struct Cuid2
 		return c > 13 ? char.ToLowerInvariant((char) ( 'a' + c )) : (char) ( 'a' + c );
 	}
 
+	private static byte[] GenerateSalt()
+	{
+		Span<byte> result = stackalloc byte[8];
+
+		RandomNumberGenerator.Fill(result);
+
+		if ( BitConverter.IsLittleEndian )
+		{
+			result.Reverse();
+		}
+
+		return result.ToArray();
+	}
+
 	private static ulong GenerateSecureRandom()
 	{
 		Span<byte> bytes = stackalloc byte[8];
@@ -143,7 +156,7 @@ public readonly struct Cuid2
 		public static readonly double BitsPerDigit = Math.Log(36, 2);
 
 		public const int ByteBitCount = sizeof(byte) * 8;
-		
+
 		public static readonly byte[] Fingerprint = HardwareIdentity.Generate();
 
 		public static readonly Random InsecureRandomSource = new();
