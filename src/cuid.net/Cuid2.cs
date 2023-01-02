@@ -21,7 +21,7 @@ public readonly struct Cuid2
 
 	private readonly char _p;
 
-	private readonly ulong _r;
+	private readonly byte[] _r;
 
 	private readonly byte[] _s;
 
@@ -55,7 +55,7 @@ public readonly struct Cuid2
 		}
 
 		_p = GeneratePrefix();
-		_s = GenerateSalt();
+		_s = GenerateSecureRandom(); // salt
 
 		_t = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 		_r = GenerateSecureRandom();
@@ -77,8 +77,9 @@ public readonly struct Cuid2
 		Span<byte> result = stackalloc byte[64];
 
 		BinaryPrimitives.WriteInt64LittleEndian(buffer[..8], _t);
-		BinaryPrimitives.WriteUInt64LittleEndian(buffer.Slice(8, 8), _r);
 		BinaryPrimitives.WriteUInt32LittleEndian(buffer.Slice(16, 4), _c);
+		
+		_r.CopyTo(buffer.Slice(8, 8));
 
 		using ( IncrementalHash hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA512) )
 		{
@@ -129,26 +130,17 @@ public readonly struct Cuid2
 		return c > 13 ? char.ToLowerInvariant((char) ( 'a' + c )) : (char) ( 'a' + c );
 	}
 
-	private static byte[] GenerateSalt()
-	{
-		Span<byte> result = stackalloc byte[8];
-
-		RandomNumberGenerator.Fill(result);
-
-		if ( BitConverter.IsLittleEndian )
-		{
-			result.Reverse();
-		}
-
-		return result.ToArray();
-	}
-
-	private static ulong GenerateSecureRandom()
+	private static byte[] GenerateSecureRandom()
 	{
 		Span<byte> bytes = stackalloc byte[8];
 		RandomNumberGenerator.Fill(bytes);
 
-		return BinaryPrimitives.ReadUInt64LittleEndian(bytes);
+		if ( BitConverter.IsLittleEndian )
+		{
+			bytes.Reverse();
+		}
+
+		return bytes.ToArray();
 	}
 
 	private static class Context
