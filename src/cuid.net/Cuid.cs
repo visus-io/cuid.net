@@ -2,6 +2,7 @@
 
 using System.Buffers.Binary;
 using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.Metrics;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -33,8 +34,6 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 	private const string Prefix = "c";
 
 	private const int ValueLength = 25;
-
-	private static ulong _synchronizedCounter;
 
 	private readonly ulong _c;
 
@@ -70,9 +69,9 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 	{
 		CuidResult result = new()
 		{
-			_c = SafeCounter(),
+			_c = Counter.Instance.Value,
 			_f = Context.Fingerprint,
-			_r = Random(),
+			_r = BinaryPrimitives.ReadUInt64LittleEndian(Utils.GenerateSecureRandom(8)),
 			_t = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
 		};
 
@@ -291,7 +290,6 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 
 			buffer._f.WriteTo(ref dest);
 
-
 			Encode(buffer._r)
 				.TrimPad(BlockSize * 2)
 				.WriteTo(ref dest);
@@ -333,26 +331,7 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 
 		return true;
 	}
-
-	private static ulong Random()
-	{
-		Span<byte> bytes = stackalloc byte[16];
-		Context.InsecureRandomSource.NextBytes(bytes);
-
-		ulong item = BinaryPrimitives.ReadUInt64LittleEndian(bytes);
-		item *= Context.DiscreteValues;
-
-		return item;
-	}
-
-	private static ulong SafeCounter()
-	{
-		_synchronizedCounter = _synchronizedCounter < Context.DiscreteValues ? _synchronizedCounter : 0;
-		_synchronizedCounter++;
-
-		return _synchronizedCounter - 1;
-	}
-
+	
 	private static bool TryParseCuid(ReadOnlySpan<char> cuidString, bool throwException, ref CuidResult result)
 	{
 		cuidString = cuidString.Trim();
@@ -431,11 +410,7 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 
 	private static class Context
 	{
-		public static readonly ulong DiscreteValues = (ulong) Math.Pow(Base, BlockSize);
-
 		public static readonly string Fingerprint = GenerateFingerprint();
-
-		public static readonly Random InsecureRandomSource = new();
 
 		private static string GenerateFingerprint()
 		{
@@ -445,12 +420,12 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 				machineName = Environment.MachineName;
 				if ( string.IsNullOrWhiteSpace(machineName) )
 				{
-					machineName = GenerateMachineName();
+					machineName = Utils.GenerateMachineName();
 				}
 			}
 			catch ( InvalidOperationException )
 			{
-				machineName = GenerateMachineName();
+				machineName = Utils.GenerateMachineName();
 			}
 
 			int processIdentifier = Environment.ProcessId;
@@ -464,13 +439,27 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 				machineIdentifier.ToString(CultureInfo.InvariantCulture).TrimPad(2).WriteTo(ref dest);
 			});
 		}
+	}
 
-		private static string GenerateMachineName()
+	private sealed class Counter
+	{
+		// ReSharper disable once InconsistentNaming
+		private static readonly Lazy<Counter> _counter = new(() => new Counter());
+		private static readonly ulong DiscreteValues = (ulong) Math.Pow(36, 4);
+
+		private volatile uint _value;
+		
+		public static Counter Instance => _counter.Value;
+
+		public uint Value
 		{
-			Span<byte> bytes = new byte[24];
-			BinaryPrimitives.WriteUInt64LittleEndian(bytes, (ulong) InsecureRandomSource.NextInt64());
+			get
+			{
+				_value = _value < DiscreteValues ? _value : 0;
+				Interlocked.Increment(ref _value);
 
-			return Convert.ToHexString(bytes).ToUpperInvariant()[..15];
+				return _value;
+			}
 		}
 	}
 }

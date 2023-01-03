@@ -54,11 +54,11 @@ public readonly struct Cuid2
 				string.Format(Resources.Resources.Arg_Cuid2IntCtor, "4", "32"));
 		}
 
-		_p = GeneratePrefix();
-		_s = GenerateSecureRandom(32); // salt
+		_p = Utils.GenerateCharacterPrefix();
+		_s = Utils.GenerateSecureRandom(32); // salt
 
 		_t = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-		_r = GenerateSecureRandom(32);
+		_r = Utils.GenerateSecureRandom(32);
 		_f = Context.Fingerprint;
 
 		_maxLength = maxLength;
@@ -122,27 +122,7 @@ public readonly struct Cuid2
 
 		return new string(buffer.Slice(i, length - i));
 	}
-
-	private static char GeneratePrefix()
-	{
-		int c = Context.InsecureRandomSource.Next(26);
-
-		return c > 13 ? char.ToLowerInvariant((char) ( 'a' + c )) : (char) ( 'a' + c );
-	}
-
-	private static byte[] GenerateSecureRandom(int length)
-	{
-		Span<byte> bytes = stackalloc byte[length];
-		RandomNumberGenerator.Fill(bytes);
-
-		if ( BitConverter.IsLittleEndian )
-		{
-			bytes.Reverse();
-		}
-
-		return bytes.ToArray();
-	}
-
+	
 	private static class Context
 	{
 		public static readonly double BitsPerDigit = Math.Log(36, 2);
@@ -150,8 +130,6 @@ public readonly struct Cuid2
 		public const int ByteBitCount = sizeof(byte) * 8;
 
 		public static readonly byte[] Fingerprint = HardwareIdentity.Generate();
-
-		public static readonly Random InsecureRandomSource = new();
 
 		public static readonly BigInteger Radix = new(36);
 	}
