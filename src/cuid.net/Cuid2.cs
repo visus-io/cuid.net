@@ -55,10 +55,10 @@ public readonly struct Cuid2
 		}
 
 		_p = GeneratePrefix();
-		_s = GenerateSecureRandom(); // salt
+		_s = GenerateSecureRandom(32); // salt
 
 		_t = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-		_r = GenerateSecureRandom();
+		_r = GenerateSecureRandom(32);
 		_f = Context.Fingerprint;
 
 		_maxLength = maxLength;
@@ -73,13 +73,13 @@ public readonly struct Cuid2
 		int bytesWritten;
 		bool success;
 
-		Span<byte> buffer = stackalloc byte[20];
+		Span<byte> buffer = stackalloc byte[48];
 		Span<byte> result = stackalloc byte[64];
 
 		BinaryPrimitives.WriteInt64LittleEndian(buffer[..8], _t);
-		BinaryPrimitives.WriteUInt32LittleEndian(buffer.Slice(16, 4), _c);
+		BinaryPrimitives.WriteUInt32LittleEndian(buffer.Slice(40, 4), _c);
 		
-		_r.CopyTo(buffer.Slice(8, 8));
+		_r.CopyTo(buffer.Slice(8, 32));
 
 		using ( IncrementalHash hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA512) )
 		{
@@ -130,9 +130,9 @@ public readonly struct Cuid2
 		return c > 13 ? char.ToLowerInvariant((char) ( 'a' + c )) : (char) ( 'a' + c );
 	}
 
-	private static byte[] GenerateSecureRandom()
+	private static byte[] GenerateSecureRandom(int length)
 	{
-		Span<byte> bytes = stackalloc byte[8];
+		Span<byte> bytes = stackalloc byte[length];
 		RandomNumberGenerator.Fill(bytes);
 
 		if ( BitConverter.IsLittleEndian )
