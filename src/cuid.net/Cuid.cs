@@ -2,7 +2,6 @@
 
 using System.Buffers.Binary;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -71,7 +70,7 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 		CuidResult result = new()
 		{
 			_c = Counter.Instance.Value,
-			_f = Context.Fingerprint,
+			_f = Context.IdentityFingerprint,
 			_r = BinaryPrimitives.ReadUInt64LittleEndian(Utils.GenerateSecureRandom(8)),
 			_t = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
 		};
@@ -411,11 +410,11 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 
 	private static class Context
 	{
-		public static readonly string Fingerprint = GenerateFingerprint();
+		public static readonly string IdentityFingerprint = GenerateFingerprint();
 
 		private static string GenerateFingerprint()
 		{
-			byte[] identity = Xaevik.Cuid.Fingerprint.Generate(FingerprintVersion.One);
+			byte[] identity = Fingerprint.Generate(FingerprintVersion.One);
 
 			return Encoding.UTF8.GetString(identity);
 		}

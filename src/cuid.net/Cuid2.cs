@@ -59,7 +59,7 @@ public readonly struct Cuid2
 
 		_t = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 		_r = Utils.GenerateSecureRandom(32);
-		_f = Fingerprint.Generate();
+		_f = Context.IdentityFingerprint;
 
 		_maxLength = maxLength;
 	}
@@ -128,6 +128,8 @@ public readonly struct Cuid2
 		public const int ByteBitCount = sizeof(byte) * 8;
 
 		public static readonly BigInteger Radix = new(36);
+		
+		public static byte[] IdentityFingerprint = Fingerprint.Generate();
 	}
 
 	private sealed class Counter
