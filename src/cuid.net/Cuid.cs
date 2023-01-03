@@ -2,14 +2,15 @@
 
 using System.Buffers.Binary;
 using System.Diagnostics.CodeAnalysis;
-using System.Diagnostics.Metrics;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.Json.Serialization;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
+using Abstractions;
 using Extensions;
 using Serialization.Json.Converters;
 
@@ -331,7 +332,7 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 
 		return true;
 	}
-	
+
 	private static bool TryParseCuid(ReadOnlySpan<char> cuidString, bool throwException, ref CuidResult result)
 	{
 		cuidString = cuidString.Trim();
@@ -414,30 +415,9 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 
 		private static string GenerateFingerprint()
 		{
-			string machineName;
-			try
-			{
-				machineName = Environment.MachineName;
-				if ( string.IsNullOrWhiteSpace(machineName) )
-				{
-					machineName = Utils.GenerateMachineName();
-				}
-			}
-			catch ( InvalidOperationException )
-			{
-				machineName = Utils.GenerateMachineName();
-			}
+			byte[] identity = SystemIdentity.Generate(IdentityVersion.One);
 
-			int processIdentifier = Environment.ProcessId;
-
-			int machineIdentifier = machineName.Length + Base;
-			machineIdentifier = machineName.Aggregate(machineIdentifier, (i, c) => i + c);
-
-			return string.Create(4, ( processIdentifier, machineIdentifier ), (dest, _) =>
-			{
-				processIdentifier.ToString(CultureInfo.InvariantCulture).TrimPad(2).WriteTo(ref dest);
-				machineIdentifier.ToString(CultureInfo.InvariantCulture).TrimPad(2).WriteTo(ref dest);
-			});
+			return Encoding.UTF8.GetString(identity);
 		}
 	}
 
@@ -448,7 +428,7 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 		private static readonly ulong DiscreteValues = (ulong) Math.Pow(36, 4);
 
 		private volatile uint _value;
-		
+
 		public static Counter Instance => _counter.Value;
 
 		public uint Value

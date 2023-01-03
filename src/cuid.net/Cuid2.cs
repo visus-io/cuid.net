@@ -59,7 +59,7 @@ public readonly struct Cuid2
 
 		_t = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 		_r = Utils.GenerateSecureRandom(32);
-		_f = Context.Fingerprint;
+		_f = SystemIdentity.Generate();
 
 		_maxLength = maxLength;
 	}
@@ -78,13 +78,11 @@ public readonly struct Cuid2
 
 		BinaryPrimitives.WriteInt64LittleEndian(buffer[..8], _t);
 		BinaryPrimitives.WriteUInt32LittleEndian(buffer.Slice(40, 4), _c);
-		
+
 		_r.CopyTo(buffer.Slice(8, 32));
 
 		using ( IncrementalHash hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA512) )
 		{
-			//var x = buffer.Length + _f.Length + salt.Length;
-
 			hash.AppendData(buffer);
 			hash.AppendData(_f);
 			hash.AppendData(_s);
@@ -122,14 +120,12 @@ public readonly struct Cuid2
 
 		return new string(buffer.Slice(i, length - i));
 	}
-	
+
 	private static class Context
 	{
 		public static readonly double BitsPerDigit = Math.Log(36, 2);
 
 		public const int ByteBitCount = sizeof(byte) * 8;
-
-		public static readonly byte[] Fingerprint = HardwareIdentity.Generate();
 
 		public static readonly BigInteger Radix = new(36);
 	}

@@ -14,11 +14,22 @@ internal static class Utils
 		return c > 13 ? char.ToLowerInvariant((char) ( 'a' + c )) : (char) ( 'a' + c );
 	}
 
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	internal static string GenerateMachineName()
+	internal static byte[] GenerateInsecureRandom(int length)
 	{
-		byte[] bytes = GenerateInsecureRandom(24);
-		return Convert.ToHexString(bytes).ToUpperInvariant()[..15];
+		if ( length <= 0 )
+		{
+			return Array.Empty<byte>();
+		}
+
+		Span<byte> bytes = stackalloc byte[length];
+		Random.NextBytes(bytes);
+
+		if ( BitConverter.IsLittleEndian )
+		{
+			bytes.Reverse();
+		}
+
+		return bytes.ToArray();
 	}
 
 	internal static byte[] GenerateSecureRandom(int length)
@@ -30,24 +41,6 @@ internal static class Utils
 
 		Span<byte> bytes = stackalloc byte[length];
 		RandomNumberGenerator.Fill(bytes);
-
-		if ( BitConverter.IsLittleEndian )
-		{
-			bytes.Reverse();
-		}
-
-		return bytes.ToArray();
-	}
-
-	private static byte[] GenerateInsecureRandom(int length)
-	{
-		if ( length <= 0 )
-		{
-			return Array.Empty<byte>();
-		}
-
-		Span<byte> bytes = stackalloc byte[length];
-		Random.NextBytes(bytes);
 
 		if ( BitConverter.IsLittleEndian )
 		{
