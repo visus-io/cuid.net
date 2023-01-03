@@ -94,7 +94,7 @@ public readonly struct Cuid2
 
 		if ( !success || bytesWritten != 64 )
 		{
-			throw new InvalidOperationException();
+			return string.Empty;
 		}
 
 		return _p + Encode(result)[..( _maxLength - 1 )];
