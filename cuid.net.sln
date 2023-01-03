@@ -22,7 +22,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		LICENSE = LICENSE
 		GitVersion.yaml = GitVersion.yaml
 		renovate.json = renovate.json
-		global.json = global.json
 		Directory.Build.props = Directory.Build.props
 		.gitignore = .gitignore
 	EndProjectSection
