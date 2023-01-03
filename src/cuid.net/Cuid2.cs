@@ -59,7 +59,7 @@ public readonly struct Cuid2
 
 		_t = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 		_r = Utils.GenerateSecureRandom(32);
-		_f = SystemIdentity.Generate();
+		_f = Fingerprint.Generate();
 
 		_maxLength = maxLength;
 	}
@@ -110,11 +110,11 @@ public readonly struct Cuid2
 
 		Span<char> buffer = stackalloc char[length];
 
-		BigInteger d = new(input);
+		BigInteger d = new(input, true);
 		while ( !d.IsZero )
 		{
 			d = BigInteger.DivRem(d, Context.Radix, out BigInteger r);
-			int c = (int) ( r > 0 ? r : -r );
+			int c = Math.Abs((int) r);
 			buffer[--i] = (char) ( c is >= 0 and <= 9 ? c + 48 : c + 'a' - 10 );
 		}
 

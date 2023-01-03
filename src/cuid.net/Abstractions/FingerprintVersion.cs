@@ -1,6 +1,6 @@
 ﻿namespace Xaevik.Cuid.Abstractions;
 
-internal enum IdentityVersion : byte
+internal enum FingerprintVersion : byte
 {
 	None = 0,
 	One = 1,

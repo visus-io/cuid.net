@@ -9,7 +9,6 @@ public class Cuid2Facts
 	public void Cuid2_Constructor()
 	{
 		var cuid = new Cuid2();
-		var cuid2 = new Cuid2();
 
 		var cuidString = cuid.ToString();
 

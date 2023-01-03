@@ -415,7 +415,7 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 
 		private static string GenerateFingerprint()
 		{
-			byte[] identity = SystemIdentity.Generate(IdentityVersion.One);
+			byte[] identity = Xaevik.Cuid.Fingerprint.Generate(FingerprintVersion.One);
 
 			return Encoding.UTF8.GetString(identity);
 		}

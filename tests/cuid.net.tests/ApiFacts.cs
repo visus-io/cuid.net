@@ -12,7 +12,13 @@ public class ApiFacts
 	[MethodImpl(MethodImplOptions.NoInlining)]
 	public async Task Cuid_NoBreakingChanges_Async()
 	{
-		var api = typeof(Cuid2).Assembly.GeneratePublicApi();
+		var api = typeof(Cuid2).Assembly.GeneratePublicApi(new ApiGeneratorOptions
+		{
+			ExcludeAttributes = new[]
+			{
+				"System.Runtime.Versioning.TargetFrameworkAttribute", "System.Reflection.AssemblyMetadataAttribute"
+			}
+		});
 
 		await Verify(api);
 	}
