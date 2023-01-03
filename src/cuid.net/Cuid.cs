@@ -467,10 +467,10 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 
 		private static string GenerateMachineName()
 		{
-			Span<byte> bytes = new byte[16];
+			Span<byte> bytes = new byte[24];
 			BinaryPrimitives.WriteUInt64LittleEndian(bytes, (ulong) InsecureRandomSource.NextInt64());
 
-			return Convert.ToBase64String(bytes).ToUpperInvariant()[..15];
+			return Convert.ToHexString(bytes).ToUpperInvariant()[..15];
 		}
 	}
 }
