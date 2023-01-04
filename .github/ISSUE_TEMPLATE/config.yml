@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: cuid.net Community Support
+    url: https://github.com/xaevik/cuid.net/discussions
+    about: For general discussions, questions, and answers
