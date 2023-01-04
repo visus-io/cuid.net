@@ -71,7 +71,7 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 		{
 			_c = Counter.Instance.Value,
 			_f = Context.IdentityFingerprint,
-			_r = BinaryPrimitives.ReadUInt64LittleEndian(Utils.GenerateSecureRandom(8)),
+			_r = BinaryPrimitives.ReadUInt64LittleEndian(Utils.GenerateInsecureRandom(8)),
 			_t = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
 		};
 

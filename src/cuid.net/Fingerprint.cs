@@ -23,7 +23,7 @@ internal static class Fingerprint
 		byte[] process = new byte[4];
 		byte[] thread = new byte[4];
 
-		Span<byte> result = stackalloc byte[system.Length + process.Length + thread.Length];
+		Span<byte> buffer = stackalloc byte[system.Length + process.Length + thread.Length];
 
 		if ( !BinaryPrimitives.TryWriteInt32LittleEndian(process, Environment.ProcessId) )
 		{
@@ -35,11 +35,27 @@ internal static class Fingerprint
 			RandomNumberGenerator.Fill(thread);
 		}
 
-		system.CopyTo(result[..system.Length]);
-		process.CopyTo(result.Slice(system.Length + 1, process.Length));
-		thread.CopyTo(result[^thread.Length..]);
+		system.CopyTo(buffer[..system.Length]);
+		process.CopyTo(buffer.Slice(system.Length + 1, process.Length));
+		thread.CopyTo(buffer[^thread.Length..]);
+
+		if ( buffer.Length > 32 )
+		{
+			return buffer[..32].ToArray();
+		}
+
+		int diff = 32 - buffer.Length;
+
+		Span<byte> result = stackalloc byte[buffer.Length + diff];
+		Span<byte> random = stackalloc byte[diff];
+
+		RandomNumberGenerator.Fill(random);
+
+		buffer.CopyTo(result[..buffer.Length]);
+		random.CopyTo(result[^diff..]);
 
 		return result.ToArray();
+
 	}
 
 	private static byte[] GenerateLegacyIdentity()
