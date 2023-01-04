@@ -44,13 +44,13 @@ CUIDv1 values are composed of several data points which are base 36 encoded.
 
 > clbvi4441000007ld63liebkf
 
-| segment  | source                                                       |
-| -------- | ------------------------------------------------------------ |
-| c        | CUIDv1 identifier                                            |
-| lbvi4441 | unix timestamp (in microseconds)                             |
-| 0000     | counter                                                      |
+| segment  | source                                                         |
+|----------|----------------------------------------------------------------|
+| c        | CUIDv1 identifier                                              |
+| lbvi4441 | unix timestamp (in microseconds)                               |
+| 0000     | counter                                                        |
 | 07ld     | client fingerprint (host process identifier + system hostname) |
-| 63liebkf | random data                                                  |
+| 63liebkf | random data                                                    |
 
 **Instantiation**
 
@@ -141,7 +141,7 @@ CUIDv2 values follow a different variable structure length than that of their pr
 - Session counter value from a weak random number generator with a unique seed fingerprint
 - Host fingerprint composed of 32 bytes of data containing non-confidential information and padded with cryptographically strong random data
 
-The information is then combined and a SHA-3 (SHA512) checksum is computed and then encoded into a base 36 encoded string.
+The information is then combined and a SHA-3 (SHA512) salted hash is computed and then encoded into a base 36 encoded string.
 
 **Instantiation**
 
