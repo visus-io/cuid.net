@@ -47,7 +47,9 @@ jobs:
       - name: Install .NET SDK
         uses: actions/setup-dotnet@v3
         with:
-          global-json-file: global.json          
+          dotnet-version: |
+            6.0.x
+            7.0.x
       - name: Install Tools
         run: |
           dotnet tool install --global dotnet-sonarscanner 
@@ -57,7 +59,7 @@ jobs:
         run: |
           dotnet-sonarscanner begin /k:"cuid.net" /o:"xaevik" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
             /d:sonar.host.url="https://sonarcloud.io" \
-            /d:sonar.cs.opencover.reportsPaths=${{ runner.temp }}/coverage.opencover.xml
+            /d:sonar.cs.opencover.reportsPaths=${{ runner.temp }}/coverage.opencover.*.xml
       - name: Build
         run: dotnet build -c release --no-restore 
       - name: Test

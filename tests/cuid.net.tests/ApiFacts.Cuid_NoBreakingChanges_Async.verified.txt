@@ -1,7 +1,6 @@
-﻿[assembly: System.Reflection.AssemblyMetadata("RepositoryUrl", "https://github.com/xaevik/cuid.net")]
-[assembly: System.Runtime.Versioning.TargetFramework(".NETCoreApp,Version=v6.0", FrameworkDisplayName="")]
-namespace Xaevik.Cuid
+﻿namespace Xaevik.Cuid
 {
+    [System.Obsolete("Cuid is deprecated and should not be used. Use Cuid2 instead.", DiagnosticId="XAELIB0001")]
     [System.Text.Json.Serialization.JsonConverter(typeof(Xaevik.Cuid.Serialization.Json.Converters.CuidConverter))]
     [System.Xml.Serialization.XmlRoot("cuid")]
     public readonly struct Cuid : System.IComparable, System.IComparable<Xaevik.Cuid.Cuid>, System.IEquatable<Xaevik.Cuid.Cuid>, System.Xml.Serialization.IXmlSerializable
@@ -25,6 +24,12 @@ namespace Xaevik.Cuid
         public static bool operator ==(Xaevik.Cuid.Cuid left, Xaevik.Cuid.Cuid right) { }
         public static bool operator >(Xaevik.Cuid.Cuid left, Xaevik.Cuid.Cuid right) { }
         public static bool operator >=(Xaevik.Cuid.Cuid left, Xaevik.Cuid.Cuid right) { }
+    }
+    public readonly struct Cuid2
+    {
+        public Cuid2() { }
+        public Cuid2(int maxLength) { }
+        public override string ToString() { }
     }
 }
 namespace Xaevik.Cuid.Serialization.Json.Converters

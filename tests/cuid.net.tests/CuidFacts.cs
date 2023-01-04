@@ -1,4 +1,5 @@
-﻿namespace Xaevik.Cuid.Tests;
+﻿#pragma warning disable XAELIB0001
+namespace Xaevik.Cuid.Tests;
 
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
