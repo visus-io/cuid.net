@@ -127,7 +127,7 @@ using (TextReader sr = new StringReader(xml))
 
 #### CUIDv2
 
-`Cuid2` is an immutable structure that generates a cryptographically strong identity. `Cuid` and is recommended for use over `Cuid` where security context is important. The length of the value can also be adjusted to be anywhere from 4 characters to 32 characters in length, the default is 24.
+`Cuid2` is an immutable structure that generates a cryptographically strong identity. `Cuid2` and is recommended for use over `Cuid` where security context is important. The length of the value can also be adjusted to be anywhere from 4 characters to 32 characters in length, the default is 24.
 
 > :memo: `Cuid2` does not implement `IComparable`, `IComparable<T>`, and `IEquatable<T>` nor does it support instantiation from string or serialization.
 
