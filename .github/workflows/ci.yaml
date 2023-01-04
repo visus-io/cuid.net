@@ -59,7 +59,7 @@ jobs:
         run: |
           dotnet-sonarscanner begin /k:"cuid.net" /o:"xaevik" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
             /d:sonar.host.url="https://sonarcloud.io" \
-            /d:sonar.cs.opencover.reportsPaths=${{ runner.temp }}/coverage.opencover.xml
+            /d:sonar.cs.opencover.reportsPaths=${{ runner.temp }}/coverage.opencover.*.xml
       - name: Build
         run: dotnet build -c release --no-restore 
       - name: Test

@@ -127,9 +127,9 @@ public readonly struct Cuid2
 
 		public const int ByteBitCount = sizeof(byte) * 8;
 
+		public static readonly byte[] IdentityFingerprint = Fingerprint.Generate();
+
 		public static readonly BigInteger Radix = new(36);
-		
-		public static byte[] IdentityFingerprint = Fingerprint.Generate();
 	}
 
 	private sealed class Counter
