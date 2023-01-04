@@ -21,6 +21,12 @@ You can install cuid.net as a [nuget package](https://www.nuget.org/packages/cui
 dotnet add package cuid.net 
 ```
 
+If you want support for CUIDv2, you can currently install the latest prerelease package:
+
+```shell
+dotnet add package cuid.net --prerelease
+```
+
 ### Implementations
 
 cuid.net supports the construction and use of both CUIDv1 (deprecated) and CUIDv2 instances. 
