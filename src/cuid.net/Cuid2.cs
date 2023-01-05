@@ -4,6 +4,7 @@ using System.Buffers.Binary;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
+using Org.BouncyCastle.Crypto.Digests;
 
 /// <summary>
 ///     Represents a collision resistant unique identifier (CUID).
@@ -70,9 +71,6 @@ public readonly struct Cuid2
 	/// <returns>The value of this <see cref="Cuid2" />.</returns>
 	public override string ToString()
 	{
-		int bytesWritten;
-		bool success;
-
 		Span<byte> buffer = stackalloc byte[48];
 		Span<byte> result = stackalloc byte[64];
 
@@ -81,16 +79,14 @@ public readonly struct Cuid2
 
 		_r.CopyTo(buffer.Slice(8, 32));
 
-		using ( IncrementalHash hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA512) )
-		{
-			hash.AppendData(buffer);
-			hash.AppendData(_f);
-			hash.AppendData(_s);
+		Sha3Digest digest = new(512);
+		digest.BlockUpdate(buffer);
+		digest.BlockUpdate(_f);
+		digest.BlockUpdate(_s);
 
-			success = hash.TryGetHashAndReset(result, out bytesWritten);
-		}
-
-		if ( !success || bytesWritten != 64 )
+		int bytesWritten = digest.DoFinal(result);
+		
+		if ( bytesWritten != 64 )
 		{
 			return string.Empty;
 		}
