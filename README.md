@@ -2,7 +2,7 @@
 
 ![GitHub](https://img.shields.io/github/license/xaevik/cuid.net?logo=github&style=flat) [![Continuous Integration](https://github.com/xaevik/cuid.net/actions/workflows/ci.yaml/badge.svg)](https://github.com/xaevik/cuid.net/actions/workflows/ci.yaml) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=cuid.net&metric=alert_status)](https://sonarcloud.io/summary/overall?id=cuid.net) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=cuid.net&metric=coverage)](https://sonarcloud.io/summary/overall?id=cuid.net) [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=cuid.net&metric=security_rating)](https://sonarcloud.io/summary/overall?id=cuid.net) 
 
-[![Nuget](https://img.shields.io/nuget/v/cuid.net)](https://www.nuget.org/packages/cuid.net/) ![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/cuid.net) ![Nuget](https://img.shields.io/nuget/dt/cuid.net)
+[![Nuget](https://img.shields.io/nuget/v/cuid.net)](https://www.nuget.org/packages/cuid.net/) [![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/cuid.net)](https://www.nuget.org/packages/cuid.net/) ![Nuget](https://img.shields.io/nuget/dt/cuid.net)
 
 A .NET implementation of collision-resistant ids. You can read more about CUIDs from the [official project website](https://github.com/paralleldrive/cuid2).
 
@@ -21,12 +21,6 @@ You can install cuid.net as a [nuget package](https://www.nuget.org/packages/cui
 dotnet add package cuid.net 
 ```
 
-If you want support for CUIDv2, you can currently install the latest prerelease package:
-
-```shell
-dotnet add package cuid.net --prerelease
-```
-
 ### Implementations
 
 cuid.net supports the construction and use of both CUIDv1 (deprecated) and CUIDv2 instances. 
@@ -34,15 +28,13 @@ cuid.net supports the construction and use of both CUIDv1 (deprecated) and CUIDv
 ---
 
 #### CUIDv1
-> :exclamation:
-> CUIDv1 has been deprecated for security reasons.
+> :exclamation: CUIDv1 has been deprecated for security reasons. Efforts should be made towards migrating to `Cuid2`.
+>
+> :warning: It is possible to derive with a degree of certainty when and where a CUIDv1 has been created. 
+>
+> :memo: Usage of CUIDv1 will emit the compiler warning `XAELIB0001`. 
 
 Designed and optimized for horizontal scaling and binary searches, `Cuid` is an immutable structure that can be a potential alternative to `Guid` for situations where a clean "string safe" unique and sortable identifier is needed and where security is not of the upmost concern.
-
-> :warning:
-> It is fully possible to derive when and where a CUIDv1 has been created. 
-> 
-> As such, they should not be used in a security sensitive context such as device or user identities. If you need a cryptographically secure identifier, [generate a CUIDv2](#CUIDv2) instead via `Cuid2`.
 
 **Structure**
 
@@ -50,13 +42,13 @@ CUIDv1 values are composed of several data points which are base 36 encoded.
 
 > clbvi4441000007ld63liebkf
 
-| segment  | source                                                         |
-|----------|----------------------------------------------------------------|
-| c        | CUIDv1 identifier                                              |
-| lbvi4441 | unix timestamp (in microseconds)                               |
-| 0000     | counter                                                        |
-| 07ld     | client fingerprint (host process identifier + system hostname) |
-| 63liebkf | random data                                                    |
+| Segment  | Source                                                       |
+| -------- | ------------------------------------------------------------ |
+| c        | CUIDv1 identifier                                            |
+| lbvi4441 | Unix timestamp (in milliseconds)                             |
+| 0000     | Session counter                                              |
+| 07ld     | Client fingerprint (host process identifier + system hostname) |
+| 63liebkf | Random data                                                  |
 
 **Instantiation**
 
@@ -116,8 +108,6 @@ using (StringWriter sw = new())
     Console.WriteLine(sw); // <?xml version="1.0" encoding="utf-16"?><cuid>clbvi4441000007ld63liebkf</cuid>
 }
 
-// ====================================================================================================
-
 // deserialize
 
 string xml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><cuid>clbvi4441000007ld63liebkf</cuid>";
@@ -133,21 +123,23 @@ using (TextReader sr = new StringReader(xml))
 
 #### CUIDv2
 
-`Cuid2` is an immutable structure that generates a cryptographically strong identity. `Cuid2` and is recommended for use over `Cuid` where security context is important. The length of the value can also be adjusted to be anywhere from 4 characters to 32 characters in length, the default is 24.
+> :memo: `Cuid2` does not implement `IComparable`, `IComparable<T>`, or `IEquatable<T>`.
 
-> :memo: `Cuid2` does not implement `IComparable`, `IComparable<T>`, and `IEquatable<T>` nor does it support instantiation from string or serialization.
+`Cuid2` is an immutable structure that generates a cryptographically strong identity. `Cuid2` and is recommended for use over `Cuid` where security context is important. The length of the value can also be adjusted to be anywhere from 4 characters to 32 characters in length, the default is 24.
 
 **Structure**
 
 CUIDv2 values follow a different variable structure length than that of their predecessor. As such, there is no predefined pattern of how they will look once generated. However, with that said, they do use the following data sources:
 
-- An alphabetic (a-z) letter randomly chosen as the prefix
-- Unix Timestamp
-- 32 bytes of random data from a cryptographically strong source
-- Session counter value from a weak random number generator with a unique seed fingerprint
-- Host fingerprint composed of 32 bytes of data containing non-confidential information and padded with cryptographically strong random data
+| Segments                                                     |
+| ------------------------------------------------------------ |
+| Single character (a-z) randomly chosen as the prefix         |
+| Unix timestamp (in milliseconds)                             |
+| 32-byte array containing cryptographically strong random data |
+| Session counter value from a cryptographically weak random number generator |
+| 32-byte array containing non-sensitive host information and padding with cryptographically strong random data |
 
-The information is then combined and a SHA-3 (SHA512) salted hash is computed and then encoded into a base 36 string.
+The information is then combined and a SHA-512 (SHA-3 Keccak) salted hash is computed and then encoded into a base 36 string.
 
 **Instantiation**
 
