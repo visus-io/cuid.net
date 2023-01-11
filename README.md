@@ -6,6 +6,8 @@
 
 A .NET implementation of collision-resistant ids. You can read more about CUIDs from the [official project website](https://github.com/paralleldrive/cuid2).
 
+A command-line utility, [cuidgen](https://github.com/xaevik/cuidgen/), is also available that implements the cuid.net library for those wishing to leverage CUIDs in scripting environments.
+
 ## Table of Contents
 - [Getting Started](#getting-started)
 - [Implementations](#implementations)
