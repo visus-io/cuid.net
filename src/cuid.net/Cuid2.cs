@@ -3,7 +3,6 @@
 using System.Buffers.Binary;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using System.Security.Cryptography;
 using Org.BouncyCastle.Crypto.Digests;
 
 /// <summary>
@@ -56,10 +55,10 @@ public readonly struct Cuid2
 		}
 
 		_p = Utils.GenerateCharacterPrefix();
-		_s = Utils.GenerateSecureRandom(32); // salt
+		_s = Utils.GenerateRandom(32); // salt
 
 		_t = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-		_r = Utils.GenerateSecureRandom(32);
+		_r = Utils.GenerateRandom(32);
 		_f = Context.IdentityFingerprint;
 
 		_maxLength = maxLength;
@@ -85,7 +84,7 @@ public readonly struct Cuid2
 		digest.BlockUpdate(_s);
 
 		int bytesWritten = digest.DoFinal(result);
-		
+
 		if ( bytesWritten != 64 )
 		{
 			return string.Empty;
