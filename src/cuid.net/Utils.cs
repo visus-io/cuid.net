@@ -14,7 +14,7 @@ internal static class Utils
 		return c > 13 ? char.ToLowerInvariant((char) ( 'a' + c )) : (char) ( 'a' + c );
 	}
 
-	internal static byte[] GenerateInsecureRandom(int length)
+	internal static byte[] GenerateRandom(int length, bool secure = true)
 	{
 		if ( length <= 0 )
 		{
@@ -22,25 +22,20 @@ internal static class Utils
 		}
 
 		Span<byte> bytes = stackalloc byte[length];
-		Random.NextBytes(bytes);
 
-		if ( BitConverter.IsLittleEndian )
+		if ( !secure )
 		{
-			bytes.Reverse();
+			Random.NextBytes(bytes);
+
+			if ( BitConverter.IsLittleEndian )
+			{
+				bytes.Reverse();
+			}
 		}
-
-		return bytes.ToArray();
-	}
-
-	internal static byte[] GenerateSecureRandom(int length)
-	{
-		if ( length <= 0 )
+		else
 		{
-			return Array.Empty<byte>();
+			RandomNumberGenerator.Fill(bytes);
 		}
-
-		Span<byte> bytes = stackalloc byte[length];
-		RandomNumberGenerator.Fill(bytes);
 
 		if ( BitConverter.IsLittleEndian )
 		{

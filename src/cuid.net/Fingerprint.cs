@@ -77,7 +77,7 @@ internal static class Fingerprint
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	private static string GenerateSystemName()
 	{
-		byte[] bytes = Utils.GenerateInsecureRandom(24);
+		byte[] bytes = Utils.GenerateRandom(24, false);
 		return Convert.ToHexString(bytes).ToUpperInvariant()[..15];
 	}
 
