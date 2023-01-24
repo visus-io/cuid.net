@@ -3,7 +3,6 @@
 using System.Buffers.Binary;
 using System.Globalization;
 using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
 using System.Text;
 using Abstractions;
 using Extensions;
@@ -19,43 +18,29 @@ internal static class Fingerprint
 
 	private static byte[] GenerateIdentity()
 	{
+		byte[] random = Utils.GenerateRandom(8, false);
 		byte[] system = Encoding.UTF8.GetBytes(RetrieveSystemName());
 		byte[] process = new byte[4];
 		byte[] thread = new byte[4];
 
-		Span<byte> buffer = stackalloc byte[system.Length + process.Length + thread.Length];
+		Span<byte> buffer = stackalloc byte[random.Length + system.Length + process.Length + thread.Length];
 
 		if ( !BinaryPrimitives.TryWriteInt32LittleEndian(process, Environment.ProcessId) )
 		{
-			RandomNumberGenerator.Fill(process);
+			Array.Copy(Utils.GenerateRandom(4, false), process, 4);
 		}
 
 		if ( !BinaryPrimitives.TryWriteInt32LittleEndian(thread, Environment.CurrentManagedThreadId) )
 		{
-			RandomNumberGenerator.Fill(thread);
+			Array.Copy(Utils.GenerateRandom(4, false), thread, 4);
 		}
 
-		system.CopyTo(buffer[..system.Length]);
-		process.CopyTo(buffer.Slice(system.Length + 1, process.Length));
+		random.CopyTo(buffer[..random.Length]);
+		system.CopyTo(buffer.Slice(random.Length + 1, system.Length));
+		process.CopyTo(buffer.Slice(random.Length + system.Length + 2, process.Length));
 		thread.CopyTo(buffer[^thread.Length..]);
 
-		if ( buffer.Length > 32 )
-		{
-			return buffer[..32].ToArray();
-		}
-
-		int diff = 32 - buffer.Length;
-
-		Span<byte> result = stackalloc byte[buffer.Length + diff];
-		Span<byte> random = stackalloc byte[diff];
-
-		RandomNumberGenerator.Fill(random);
-
-		buffer.CopyTo(result[..buffer.Length]);
-		random.CopyTo(result[^diff..]);
-
-		return result.ToArray();
-
+		return buffer.ToArray();
 	}
 
 	private static byte[] GenerateLegacyIdentity()

@@ -55,10 +55,10 @@ public readonly struct Cuid2
 		}
 
 		_p = Utils.GenerateCharacterPrefix();
-		_s = Utils.GenerateRandom(32); // salt
+		_s = Utils.GenerateRandom(maxLength); // salt
 
 		_t = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-		_r = Utils.GenerateRandom(32);
+		_r = Utils.GenerateRandom(maxLength);
 		_f = Context.IdentityFingerprint;
 
 		_maxLength = maxLength;
