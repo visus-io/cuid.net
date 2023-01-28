@@ -3,6 +3,7 @@
 using System.Buffers.Binary;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using Org.BouncyCastle.Crypto.Digests;
 
 /// <summary>
@@ -22,8 +23,6 @@ public readonly struct Cuid2
 	private readonly char _p;
 
 	private readonly byte[] _r;
-
-	private readonly byte[] _s;
 
 	private readonly long _t;
 
@@ -54,14 +53,12 @@ public readonly struct Cuid2
 				string.Format(Resources.Resources.Arg_Cuid2IntCtor, "4", "32"));
 		}
 
-		_p = Utils.GenerateCharacterPrefix();
-		_s = Utils.GenerateRandom(maxLength); // salt
-
-		_t = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-		_r = Utils.GenerateRandom(maxLength);
-		_f = Context.IdentityFingerprint;
-
 		_maxLength = maxLength;
+
+		_f = Context.IdentityFingerprint;
+		_p = Utils.GenerateCharacterPrefix();
+		_r = Utils.GenerateRandom(maxLength * 2);
+		_t = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 	}
 
 	/// <summary>
@@ -70,18 +67,17 @@ public readonly struct Cuid2
 	/// <returns>The value of this <see cref="Cuid2" />.</returns>
 	public override string ToString()
 	{
-		Span<byte> buffer = stackalloc byte[48];
+		Span<byte> buffer = stackalloc byte[16];
 		Span<byte> result = stackalloc byte[64];
 
-		BinaryPrimitives.WriteInt64LittleEndian(buffer[..8], _t);
-		BinaryPrimitives.WriteUInt32LittleEndian(buffer.Slice(40, 4), _c);
-
-		_r.CopyTo(buffer.Slice(8, 32));
+		BinaryPrimitives.WriteInt64LittleEndian(buffer, _t);
+		BinaryPrimitives.WriteUInt32LittleEndian(buffer[..8], _c);
 
 		Sha3Digest digest = new(512);
+
 		digest.BlockUpdate(buffer);
 		digest.BlockUpdate(_f);
-		digest.BlockUpdate(_s);
+		digest.BlockUpdate(_r);
 
 		int bytesWritten = digest.DoFinal(result);
 
@@ -136,8 +132,7 @@ public readonly struct Cuid2
 
 		private Counter()
 		{
-			Random random = new(Guid.NewGuid().GetHashCode());
-			_value = (uint) random.Next() * 2057;
+			_value = (uint) RandomNumberGenerator.GetInt32(Guid.NewGuid().GetHashCode());
 		}
 
 		public static Counter Instance => _counter.Value;
