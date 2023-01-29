@@ -101,7 +101,7 @@ public readonly struct Cuid2
 
 		Span<char> buffer = stackalloc char[length];
 
-		BigInteger d = new(input, true);
+		BigInteger d = new(input);
 		while ( !d.IsZero )
 		{
 			d = BigInteger.DivRem(d, Context.Radix, out BigInteger r);
@@ -116,7 +116,7 @@ public readonly struct Cuid2
 	{
 		public static readonly double BitsPerDigit = Math.Log(36, 2);
 
-		public const int ByteBitCount = sizeof(byte) * 8;
+		public const int ByteBitCount = 8;
 
 		public static readonly byte[] IdentityFingerprint = Fingerprint.Generate();
 
@@ -132,7 +132,7 @@ public readonly struct Cuid2
 
 		private Counter()
 		{
-			_value = (uint) RandomNumberGenerator.GetInt32(Guid.NewGuid().GetHashCode());
+			_value = BitConverter.ToUInt32(RandomNumberGenerator.GetBytes(sizeof(uint)));
 		}
 
 		public static Counter Instance => _counter.Value;
