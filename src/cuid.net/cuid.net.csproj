@@ -23,6 +23,7 @@
         <PackageProjectUrl>https://github.com/xaevik/cuid.net</PackageProjectUrl>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+        <PackageTags>cuid</PackageTags>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/xaevik/cuid.net</RepositoryUrl>
