@@ -25,11 +25,16 @@
         public static bool operator >(Xaevik.Cuid.Cuid left, Xaevik.Cuid.Cuid right) { }
         public static bool operator >=(Xaevik.Cuid.Cuid left, Xaevik.Cuid.Cuid right) { }
     }
-    public readonly struct Cuid2
+    public readonly struct Cuid2 : System.IEquatable<Xaevik.Cuid.Cuid2>
     {
         public Cuid2() { }
         public Cuid2(int maxLength) { }
+        public bool Equals(Xaevik.Cuid.Cuid2 other) { }
+        public override bool Equals(object? obj) { }
+        public override int GetHashCode() { }
         public override string ToString() { }
+        public static bool operator !=(Xaevik.Cuid.Cuid2 left, Xaevik.Cuid.Cuid2 right) { }
+        public static bool operator ==(Xaevik.Cuid.Cuid2 left, Xaevik.Cuid.Cuid2 right) { }
     }
 }
 namespace Xaevik.Cuid.Serialization.Json.Converters

@@ -9,7 +9,7 @@ using Org.BouncyCastle.Crypto.Digests;
 ///     Represents a collision resistant unique identifier (CUID).
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
-public readonly struct Cuid2
+public readonly struct Cuid2 : IEquatable<Cuid2>
 {
 	private const int DefaultLength = 24;
 
@@ -58,6 +58,46 @@ public readonly struct Cuid2
 		_p = Utils.GenerateCharacterPrefix();
 		_r = Utils.GenerateRandom(maxLength * 2);
 		_t = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+	}
+
+	/// <summary>
+	///     Indicates whether the values of two specified <see cref="Cuid2" /> objects are equal.
+	/// </summary>
+	/// <param name="left">The first object to compare.</param>
+	/// <param name="right">The second object to compare.</param>
+	/// <returns><c>true</c> if <c>left</c> and <c>right</c> are equal; otherwise, <c>false</c>.</returns>
+	public static bool operator ==(Cuid2 left, Cuid2 right)
+	{
+		return left.Equals(right);
+	}
+
+	/// <summary>
+	///     Indicates whether the values of two specified <see cref="Cuid2" /> objects are not equal.
+	/// </summary>
+	/// <param name="left">The first object to compare.</param>
+	/// <param name="right">The second object to compare.</param>
+	/// <returns><c>true</c> if <c>left</c> and <c>right</c> are not equal; otherwise, <c>false</c>.</returns>
+	public static bool operator !=(Cuid2 left, Cuid2 right)
+	{
+		return !left.Equals(right);
+	}
+
+	/// <inheritdoc />
+	public bool Equals(Cuid2 other)
+	{
+		return _c == other._c && _f.Equals(other._f) && _p == other._p && _r.Equals(other._r) && _t == other._t;
+	}
+
+	/// <inheritdoc />
+	public override bool Equals(object? obj)
+	{
+		return obj is Cuid2 other && Equals(other);
+	}
+
+	/// <inheritdoc />
+	public override int GetHashCode()
+	{
+		return HashCode.Combine(_c, _f, _p, _r, _t);
 	}
 
 	/// <summary>

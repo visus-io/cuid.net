@@ -60,7 +60,6 @@ public class CuidBenchmark
 [SimpleJob(RuntimeMoniker.Net70)]
 [GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)]
 [CategoriesColumn]
-[RPlotExporter]
 [SuppressMessage("Performance", "CA1822:Mark members as static")]
 [ExcludeFromCodeCoverage]
 public class Cuid2Benchmark
