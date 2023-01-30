@@ -26,9 +26,7 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 	///     A read-only instance of <see cref="Cuid" /> structure whose values are all zeros.
 	/// </summary>
 	public static readonly Cuid Empty;
-
-	private const int Base = 36;
-
+	
 	private const int BlockSize = 4;
 
 	private const string Prefix = "c";
@@ -282,43 +280,20 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 		{
 			Prefix.WriteTo(ref dest);
 
-			Encode((ulong) buffer._t).WriteTo(ref dest);
+			Utils.Encode((ulong) buffer._t).WriteTo(ref dest);
 
-			Encode(buffer._c)
+			Utils.Encode(buffer._c)
 				.TrimPad(BlockSize)
 				.WriteTo(ref dest);
 
 			buffer._f.WriteTo(ref dest);
 
-			Encode(buffer._r)
+			Utils.Encode(buffer._r)
 				.TrimPad(BlockSize * 2)
 				.WriteTo(ref dest);
 		});
 	}
-
-	private static ulong Decode(ReadOnlySpan<char> input)
-	{
-		return input.ToString()
-			.Select(s => s is >= '0' and <= '9' ? s - '0' : 10 + s - 'a')
-			.Aggregate((ulong) 0, (i, c) => ( i * Base ) + (uint) c);
-	}
-
-	private static string Encode(ulong value)
-	{
-		const int length = 32;
-		int i = length;
-		Span<char> buffer = stackalloc char[length];
-
-		do
-		{
-			ulong c = value % Base;
-			buffer[--i] = (char) ( c is >= 0 and <= 9 ? c + 48 : c + 'a' - 10 );
-			value /= Base;
-		} while ( value > 0 );
-
-		return new string(buffer.Slice(i, length - i));
-	}
-
+	
 	private static bool IsAlphaNum(ReadOnlySpan<char> input)
 	{
 		foreach ( char t in input )
@@ -350,10 +325,10 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 		ReadOnlySpan<char> fingerprint = cuidString[13..^8];
 		ReadOnlySpan<char> random = cuidString[^8..];
 
-		result._c = Decode(counter);
+		result._c = Utils.Decode(counter);
 		result._f = fingerprint.ToString();
-		result._r = Decode(random);
-		result._t = (long) Decode(timestamp);
+		result._r = Utils.Decode(random);
+		result._t = (long) Utils.Decode(timestamp);
 
 		return true;
 	}

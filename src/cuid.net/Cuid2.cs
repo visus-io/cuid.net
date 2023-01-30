@@ -1,7 +1,6 @@
 ﻿namespace Xaevik.Cuid;
 
 using System.Buffers.Binary;
-using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using Org.BouncyCastle.Crypto.Digests;
@@ -86,41 +85,12 @@ public readonly struct Cuid2
 			return string.Empty;
 		}
 
-		return _p + Encode(result)[..( _maxLength - 1 )];
-	}
-
-	private static string Encode(ReadOnlySpan<byte> input)
-	{
-		if ( input.IsEmpty )
-		{
-			return string.Empty;
-		}
-
-		int length = (int) Math.Ceiling(input.Length * Context.ByteBitCount / Context.BitsPerDigit);
-		int i = length;
-
-		Span<char> buffer = stackalloc char[length];
-
-		BigInteger d = new(input);
-		while ( !d.IsZero )
-		{
-			d = BigInteger.DivRem(d, Context.Radix, out BigInteger r);
-			int c = Math.Abs((int) r);
-			buffer[--i] = (char) ( c is >= 0 and <= 9 ? c + 48 : c + 'a' - 10 );
-		}
-
-		return new string(buffer.Slice(i, length - i));
+		return _p + Utils.Encode(result.ToArray())[..( _maxLength - 1 )];
 	}
 
 	private static class Context
 	{
-		public static readonly double BitsPerDigit = Math.Log(36, 2);
-
-		public const int ByteBitCount = 8;
-
 		public static readonly byte[] IdentityFingerprint = Fingerprint.Generate();
-
-		public static readonly BigInteger Radix = new(36);
 	}
 
 	private sealed class Counter
