@@ -1,12 +1,17 @@
 ﻿namespace Xaevik.Cuid;
 
-using System.Buffers.Binary;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
-using Extensions;
 
 internal static class Utils
 {
+	private static readonly double BitsPerDigit = Math.Log(36, 2);
+
+	private const int ByteBitCount = sizeof(byte) * 8;
+
+	private static readonly BigInteger Radix = new(36);
+
 	private static readonly Random Random = new();
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -17,27 +22,35 @@ internal static class Utils
 			.Aggregate((ulong) 0, (i, c) => ( i * 36 ) + (uint) c);
 	}
 
-	internal static string Encode(byte[] value)
+	internal static string Encode(ReadOnlySpan<byte> value)
 	{
-		if ( value.Length is 0 or > 64 )
+		if ( value.IsEmpty || value.Length > 64 )
 		{
 			return string.Empty;
 		}
 
-		return string.Create(128, value, (dest, buffer) =>
+		int length = (int) Math.Ceiling(value.Length * ByteBitCount / BitsPerDigit);
+		int i = length;
+		Span<char> buffer = stackalloc char[length];
+
+		BigInteger d = new(value);
+		while ( !d.IsZero )
 		{
-			Encode(BinaryPrimitives.ReadUInt64LittleEndian(buffer.AsSpan()[..8])).WriteTo(ref dest);
-			Encode(BinaryPrimitives.ReadUInt64LittleEndian(buffer.AsSpan()[8..16])).WriteTo(ref dest);
-			Encode(BinaryPrimitives.ReadUInt64LittleEndian(buffer.AsSpan()[16..24])).WriteTo(ref dest);
-			Encode(BinaryPrimitives.ReadUInt64LittleEndian(buffer.AsSpan()[24..32])).WriteTo(ref dest);
-			Encode(BinaryPrimitives.ReadUInt64LittleEndian(buffer.AsSpan()[32..40])).WriteTo(ref dest);
-			Encode(BinaryPrimitives.ReadUInt64LittleEndian(buffer.AsSpan()[40..48])).WriteTo(ref dest);
-			Encode(BinaryPrimitives.ReadUInt64LittleEndian(buffer.AsSpan()[48..56])).WriteTo(ref dest);
-			Encode(BinaryPrimitives.ReadUInt64LittleEndian(buffer.AsSpan()[^56..])).WriteTo(ref dest);
-		});
+			d = BigInteger.DivRem(d, Radix, out BigInteger r);
+			int c = (int) BigInteger.Abs(r);
+			buffer[--i] = (char) ( c is >= 0 and <= 9 ? c + 48 : c + 'a' - 10 );
+		}
+
+		return new string(buffer.Slice(i, length - i));
 	}
+	
 	internal static string Encode(ulong value)
 	{
+		if ( value is 0 )
+		{
+			return string.Empty;
+		}
+		
 		const int length = 32;
 		int i = length;
 		Span<char> buffer = stackalloc char[length];

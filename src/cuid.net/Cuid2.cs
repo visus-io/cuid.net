@@ -85,7 +85,11 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
 	/// <inheritdoc />
 	public bool Equals(Cuid2 other)
 	{
-		return _c == other._c && _f.Equals(other._f) && _p == other._p && _r.Equals(other._r) && _t == other._t;
+		return _c == other._c && 
+		       _f.Equals(other._f) && 
+		       _p == other._p && 
+		       _r.Equals(other._r) &&
+		       _t == other._t;
 	}
 
 	/// <inheritdoc />

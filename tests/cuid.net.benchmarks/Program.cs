@@ -86,7 +86,7 @@ public class Cuid2Benchmark
 
 	[Benchmark]
 	[BenchmarkCategory("New()")]
-	public void Cuid2_NewCuid()
+	public void Cuid2_Constructor()
 	{
 		for ( var i = 0; i < 1000000; i++ )
 		{

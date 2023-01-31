@@ -212,18 +212,19 @@ Intel Core i7-10870H CPU 2.20GHz, 1 CPU, 16 logical and 8 physical cores
 
 ```
 
-| Method         | Job      | Runtime  | Categories       |        Mean |    Error |   StdDev | Ratio |
-|----------------|----------|----------|------------------|------------:|---------:|---------:|------:|
-| Cuid_NewCuid   | .NET 6.0 | .NET 6.0 | New()            |    53.36 ms | 0.219 ms | 0.205 ms |  1.00 |
-| Cuid_NewCuid   | .NET 7.0 | .NET 7.0 | New()            |    53.54 ms | 0.369 ms | 0.345 ms |  1.00 |
-|                |          |          |                  |             |          |          |       |
-| Cuid2_NewCuid  | .NET 6.0 | .NET 6.0 | New()            | 1,106.04 ms | 3.687 ms | 3.268 ms |  1.00 |
-| Cuid2_NewCuid  | .NET 7.0 | .NET 7.0 | New()            | 1,220.45 ms | 7.121 ms | 6.661 ms |  1.10 |
-|                |          |          |                  |             |          |          |       |
-| Cuid_ToString  | .NET 6.0 | .NET 6.0 | New()+ToString() |   268.53 ms | 2.258 ms | 2.112 ms |  1.00 |
-| Cuid_ToString  | .NET 7.0 | .NET 7.0 | New()+ToString() |   251.47 ms | 1.988 ms | 1.860 ms |  0.94 |
-|                |          |          |                  |             |          |          |       |
-| Cuid2_ToString | .NET 6.0 | .NET 6.0 | New()+ToString() | 3,240.56 ms | 6.255 ms | 5.851 ms |  1.00 |
-| Cuid2_ToString | .NET 7.0 | .NET 7.0 | New()+ToString() | 3,122.13 ms | 5.412 ms | 4.797 ms |  0.96 |
+| Method            | Job      | Runtime  | Categories       |         Mean |     Error |    StdDev | Ratio |
+|-------------------|----------|----------|------------------|-------------:|----------:|----------:|------:|
+| Cuid_NewCuid      | .NET 6.0 | .NET 6.0 | New()            |     54.77 ms |  0.512 ms |  0.479 ms |  1.00 |
+| Cuid_NewCuid      | .NET 7.0 | .NET 7.0 | New()            |     54.35 ms |  0.299 ms |  0.250 ms |  0.99 |
+|                   |          |          |                  |              |           |           |       |
+| Cuid2_Constructor | .NET 6.0 | .NET 6.0 | New()            |  1,129.51 ms |  2.969 ms |  2.632 ms |  1.00 |
+| Cuid2_Constructor | .NET 7.0 | .NET 7.0 | New()            |  1,239.19 ms |  4.068 ms |  3.397 ms |  1.10 |
+|                   |          |          |                  |              |           |           |       |
+| Cuid_ToString     | .NET 6.0 | .NET 6.0 | New()+ToString() |    266.47 ms |  1.581 ms |  1.402 ms |  1.00 |
+| Cuid_ToString     | .NET 7.0 | .NET 7.0 | New()+ToString() |    247.46 ms |  0.778 ms |  0.650 ms |  0.93 |
+|                   |          |          |                  |              |           |           |       |
+| Cuid2_ToString    | .NET 6.0 | .NET 6.0 | New()+ToString() | 12,744.76 ms | 21.436 ms | 19.003 ms |  1.00 |
+| Cuid2_ToString    | .NET 7.0 | .NET 7.0 | New()+ToString() | 13,010.98 ms | 17.303 ms | 14.449 ms |  1.02 |
+
 
 
