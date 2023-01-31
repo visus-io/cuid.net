@@ -134,7 +134,7 @@ using (TextReader sr = new StringReader(xml))
 
 #### CUIDv2
 
-> :memo: `Cuid2` does not implement `IComparable` or `IComparable<T>`.
+> :memo: `Cuid2` implements `IEquatable<T>` but does not implement `IComparable` or `IComparable<T>`.
 
 `Cuid2` is an immutable structure that generates a cryptographically strong identity. `Cuid2` and is recommended for use
 over `Cuid` where security context is important. The length of the value can also be adjusted to be anywhere from 4
