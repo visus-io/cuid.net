@@ -1,15 +1,15 @@
 ﻿namespace Xaevik.Cuid;
 
 using System.Buffers.Binary;
-using System.Numerics;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using Org.BouncyCastle.Crypto.Digests;
 
 /// <summary>
 ///     Represents a collision resistant unique identifier (CUID).
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
-public readonly struct Cuid2
+public readonly struct Cuid2 : IEquatable<Cuid2>
 {
 	private const int DefaultLength = 24;
 
@@ -22,8 +22,6 @@ public readonly struct Cuid2
 	private readonly char _p;
 
 	private readonly byte[] _r;
-
-	private readonly byte[] _s;
 
 	private readonly long _t;
 
@@ -54,14 +52,56 @@ public readonly struct Cuid2
 				string.Format(Resources.Resources.Arg_Cuid2IntCtor, "4", "32"));
 		}
 
-		_p = Utils.GenerateCharacterPrefix();
-		_s = Utils.GenerateRandom(maxLength); // salt
-
-		_t = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-		_r = Utils.GenerateRandom(maxLength);
-		_f = Context.IdentityFingerprint;
-
 		_maxLength = maxLength;
+
+		_f = Context.IdentityFingerprint;
+		_p = Utils.GenerateCharacterPrefix();
+		_r = Utils.GenerateRandom(maxLength * 2);
+		_t = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+	}
+
+	/// <summary>
+	///     Indicates whether the values of two specified <see cref="Cuid2" /> objects are equal.
+	/// </summary>
+	/// <param name="left">The first object to compare.</param>
+	/// <param name="right">The second object to compare.</param>
+	/// <returns><c>true</c> if <c>left</c> and <c>right</c> are equal; otherwise, <c>false</c>.</returns>
+	public static bool operator ==(Cuid2 left, Cuid2 right)
+	{
+		return left.Equals(right);
+	}
+
+	/// <summary>
+	///     Indicates whether the values of two specified <see cref="Cuid2" /> objects are not equal.
+	/// </summary>
+	/// <param name="left">The first object to compare.</param>
+	/// <param name="right">The second object to compare.</param>
+	/// <returns><c>true</c> if <c>left</c> and <c>right</c> are not equal; otherwise, <c>false</c>.</returns>
+	public static bool operator !=(Cuid2 left, Cuid2 right)
+	{
+		return !left.Equals(right);
+	}
+
+	/// <inheritdoc />
+	public bool Equals(Cuid2 other)
+	{
+		return _c == other._c && 
+		       _f.Equals(other._f) && 
+		       _p == other._p && 
+		       _r.Equals(other._r) &&
+		       _t == other._t;
+	}
+
+	/// <inheritdoc />
+	public override bool Equals(object? obj)
+	{
+		return obj is Cuid2 other && Equals(other);
+	}
+
+	/// <inheritdoc />
+	public override int GetHashCode()
+	{
+		return HashCode.Combine(_c, _f, _p, _r, _t);
 	}
 
 	/// <summary>
@@ -70,18 +110,17 @@ public readonly struct Cuid2
 	/// <returns>The value of this <see cref="Cuid2" />.</returns>
 	public override string ToString()
 	{
-		Span<byte> buffer = stackalloc byte[48];
+		Span<byte> buffer = stackalloc byte[16];
 		Span<byte> result = stackalloc byte[64];
 
-		BinaryPrimitives.WriteInt64LittleEndian(buffer[..8], _t);
-		BinaryPrimitives.WriteUInt32LittleEndian(buffer.Slice(40, 4), _c);
-
-		_r.CopyTo(buffer.Slice(8, 32));
+		BinaryPrimitives.WriteInt64LittleEndian(buffer, _t);
+		BinaryPrimitives.WriteUInt32LittleEndian(buffer[..8], _c);
 
 		Sha3Digest digest = new(512);
+
 		digest.BlockUpdate(buffer);
 		digest.BlockUpdate(_f);
-		digest.BlockUpdate(_s);
+		digest.BlockUpdate(_r);
 
 		int bytesWritten = digest.DoFinal(result);
 
@@ -90,41 +129,12 @@ public readonly struct Cuid2
 			return string.Empty;
 		}
 
-		return _p + Encode(result)[..( _maxLength - 1 )];
-	}
-
-	private static string Encode(ReadOnlySpan<byte> input)
-	{
-		if ( input.IsEmpty )
-		{
-			return string.Empty;
-		}
-
-		int length = (int) Math.Ceiling(input.Length * Context.ByteBitCount / Context.BitsPerDigit);
-		int i = length;
-
-		Span<char> buffer = stackalloc char[length];
-
-		BigInteger d = new(input, true);
-		while ( !d.IsZero )
-		{
-			d = BigInteger.DivRem(d, Context.Radix, out BigInteger r);
-			int c = Math.Abs((int) r);
-			buffer[--i] = (char) ( c is >= 0 and <= 9 ? c + 48 : c + 'a' - 10 );
-		}
-
-		return new string(buffer.Slice(i, length - i));
+		return _p + Utils.Encode(result.ToArray())[..( _maxLength - 1 )];
 	}
 
 	private static class Context
 	{
-		public static readonly double BitsPerDigit = Math.Log(36, 2);
-
-		public const int ByteBitCount = sizeof(byte) * 8;
-
 		public static readonly byte[] IdentityFingerprint = Fingerprint.Generate();
-
-		public static readonly BigInteger Radix = new(36);
 	}
 
 	private sealed class Counter
@@ -136,8 +146,7 @@ public readonly struct Cuid2
 
 		private Counter()
 		{
-			Random random = new(Guid.NewGuid().GetHashCode());
-			_value = (uint) random.Next() * 2057;
+			_value = BitConverter.ToUInt32(RandomNumberGenerator.GetBytes(sizeof(uint)));
 		}
 
 		public static Counter Instance => _counter.Value;
