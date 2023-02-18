@@ -70,8 +70,8 @@
       },
       "BouncyCastle.Cryptography": {
         "type": "Transitive",
-        "resolved": "2.0.0",
-        "contentHash": "pzHd/gZou2SG4tXQQwXt1oEVJ3ZpmHVa5/Hg0k9QMkdc84HEUBb2DI9ajRlw6TS6dTy/UPZXLjpV9Us5L0SeVA=="
+        "resolved": "2.1.1",
+        "contentHash": "NNQaa4eyf5YjSdLKUWGPzq5HXZQc3yGybfIOkR6UY1C/rRFWdo0UhSzBqqnxwGnq3ie4vkN0JlzhhANjfTIJIQ=="
       },
       "DiffEngine": {
         "type": "Transitive",
@@ -1130,7 +1130,7 @@
       "cuid.net": {
         "type": "Project",
         "dependencies": {
-          "BouncyCastle.Cryptography": "[2.0.0, )"
+          "BouncyCastle.Cryptography": "[2.1.1, )"
         }
       }
     },
@@ -1203,8 +1203,8 @@
       },
       "BouncyCastle.Cryptography": {
         "type": "Transitive",
-        "resolved": "2.0.0",
-        "contentHash": "pzHd/gZou2SG4tXQQwXt1oEVJ3ZpmHVa5/Hg0k9QMkdc84HEUBb2DI9ajRlw6TS6dTy/UPZXLjpV9Us5L0SeVA=="
+        "resolved": "2.1.1",
+        "contentHash": "NNQaa4eyf5YjSdLKUWGPzq5HXZQc3yGybfIOkR6UY1C/rRFWdo0UhSzBqqnxwGnq3ie4vkN0JlzhhANjfTIJIQ=="
       },
       "DiffEngine": {
         "type": "Transitive",
@@ -2263,7 +2263,7 @@
       "cuid.net": {
         "type": "Project",
         "dependencies": {
-          "BouncyCastle.Cryptography": "[2.0.0, )"
+          "BouncyCastle.Cryptography": "[2.1.1, )"
         }
       }
     }
