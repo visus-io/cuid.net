@@ -13,7 +13,7 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
 {
 	private const int DefaultLength = 24;
 
-	private readonly uint _c = Counter.Instance.Value;
+	private readonly ulong _c = Counter.Instance.Value;
 
 	private readonly byte[] _f;
 
@@ -56,7 +56,7 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
 
 		_f = Context.IdentityFingerprint;
 		_p = Utils.GenerateCharacterPrefix();
-		_r = Utils.GenerateRandom(maxLength * 2);
+		_r = Utils.GenerateRandom(maxLength);
 		_t = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 	}
 
@@ -85,9 +85,9 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
 	/// <inheritdoc />
 	public bool Equals(Cuid2 other)
 	{
-		return _c == other._c && 
-		       _f.Equals(other._f) && 
-		       _p == other._p && 
+		return _c == other._c &&
+		       _f.Equals(other._f) &&
+		       _p == other._p &&
 		       _r.Equals(other._r) &&
 		       _t == other._t;
 	}
@@ -112,12 +112,12 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
 	{
 		Span<byte> buffer = stackalloc byte[16];
 		Span<byte> result = stackalloc byte[64];
-
+		
 		BinaryPrimitives.WriteInt64LittleEndian(buffer, _t);
-		BinaryPrimitives.WriteUInt32LittleEndian(buffer[..8], _c);
+		BinaryPrimitives.WriteUInt64LittleEndian(buffer[..8], _c);
 
 		Sha3Digest digest = new(512);
-
+		
 		digest.BlockUpdate(buffer);
 		digest.BlockUpdate(_f);
 		digest.BlockUpdate(_r);
@@ -142,15 +142,15 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
 		// ReSharper disable once InconsistentNaming
 		private static readonly Lazy<Counter> _counter = new(() => new Counter());
 
-		private volatile uint _value;
+		private ulong _value;
 
 		private Counter()
 		{
-			_value = BitConverter.ToUInt32(RandomNumberGenerator.GetBytes(sizeof(uint)));
+			_value = BinaryPrimitives.ReadUInt64LittleEndian(Utils.GenerateRandom()) * 476782367;
 		}
 
 		public static Counter Instance => _counter.Value;
 
-		public uint Value => Interlocked.Increment(ref _value);
+		public ulong Value => Interlocked.Increment(ref _value);
 	}
 }

@@ -18,28 +18,17 @@ internal static class Fingerprint
 
 	private static byte[] GenerateIdentity()
 	{
-		byte[] random = Utils.GenerateRandom(8, false);
-		byte[] system = Encoding.UTF8.GetBytes(RetrieveSystemName());
-		byte[] process = new byte[4];
-		byte[] thread = new byte[4];
+		byte[] identity = Encoding.UTF8.GetBytes(RetrieveSystemName());
+		
+		Span<byte> buffer = stackalloc byte[identity.Length + 40];
 
-		Span<byte> buffer = stackalloc byte[random.Length + system.Length + process.Length + thread.Length];
+		identity.CopyTo(buffer[..identity.Length]);
 
-		if ( !BinaryPrimitives.TryWriteInt32LittleEndian(process, Environment.ProcessId) )
-		{
-			Array.Copy(Utils.GenerateRandom(4, false), process, 4);
-		}
+		BinaryPrimitives.WriteInt32LittleEndian(buffer.Slice(identity.Length + 1, 4), Environment.ProcessId);
+		BinaryPrimitives.WriteInt32LittleEndian(buffer.Slice(identity.Length + 6, 4), Environment.CurrentManagedThreadId);
 
-		if ( !BinaryPrimitives.TryWriteInt32LittleEndian(thread, Environment.CurrentManagedThreadId) )
-		{
-			Array.Copy(Utils.GenerateRandom(4, false), thread, 4);
-		}
-
-		random.CopyTo(buffer[..random.Length]);
-		system.CopyTo(buffer.Slice(random.Length + 1, system.Length));
-		process.CopyTo(buffer.Slice(random.Length + system.Length + 2, process.Length));
-		thread.CopyTo(buffer[^thread.Length..]);
-
+		Utils.GenerateRandom(32).CopyTo(buffer[^32..]);
+		
 		return buffer.ToArray();
 	}
 
@@ -58,12 +47,15 @@ internal static class Fingerprint
 
 		return Encoding.UTF8.GetBytes(result);
 	}
-
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	
 	private static string GenerateSystemName()
 	{
-		byte[] bytes = Utils.GenerateRandom(24, false);
-		return Convert.ToHexString(bytes).ToUpperInvariant()[..15];
+		byte[] bytes = Utils.GenerateRandom(32);
+		string hostname = Convert.ToHexString(bytes).ToUpperInvariant();
+		
+		return OperatingSystem.IsWindows() 
+			? hostname[..15] // windows hostnames are limited to 15 characters 
+			: hostname;
 	}
 
 	private static string RetrieveSystemName()
