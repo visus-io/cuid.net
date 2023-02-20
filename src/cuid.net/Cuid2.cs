@@ -2,7 +2,6 @@
 
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
-using System.Security.Cryptography;
 using Org.BouncyCastle.Crypto.Digests;
 
 /// <summary>
@@ -13,17 +12,17 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
 {
 	private const int DefaultLength = 24;
 
-	private readonly ulong _c = Counter.Instance.Value;
+	private readonly ulong _counter = Counter.Instance.Value;
 
-	private readonly byte[] _f;
+	private readonly byte[] _fingerprint;
 
 	private readonly int _maxLength;
 
-	private readonly char _p;
+	private readonly char _prefix;
 
-	private readonly byte[] _r;
+	private readonly byte[] _random;
 
-	private readonly long _t;
+	private readonly long _timestamp;
 
 	/// <summary>
 	///     Initializes a new instance of the <see cref="Cuid2" /> structure.
@@ -54,10 +53,10 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
 
 		_maxLength = maxLength;
 
-		_f = Context.IdentityFingerprint;
-		_p = Utils.GenerateCharacterPrefix();
-		_r = Utils.GenerateRandom(maxLength);
-		_t = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+		_fingerprint = Context.IdentityFingerprint;
+		_prefix = Utils.GenerateCharacterPrefix();
+		_random = Utils.GenerateRandom(maxLength);
+		_timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 	}
 
 	/// <summary>
@@ -85,11 +84,11 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
 	/// <inheritdoc />
 	public bool Equals(Cuid2 other)
 	{
-		return _c == other._c &&
-		       _f.Equals(other._f) &&
-		       _p == other._p &&
-		       _r.Equals(other._r) &&
-		       _t == other._t;
+		return _counter == other._counter &&
+		       _fingerprint.Equals(other._fingerprint) &&
+		       _prefix == other._prefix &&
+		       _random.Equals(other._random) &&
+		       _timestamp == other._timestamp;
 	}
 
 	/// <inheritdoc />
@@ -101,7 +100,7 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
 	/// <inheritdoc />
 	public override int GetHashCode()
 	{
-		return HashCode.Combine(_c, _f, _p, _r, _t);
+		return HashCode.Combine(_counter, _fingerprint, _prefix, _random, _timestamp);
 	}
 
 	/// <summary>
@@ -110,17 +109,17 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
 	/// <returns>The value of this <see cref="Cuid2" />.</returns>
 	public override string ToString()
 	{
-		Span<byte> buffer = stackalloc byte[16];
+		Span<byte> data = stackalloc byte[16];
 		Span<byte> result = stackalloc byte[64];
-		
-		BinaryPrimitives.WriteInt64LittleEndian(buffer, _t);
-		BinaryPrimitives.WriteUInt64LittleEndian(buffer[..8], _c);
+
+		BinaryPrimitives.WriteInt64LittleEndian(data[..8], _timestamp);
+		BinaryPrimitives.WriteUInt64LittleEndian(data[^8..], _counter);
 
 		Sha3Digest digest = new(512);
-		
-		digest.BlockUpdate(buffer);
-		digest.BlockUpdate(_f);
-		digest.BlockUpdate(_r);
+
+		digest.BlockUpdate(data);
+		digest.BlockUpdate(_fingerprint);
+		digest.BlockUpdate(_random);
 
 		int bytesWritten = digest.DoFinal(result);
 
@@ -129,7 +128,7 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
 			return string.Empty;
 		}
 
-		return _p + Utils.Encode(result.ToArray())[..( _maxLength - 1 )];
+		return _prefix + Utils.Encode(result.ToArray())[..( _maxLength - 1 )];
 	}
 
 	private static class Context

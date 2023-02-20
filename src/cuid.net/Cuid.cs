@@ -33,13 +33,13 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 
 	private const int ValueLength = 25;
 
-	private readonly ulong _c;
+	private readonly ulong _counter;
 
-	private readonly string _f = default!;
+	private readonly string _fingerprint = default!;
 
-	private readonly ulong _r;
+	private readonly ulong _random;
 
-	private readonly long _t;
+	private readonly long _timestamp;
 
 	/// <summary>
 	///     Initializes a new instance of the <see cref="Cuid" /> structure by using the value represented by the specified
@@ -67,10 +67,10 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 	{
 		CuidResult result = new()
 		{
-			_c = Counter.Instance.Value,
-			_f = Context.IdentityFingerprint,
-			_r = BinaryPrimitives.ReadUInt64LittleEndian(Utils.GenerateRandom()),
-			_t = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
+			_counter = Counter.Instance.Value,
+			_fingerprint = Context.IdentityFingerprint,
+			_random = BinaryPrimitives.ReadUInt64LittleEndian(Utils.GenerateRandom()),
+			_timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
 		};
 
 		return result.ToCuid();
@@ -215,20 +215,20 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 	/// <inheritdoc />
 	public int CompareTo(Cuid other)
 	{
-		int cComparison = _c.CompareTo(other._c);
+		int cComparison = _counter.CompareTo(other._counter);
 		if ( cComparison != 0 )
 		{
 			return cComparison;
 		}
 
-		int fComparison = string.Compare(_f, other._f, StringComparison.OrdinalIgnoreCase);
+		int fComparison = string.Compare(_fingerprint, other._fingerprint, StringComparison.OrdinalIgnoreCase);
 		if ( fComparison != 0 )
 		{
 			return fComparison;
 		}
 
-		int rComparison = _r.CompareTo(other._r);
-		return rComparison != 0 ? rComparison : _t.CompareTo(other._t);
+		int rComparison = _random.CompareTo(other._random);
+		return rComparison != 0 ? rComparison : _timestamp.CompareTo(other._timestamp);
 	}
 
 	/// <inheritdoc />
@@ -247,8 +247,10 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 	/// <inheritdoc />
 	public bool Equals(Cuid other)
 	{
-		return _c == other._c && string.Equals(_f, other._f, StringComparison.OrdinalIgnoreCase) &&
-		       _r == other._r && _t == other._t;
+		return _counter == other._counter &&
+		       string.Equals(_fingerprint, other._fingerprint, StringComparison.OrdinalIgnoreCase) &&
+		       _random == other._random &&
+		       _timestamp == other._timestamp;
 	}
 
 	/// <inheritdoc />
@@ -262,10 +264,10 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 	{
 		HashCode hashCode = new();
 
-		hashCode.Add(_c);
-		hashCode.Add(_f, StringComparer.OrdinalIgnoreCase);
-		hashCode.Add(_r);
-		hashCode.Add(_t);
+		hashCode.Add(_counter);
+		hashCode.Add(_fingerprint, StringComparer.OrdinalIgnoreCase);
+		hashCode.Add(_random);
+		hashCode.Add(_timestamp);
 
 		return hashCode.ToHashCode();
 	}
@@ -276,7 +278,7 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 	/// <returns>The value of this <see cref="Cuid" />.</returns>
 	public override string ToString()
 	{
-		return string.Create(25, ( _t, _c, _f, _r ), (dest, buffer) =>
+		return string.Create(25, ( _t: _timestamp, _c: _counter, _f: _fingerprint, _r: _random ), (dest, buffer) =>
 		{
 			Prefix.WriteTo(ref dest);
 
@@ -325,10 +327,10 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 		ReadOnlySpan<char> fingerprint = cuidString[13..^8];
 		ReadOnlySpan<char> random = cuidString[^8..];
 
-		result._c = Utils.Decode(counter);
-		result._f = fingerprint.ToString();
-		result._r = Utils.Decode(random);
-		result._t = (long) Utils.Decode(timestamp);
+		result._counter = Utils.Decode(counter);
+		result._fingerprint = fingerprint.ToString();
+		result._random = Utils.Decode(random);
+		result._timestamp = (long) Utils.Decode(timestamp);
 
 		return true;
 	}
@@ -373,13 +375,13 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 			throw new FormatException(message);
 		}
 #pragma warning disable S4487
-		[FieldOffset(8)] internal ulong _c;
+		[FieldOffset(8)] internal ulong _counter;
 
-		[FieldOffset(0)] internal string _f;
+		[FieldOffset(0)] internal string _fingerprint;
 
-		[FieldOffset(16)] internal ulong _r;
+		[FieldOffset(16)] internal ulong _random;
 
-		[FieldOffset(24)] internal long _t;
+		[FieldOffset(24)] internal long _timestamp;
 #pragma warning restore S4487
 	}
 
