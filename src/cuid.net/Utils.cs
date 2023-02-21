@@ -6,11 +6,11 @@ using System.Security.Cryptography;
 
 internal static class Utils
 {
+	private static readonly BigInteger BigRadix = new(36);
+	
 	private static readonly double BitsPerDigit = Math.Log(36, 2);
 
-	private const int ByteBitCount = sizeof(byte) * 8;
-
-	private static readonly BigInteger Radix = new(36);
+	private const int Radix = 36;
 
 	private static readonly Random Random = new();
 
@@ -19,47 +19,47 @@ internal static class Utils
 	{
 		return input.ToString()
 			.Select(s => s is >= '0' and <= '9' ? s - '0' : 10 + s - 'a')
-			.Aggregate((ulong) 0, (i, c) => ( i * 36 ) + (uint) c);
+			.Aggregate((ulong) 0, (i, c) => ( i * Radix ) + (uint) c);
 	}
 
 	internal static string Encode(ReadOnlySpan<byte> value)
 	{
-		if ( value.IsEmpty || value.Length > 64 )
+		if ( value.IsEmpty )
 		{
 			return string.Empty;
 		}
 
-		int length = (int) Math.Ceiling(value.Length * ByteBitCount / BitsPerDigit);
+		int length = (int) Math.Ceiling(value.Length * 8 / BitsPerDigit);
 		int i = length;
 		Span<char> buffer = stackalloc char[length];
 
-		BigInteger d = new(value);
+		BigInteger d = new(value, true);
 		while ( !d.IsZero )
 		{
-			d = BigInteger.DivRem(d, Radix, out BigInteger r);
-			int c = (int) BigInteger.Abs(r);
+			d = BigInteger.DivRem(d, BigRadix, out BigInteger r);
+			int c = (int) r;
 			buffer[--i] = (char) ( c is >= 0 and <= 9 ? c + 48 : c + 'a' - 10 );
 		}
 
 		return new string(buffer.Slice(i, length - i));
 	}
-	
+
 	internal static string Encode(ulong value)
 	{
 		if ( value is 0 )
 		{
 			return string.Empty;
 		}
-		
+
 		const int length = 32;
 		int i = length;
 		Span<char> buffer = stackalloc char[length];
 
 		do
 		{
-			ulong c = value % 36;
+			ulong c = value % Radix;
 			buffer[--i] = (char) ( c is >= 0 and <= 9 ? c + 48 : c + 'a' - 10 );
-			value /= 36;
+			value /= Radix;
 		} while ( value > 0 );
 
 		return new string(buffer.Slice(i, length - i));
@@ -72,34 +72,9 @@ internal static class Utils
 		return c > 13 ? char.ToLowerInvariant((char) ( 'a' + c )) : (char) ( 'a' + c );
 	}
 
-	internal static byte[] GenerateRandom(int length, bool secure = true)
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	internal static byte[] GenerateRandom(int length = 8)
 	{
-		if ( length <= 0 )
-		{
-			return Array.Empty<byte>();
-		}
-
-		Span<byte> bytes = stackalloc byte[length];
-
-		if ( !secure )
-		{
-			Random.NextBytes(bytes);
-
-			if ( BitConverter.IsLittleEndian )
-			{
-				bytes.Reverse();
-			}
-		}
-		else
-		{
-			RandomNumberGenerator.Fill(bytes);
-		}
-
-		if ( BitConverter.IsLittleEndian )
-		{
-			bytes.Reverse();
-		}
-
-		return bytes.ToArray();
+		return RandomNumberGenerator.GetBytes(length);
 	}
 }
