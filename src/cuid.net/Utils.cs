@@ -1,20 +1,18 @@
 ﻿namespace Xaevik.Cuid;
 
 using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 
 internal static class Utils
 {
 	private static readonly BigInteger BigRadix = new(36);
-	
+
 	private static readonly double BitsPerDigit = Math.Log(36, 2);
 
 	private const int Radix = 36;
 
 	private static readonly Random Random = new();
 
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	internal static ulong Decode(ReadOnlySpan<char> input)
 	{
 		return input.ToString()
@@ -65,14 +63,12 @@ internal static class Utils
 		return new string(buffer.Slice(i, length - i));
 	}
 
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	internal static char GenerateCharacterPrefix()
 	{
 		int c = Random.Next(26);
 		return c > 13 ? char.ToLowerInvariant((char) ( 'a' + c )) : (char) ( 'a' + c );
 	}
 
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	internal static byte[] GenerateRandom(int length = 8)
 	{
 		return RandomNumberGenerator.GetBytes(length);
