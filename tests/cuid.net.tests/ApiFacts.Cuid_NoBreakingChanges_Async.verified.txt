@@ -1,48 +1,48 @@
-﻿namespace Xaevik.Cuid
+﻿namespace Visus.Cuid
 {
-    [System.Obsolete("Cuid is deprecated and should not be used. Use Cuid2 instead.", DiagnosticId="XAELIB0001")]
-    [System.Text.Json.Serialization.JsonConverter(typeof(Xaevik.Cuid.Serialization.Json.Converters.CuidConverter))]
+    [System.Obsolete("Cuid is deprecated and should not be used. Use Cuid2 instead.", DiagnosticId="VISLIB0001")]
+    [System.Text.Json.Serialization.JsonConverter(typeof(Visus.Cuid.Serialization.Json.Converters.CuidConverter))]
     [System.Xml.Serialization.XmlRoot("cuid")]
-    public readonly struct Cuid : System.IComparable, System.IComparable<Xaevik.Cuid.Cuid>, System.IEquatable<Xaevik.Cuid.Cuid>, System.Xml.Serialization.IXmlSerializable
+    public readonly struct Cuid : System.IComparable, System.IComparable<Visus.Cuid.Cuid>, System.IEquatable<Visus.Cuid.Cuid>, System.Xml.Serialization.IXmlSerializable
     {
-        public static readonly Xaevik.Cuid.Cuid Empty;
+        public static readonly Visus.Cuid.Cuid Empty;
         public Cuid(string c) { }
-        public int CompareTo(Xaevik.Cuid.Cuid other) { }
+        public int CompareTo(Visus.Cuid.Cuid other) { }
         public int CompareTo(object? obj) { }
-        public bool Equals(Xaevik.Cuid.Cuid other) { }
+        public bool Equals(Visus.Cuid.Cuid other) { }
         public override bool Equals(object? obj) { }
         public override int GetHashCode() { }
         public override string ToString() { }
-        public static Xaevik.Cuid.Cuid NewCuid() { }
-        public static Xaevik.Cuid.Cuid Parse(System.ReadOnlySpan<char> input) { }
-        public static Xaevik.Cuid.Cuid Parse(string input) { }
-        public static bool TryParse(System.ReadOnlySpan<char> input, out Xaevik.Cuid.Cuid result) { }
-        public static bool TryParse([System.Diagnostics.CodeAnalysis.NotNullWhen(true)] string? input, out Xaevik.Cuid.Cuid result) { }
-        public static bool operator !=(Xaevik.Cuid.Cuid left, Xaevik.Cuid.Cuid right) { }
-        public static bool operator <(Xaevik.Cuid.Cuid left, Xaevik.Cuid.Cuid right) { }
-        public static bool operator <=(Xaevik.Cuid.Cuid left, Xaevik.Cuid.Cuid right) { }
-        public static bool operator ==(Xaevik.Cuid.Cuid left, Xaevik.Cuid.Cuid right) { }
-        public static bool operator >(Xaevik.Cuid.Cuid left, Xaevik.Cuid.Cuid right) { }
-        public static bool operator >=(Xaevik.Cuid.Cuid left, Xaevik.Cuid.Cuid right) { }
+        public static Visus.Cuid.Cuid NewCuid() { }
+        public static Visus.Cuid.Cuid Parse(System.ReadOnlySpan<char> input) { }
+        public static Visus.Cuid.Cuid Parse(string input) { }
+        public static bool TryParse(System.ReadOnlySpan<char> input, out Visus.Cuid.Cuid result) { }
+        public static bool TryParse([System.Diagnostics.CodeAnalysis.NotNullWhen(true)] string? input, out Visus.Cuid.Cuid result) { }
+        public static bool operator !=(Visus.Cuid.Cuid left, Visus.Cuid.Cuid right) { }
+        public static bool operator <(Visus.Cuid.Cuid left, Visus.Cuid.Cuid right) { }
+        public static bool operator <=(Visus.Cuid.Cuid left, Visus.Cuid.Cuid right) { }
+        public static bool operator ==(Visus.Cuid.Cuid left, Visus.Cuid.Cuid right) { }
+        public static bool operator >(Visus.Cuid.Cuid left, Visus.Cuid.Cuid right) { }
+        public static bool operator >=(Visus.Cuid.Cuid left, Visus.Cuid.Cuid right) { }
     }
-    public readonly struct Cuid2 : System.IEquatable<Xaevik.Cuid.Cuid2>
+    public readonly struct Cuid2 : System.IEquatable<Visus.Cuid.Cuid2>
     {
         public Cuid2() { }
         public Cuid2(int maxLength) { }
-        public bool Equals(Xaevik.Cuid.Cuid2 other) { }
+        public bool Equals(Visus.Cuid.Cuid2 other) { }
         public override bool Equals(object? obj) { }
         public override int GetHashCode() { }
         public override string ToString() { }
-        public static bool operator !=(Xaevik.Cuid.Cuid2 left, Xaevik.Cuid.Cuid2 right) { }
-        public static bool operator ==(Xaevik.Cuid.Cuid2 left, Xaevik.Cuid.Cuid2 right) { }
+        public static bool operator !=(Visus.Cuid.Cuid2 left, Visus.Cuid.Cuid2 right) { }
+        public static bool operator ==(Visus.Cuid.Cuid2 left, Visus.Cuid.Cuid2 right) { }
     }
 }
-namespace Xaevik.Cuid.Serialization.Json.Converters
+namespace Visus.Cuid.Serialization.Json.Converters
 {
-    public class CuidConverter : System.Text.Json.Serialization.JsonConverter<Xaevik.Cuid.Cuid>
+    public class CuidConverter : System.Text.Json.Serialization.JsonConverter<Visus.Cuid.Cuid>
     {
         public CuidConverter() { }
-        public override Xaevik.Cuid.Cuid Read(ref System.Text.Json.Utf8JsonReader reader, System.Type typeToConvert, System.Text.Json.JsonSerializerOptions options) { }
-        public override void Write(System.Text.Json.Utf8JsonWriter writer, Xaevik.Cuid.Cuid value, System.Text.Json.JsonSerializerOptions options) { }
+        public override Visus.Cuid.Cuid Read(ref System.Text.Json.Utf8JsonReader reader, System.Type typeToConvert, System.Text.Json.JsonSerializerOptions options) { }
+        public override void Write(System.Text.Json.Utf8JsonWriter writer, Visus.Cuid.Cuid value, System.Text.Json.JsonSerializerOptions options) { }
     }
 }

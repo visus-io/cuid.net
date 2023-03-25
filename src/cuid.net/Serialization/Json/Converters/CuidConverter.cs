@@ -1,5 +1,5 @@
-﻿#pragma warning disable XAELIB0001
-namespace Xaevik.Cuid.Serialization.Json.Converters;
+﻿#pragma warning disable VISLIB0001
+namespace Visus.Cuid.Serialization.Json.Converters;
 
 using System.Text.Json;
 using System.Text.Json.Serialization;

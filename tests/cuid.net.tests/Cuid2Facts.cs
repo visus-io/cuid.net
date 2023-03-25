@@ -1,6 +1,7 @@
-﻿namespace Xaevik.Cuid.Tests;
+﻿namespace Visus.Cuid.Tests;
 
 using System.Diagnostics.CodeAnalysis;
+using Visus.Cuid;
 
 [ExcludeFromCodeCoverage]
 public class Cuid2Facts

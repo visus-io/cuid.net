@@ -1,4 +1,4 @@
-﻿namespace Xaevik.Cuid.Abstractions;
+﻿namespace Visus.Cuid.Abstractions;
 
 internal enum FingerprintVersion : byte
 {

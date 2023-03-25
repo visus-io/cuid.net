@@ -1,4 +1,4 @@
-﻿namespace Xaevik.Cuid;
+﻿namespace Visus.Cuid;
 
 using System.Numerics;
 using System.Security.Cryptography;

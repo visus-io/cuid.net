@@ -1,4 +1,4 @@
-﻿namespace Xaevik.Cuid;
+﻿namespace Visus.Cuid;
 
 using System.Buffers.Binary;
 using System.Diagnostics.CodeAnalysis;
@@ -9,9 +9,9 @@ using System.Text.Json.Serialization;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
-using Abstractions;
 using Extensions;
 using Serialization.Json.Converters;
+using Visus.Cuid.Abstractions;
 
 /// <summary>
 ///     Represents a collision resistant unique identifier (CUID).

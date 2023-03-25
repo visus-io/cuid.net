@@ -1,11 +1,12 @@
-﻿#pragma warning disable XAELIB0001
-namespace Xaevik.Cuid.Benchmarks;
+﻿#pragma warning disable VISLIB0001
+namespace Visus.Cuid.Benchmarks;
 
 using System.Diagnostics.CodeAnalysis;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Running;
+using Visus.Cuid;
 
 [SimpleJob(RuntimeMoniker.Net60, baseline: true)]
 [SimpleJob(RuntimeMoniker.Net70)]

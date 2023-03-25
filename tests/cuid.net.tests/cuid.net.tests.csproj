@@ -5,7 +5,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
-        <RootNamespace>Xaevik.Cuid.Tests</RootNamespace>
+        <RootNamespace>Visus.Cuid.Tests</RootNamespace>
         <OutputType>Library</OutputType>
     </PropertyGroup>
 

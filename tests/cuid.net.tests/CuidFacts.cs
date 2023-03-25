@@ -1,11 +1,12 @@
-﻿#pragma warning disable XAELIB0001
-namespace Xaevik.Cuid.Tests;
+﻿#pragma warning disable VISLIB0001
+namespace Visus.Cuid.Tests;
 
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Json;
 using System.Xml;
 using System.Xml.Serialization;
+using Visus.Cuid;
 
 [ExcludeFromCodeCoverage]
 public class CuidFacts

@@ -1,4 +1,4 @@
-﻿namespace Xaevik.Cuid.Extensions;
+﻿namespace Visus.Cuid.Extensions;
 
 internal static class StringExtensions
 {

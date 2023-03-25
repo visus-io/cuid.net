@@ -1,13 +1,13 @@
 # cuid.net
 
-![GitHub](https://img.shields.io/github/license/xaevik/cuid.net?logo=github&style=flat) [![Continuous Integration](https://github.com/xaevik/cuid.net/actions/workflows/ci.yaml/badge.svg)](https://github.com/xaevik/cuid.net/actions/workflows/ci.yaml) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=cuid.net&metric=alert_status)](https://sonarcloud.io/summary/overall?id=cuid.net) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=cuid.net&metric=coverage)](https://sonarcloud.io/summary/overall?id=cuid.net) [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=cuid.net&metric=security_rating)](https://sonarcloud.io/summary/overall?id=cuid.net)
+![GitHub](https://img.shields.io/github/license/visus-io/cuid.net?logo=github&style=flat) [![Continuous Integration](https://github.com/visus-io/cuid.net/actions/workflows/ci.yaml/badge.svg)](https://github.com/visus-io/cuid.net/actions/workflows/ci.yaml) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=cuid.net&metric=alert_status)](https://sonarcloud.io/summary/overall?id=cuid.net) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=cuid.net&metric=coverage)](https://sonarcloud.io/summary/overall?id=cuid.net) [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=cuid.net&metric=security_rating)](https://sonarcloud.io/summary/overall?id=cuid.net)
 
 [![Nuget](https://img.shields.io/nuget/vpre/cuid.net)](https://www.nuget.org/packages/cuid.net/) ![Nuget](https://img.shields.io/nuget/dt/cuid.net)
 
 A .NET implementation of collision-resistant ids. You can read more about CUIDs from
 the [official project website](https://github.com/paralleldrive/cuid2).
 
-A command-line utility, [cuidgen](https://github.com/xaevik/cuidgen/), is also available that implements the cuid.net
+A command-line utility, [cuidgen](https://github.com/visus/cuidgen/), is also available that implements the cuid.net
 library for those wishing to leverage CUIDs in scripting environments.
 
 ## Table of Contents
@@ -38,7 +38,7 @@ cuid.net supports the construction and use of both CUIDv1 (deprecated) and CUIDv
 >
 > :warning: It is possible to derive with a degree of certainty when and where a CUIDv1 has been created.
 >
-> :memo: Usage of CUIDv1 will emit the compiler warning `XAELIB0001`.
+> :memo: Usage of CUIDv1 will emit the compiler warning `VISLIB0001`.
 
 Designed and optimized for horizontal scaling and binary searches, `Cuid` is an immutable structure that can be a
 potential alternative to `Guid` for situations where a clean "string safe" unique and sortable identifier is needed and
@@ -61,7 +61,7 @@ CUIDv1 values are composed of several data points which are base 36 encoded.
 **Instantiation**
 
 ```csharp
-using Xaevik.Cuid;
+using Visus.Cuid;
 
 // new
 Cuid cuid = Cuid.NewCuid();
@@ -87,7 +87,7 @@ comparing against empty or uninitialized `Cuid` objects.
 **JSON**
 
 ```csharp
-using Xaevik.Cuid;
+using Visus.Cuid;
 
 // serialize
 Cuid cuid = Cuid.NewCuid();
@@ -102,7 +102,7 @@ Cuid cuid = JsonSerializer.Deserialize<Cuid>("\"clbvi4441000007ld63liebkf\"");
 **XML**
 
 ```csharp
-using Xaevik.Cuid;
+using Visus.Cuid;
 
 // serialize
 Cuid cuid = Cuid.NewCuid();
@@ -160,7 +160,7 @@ string.
 **Instantiation**
 
 ```csharp
-using Xaevik.Cuid;
+using Visus.Cuid;
 
 // new (default length of 24)
 Cuid2 cuid = new Cuid2();
