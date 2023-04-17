@@ -4,9 +4,9 @@
     "net6.0": {
       "BouncyCastle.Cryptography": {
         "type": "Direct",
-        "requested": "[2.1.1, )",
-        "resolved": "2.1.1",
-        "contentHash": "NNQaa4eyf5YjSdLKUWGPzq5HXZQc3yGybfIOkR6UY1C/rRFWdo0UhSzBqqnxwGnq3ie4vkN0JlzhhANjfTIJIQ=="
+        "requested": "[2.2.0, )",
+        "resolved": "2.2.0",
+        "contentHash": "TEhtnfEnxppBM7u3t8hysLwdaWjGEK+IF6Gy6yI69oLT7nlYdyPlgoLaHAq+HqY+ycq58YtCVetAzXtHjqRytQ=="
       },
       "Microsoft.CodeAnalysis.NetAnalyzers": {
         "type": "Direct",
@@ -38,9 +38,9 @@
     "net7.0": {
       "BouncyCastle.Cryptography": {
         "type": "Direct",
-        "requested": "[2.1.1, )",
-        "resolved": "2.1.1",
-        "contentHash": "NNQaa4eyf5YjSdLKUWGPzq5HXZQc3yGybfIOkR6UY1C/rRFWdo0UhSzBqqnxwGnq3ie4vkN0JlzhhANjfTIJIQ=="
+        "requested": "[2.2.0, )",
+        "resolved": "2.2.0",
+        "contentHash": "TEhtnfEnxppBM7u3t8hysLwdaWjGEK+IF6Gy6yI69oLT7nlYdyPlgoLaHAq+HqY+ycq58YtCVetAzXtHjqRytQ=="
       },
       "Microsoft.CodeAnalysis.NetAnalyzers": {
         "type": "Direct",
