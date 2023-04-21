@@ -9,9 +9,9 @@
     
     <PropertyGroup>
         <Title>cuid.net</Title>
-        <Authors>Alan Brault</Authors>
+        <Authors>Visus</Authors>
         <DebugType>embedded</DebugType>
-        <Description>A fast modern .NET implementation of collision-resistant ids.</Description>
+        <Description>.NET implementation of collision-resistant ids</Description>
     </PropertyGroup>
     
     <PropertyGroup>
