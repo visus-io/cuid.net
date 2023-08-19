@@ -5,6 +5,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <RootNamespace>Visus.Cuid</RootNamespace>
+        <Copyright>Copyright (c) 2023 Visus Development Team</Copyright>
     </PropertyGroup>
     
     <PropertyGroup>
@@ -19,7 +20,7 @@
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <IncludeSymbols>true</IncludeSymbols>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageProjectUrl>https://github.com/visus-io/cuid.net</PackageProjectUrl>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
