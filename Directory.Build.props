@@ -1,7 +1,7 @@
 <Project>
     <PropertyGroup>
         <Version>0.0.1</Version>
-        <Copyright>Copyright (c) 2022 Alan Brault</Copyright>
+        <Copyright>Copyright (c) 2023 Visus Development Team</Copyright>
         <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     </PropertyGroup>
 
