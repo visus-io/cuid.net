@@ -1,5 +1,6 @@
 # cuid.net
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/ba5900a760fa47078e0355651868a7e0)](https://app.codacy.com/gh/visus-io/cuid.net?utm_source=github.com&utm_medium=referral&utm_content=visus-io/cuid.net&utm_campaign=Badge_Grade)
 ![GitHub](https://img.shields.io/github/license/visus-io/cuid.net?logo=github&style=flat) [![Continuous Integration](https://github.com/visus-io/cuid.net/actions/workflows/ci.yaml/badge.svg)](https://github.com/visus-io/cuid.net/actions/workflows/ci.yaml) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=cuid.net&metric=alert_status)](https://sonarcloud.io/summary/overall?id=cuid.net) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=cuid.net&metric=coverage)](https://sonarcloud.io/summary/overall?id=cuid.net) [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=cuid.net&metric=security_rating)](https://sonarcloud.io/summary/overall?id=cuid.net)
 
 [![Nuget](https://img.shields.io/nuget/vpre/cuid.net)](https://www.nuget.org/packages/cuid.net/) ![Nuget](https://img.shields.io/nuget/dt/cuid.net)
