@@ -3,8 +3,8 @@
 using System.Buffers.Binary;
 using System.Globalization;
 using System.Text;
+using Abstractions;
 using Extensions;
-using Visus.Cuid.Abstractions;
 
 internal static class Fingerprint
 {

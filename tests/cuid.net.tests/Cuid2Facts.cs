@@ -1,7 +1,6 @@
 ﻿namespace Visus.Cuid.Tests;
 
 using System.Diagnostics.CodeAnalysis;
-using Visus.Cuid;
 
 [ExcludeFromCodeCoverage]
 public class Cuid2Facts
@@ -36,5 +35,20 @@ public class Cuid2Facts
 	public void Cuid2_Constructor_ThrowsArgumentOutOfRangeException()
 	{
 		Assert.Throws<ArgumentOutOfRangeException>(() => new Cuid2(64));
+	}
+
+	[Fact]
+	public void Cuid2_Equality()
+	{
+		var c1 = new Cuid2();
+		var c2 = new Cuid2();
+
+		Assert.False(c1.Equals(c2));
+		Assert.False(c1.Equals((object) c2));
+
+		Assert.False(c1 == c2);
+		Assert.True(c1 != c2);
+
+		Assert.False(c1.GetHashCode() == c2.GetHashCode());
 	}
 }
