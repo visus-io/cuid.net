@@ -1,13 +1,12 @@
 # cuid.net
 
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/visus-io/cuid.net/ci.yaml?style=for-the-badge&logo=github)](https://github.com/visus-io/cuid.net/actions/workflows/ci.yaml)
+[![Code Quality](https://img.shields.io/codacy/grade/98f0cdfc65f947629c0434869b30ea21?style=for-the-badge&logo=codacy)](https://app.codacy.com/gh/visus-io/cuid.net/dashboard)
+[![Coverage](https://img.shields.io/codacy/coverage/98f0cdfc65f947629c0434869b30ea21?style=for-the-badge&logo=codacy)](https://app.codacy.com/gh/visus-io/cuid.net/coverage/dashboard)
 
-[![Continuous Integration](https://github.com/visus-io/cuid.net/actions/workflows/ci.yaml/badge.svg)](https://github.com/visus-io/cuid.net/actions/workflows/ci.yaml)
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/98f0cdfc65f947629c0434869b30ea21)](https://app.codacy.com/gh/visus-io/cuid.net/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
-[![Codacy Badge](https://app.codacy.com/project/badge/Coverage/98f0cdfc65f947629c0434869b30ea21)](https://app.codacy.com/gh/visus-io/cuid.net/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_coverage)
-
-[![Nuget](https://img.shields.io/nuget/vpre/cuid.net)](https://www.nuget.org/packages/cuid.net/)
-![Nuget](https://img.shields.io/nuget/dt/cuid.net)
-![GitHub](https://img.shields.io/github/license/visus-io/cuid.net?logo=github&style=flat)
+[![Nuget](https://img.shields.io/nuget/v/cuid.net?style=for-the-badge&logo=nuget&label=stable)](https://www.nuget.org/packages/cuid.net)
+![Downloads](https://img.shields.io/nuget/dt/cuid.net?style=for-the-badge&logo=nuget)
+![GitHub](https://img.shields.io/github/license/visus-io/cuid.net?style=for-the-badge)
 
 A .NET implementation of collision-resistant ids. You can read more about CUIDs from
 the [official project website](https://github.com/paralleldrive/cuid2).
