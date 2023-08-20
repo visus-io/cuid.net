@@ -133,7 +133,7 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
 
 	private static class Context
 	{
-		public static readonly byte[] IdentityFingerprint = Fingerprint.Generate();
+		public static readonly byte[] IdentityFingerprint = new Fingerprint().Generate();
 	}
 
 	private sealed class Counter

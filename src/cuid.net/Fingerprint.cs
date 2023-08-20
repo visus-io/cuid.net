@@ -6,52 +6,25 @@ using System.Text;
 using Abstractions;
 using Extensions;
 
-internal static class Fingerprint
+internal sealed class Fingerprint
 {
-	public static byte[] Generate(FingerprintVersion version = FingerprintVersion.Two)
+	private readonly IEnvironment _environment;
+
+	public Fingerprint()
+		: this(new Environment())
+	{
+	}
+
+	public Fingerprint(IEnvironment environment)
+	{
+		_environment = environment;
+	}
+
+	public byte[] Generate(FingerprintVersion version = FingerprintVersion.Two)
 	{
 		return version == FingerprintVersion.One
 			? GenerateLegacyIdentity()
 			: GenerateIdentity();
-	}
-
-	private static byte[] GenerateIdentity()
-	{
-		byte[] identity = Encoding.UTF8.GetBytes(RetrieveSystemName());
-
-		Span<byte> buffer = stackalloc byte[identity.Length + 40];
-
-		identity.CopyTo(buffer[..identity.Length]);
-
-		BinaryPrimitives.WriteInt32LittleEndian(
-			buffer.Slice(identity.Length + 1, 4),
-			Environment.ProcessId
-		);
-
-		BinaryPrimitives.WriteInt32LittleEndian(
-			buffer.Slice(identity.Length + 6, 4),
-			Environment.CurrentManagedThreadId
-		);
-
-		Utils.GenerateRandom(32).CopyTo(buffer[^32..]);
-
-		return buffer.ToArray();
-	}
-
-	private static byte[] GenerateLegacyIdentity()
-	{
-		string machineName = RetrieveSystemName();
-
-		int machineIdentifier = machineName.Length + 36;
-		machineIdentifier = machineName.Aggregate(machineIdentifier, (i, c) => i + c);
-
-		string result = string.Create(4, machineIdentifier, (dest, _) =>
-		{
-			Environment.ProcessId.ToString(CultureInfo.InvariantCulture).TrimPad(2).WriteTo(ref dest);
-			machineIdentifier.ToString(CultureInfo.InvariantCulture).TrimPad(2).WriteTo(ref dest);
-		});
-
-		return Encoding.UTF8.GetBytes(result);
 	}
 
 	private static string GenerateSystemName()
@@ -64,19 +37,50 @@ internal static class Fingerprint
 			: hostname;
 	}
 
-	private static string RetrieveSystemName()
+	private byte[] GenerateIdentity()
 	{
-		string machineName;
-		try
+		byte[] identity = Encoding.UTF8.GetBytes(RetrieveSystemName());
+
+		Span<byte> buffer = stackalloc byte[identity.Length + 40];
+
+		identity.CopyTo(buffer[..identity.Length]);
+
+		BinaryPrimitives.WriteInt32LittleEndian(
+			buffer.Slice(identity.Length + 1, 4),
+			_environment.ProcessId
+		);
+
+		BinaryPrimitives.WriteInt32LittleEndian(
+			buffer.Slice(identity.Length + 6, 4),
+			_environment.CurrentManagedThreadId
+		);
+
+		Utils.GenerateRandom(32).CopyTo(buffer[^32..]);
+
+		return buffer.ToArray();
+	}
+
+	private byte[] GenerateLegacyIdentity()
+	{
+		string machineName = RetrieveSystemName();
+
+		int machineIdentifier = machineName.Length + 36;
+		machineIdentifier = machineName.Aggregate(machineIdentifier, (i, c) => i + c);
+
+		string result = string.Create(4, machineIdentifier, (dest, _) =>
 		{
-			machineName = !string.IsNullOrWhiteSpace(Environment.MachineName)
-				? Environment.MachineName
-				: GenerateSystemName();
-		}
-		catch ( InvalidOperationException )
-		{
-			machineName = GenerateSystemName();
-		}
+			_environment.ProcessId.ToString(CultureInfo.InvariantCulture).TrimPad(2).WriteTo(ref dest);
+			machineIdentifier.ToString(CultureInfo.InvariantCulture).TrimPad(2).WriteTo(ref dest);
+		});
+
+		return Encoding.UTF8.GetBytes(result);
+	}
+
+	private string RetrieveSystemName()
+	{
+		string machineName = !string.IsNullOrWhiteSpace(_environment.MachineName)
+			? _environment.MachineName
+			: GenerateSystemName();
 
 		return machineName;
 	}

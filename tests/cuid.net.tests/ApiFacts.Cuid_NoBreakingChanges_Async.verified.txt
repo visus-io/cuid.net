@@ -1,4 +1,6 @@
-﻿namespace Visus.Cuid
+﻿[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("DynamicProxyGenAssembly2")]
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("cuid.net.tests")]
+namespace Visus.Cuid
 {
     [System.Obsolete("Cuid is deprecated and should not be used. Use Cuid2 instead.", DiagnosticId="VISLIB0001")]
     [System.Text.Json.Serialization.JsonConverter(typeof(Visus.Cuid.Serialization.Json.Converters.CuidConverter))]

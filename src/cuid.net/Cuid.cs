@@ -9,9 +9,9 @@ using System.Text.Json.Serialization;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
+using Abstractions;
 using Extensions;
 using Serialization.Json.Converters;
-using Visus.Cuid.Abstractions;
 
 /// <summary>
 ///     Represents a collision resistant unique identifier (CUID).
@@ -26,7 +26,7 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 	///     A read-only instance of <see cref="Cuid" /> structure whose values are all zeros.
 	/// </summary>
 	public static readonly Cuid Empty;
-	
+
 	private const int BlockSize = 4;
 
 	private const string Prefix = "c";
@@ -295,7 +295,7 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 				.WriteTo(ref dest);
 		});
 	}
-	
+
 	private static bool IsAlphaNum(ReadOnlySpan<char> input)
 	{
 		foreach ( char t in input )
@@ -391,7 +391,7 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 
 		private static string GenerateFingerprint()
 		{
-			byte[] identity = Fingerprint.Generate(FingerprintVersion.One);
+			byte[] identity = new Fingerprint().Generate(FingerprintVersion.One);
 
 			return Encoding.UTF8.GetString(identity);
 		}
