@@ -10,9 +10,9 @@
       },
       "Microsoft.CodeAnalysis.NetAnalyzers": {
         "type": "Direct",
-        "requested": "[7.0.3, )",
-        "resolved": "7.0.3",
-        "contentHash": "PunKpMykRx4dRMPBPc+1Dayqz6VEPQODrO/NbspU8vXlxQixLfyGkrz0hWaHFB61X39xzjagd6jOyinKzRAlAw=="
+        "requested": "[7.0.4, )",
+        "resolved": "7.0.4",
+        "contentHash": "qkdUzgth6IBtGvGjII8PZ1B+dfXZ4VPXzlIGeE444vJlih/cVFTCTzF2ZY9s1buK1yLnkkDcTVGH2kyUWbyPTw=="
       },
       "Microsoft.SourceLink.GitHub": {
         "type": "Direct",
@@ -44,9 +44,9 @@
       },
       "Microsoft.CodeAnalysis.NetAnalyzers": {
         "type": "Direct",
-        "requested": "[7.0.3, )",
-        "resolved": "7.0.3",
-        "contentHash": "PunKpMykRx4dRMPBPc+1Dayqz6VEPQODrO/NbspU8vXlxQixLfyGkrz0hWaHFB61X39xzjagd6jOyinKzRAlAw=="
+        "requested": "[7.0.4, )",
+        "resolved": "7.0.4",
+        "contentHash": "qkdUzgth6IBtGvGjII8PZ1B+dfXZ4VPXzlIGeE444vJlih/cVFTCTzF2ZY9s1buK1yLnkkDcTVGH2kyUWbyPTw=="
       },
       "Microsoft.SourceLink.GitHub": {
         "type": "Direct",
