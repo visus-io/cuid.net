@@ -2,7 +2,7 @@
 
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
-using Org.BouncyCastle.Crypto.Digests;
+using OnixLabs.Security.Cryptography;
 
 /// <summary>
 ///     Represents a collision resistant unique identifier (CUID).
@@ -110,25 +110,21 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
 	public override string ToString()
 	{
 		Span<byte> data = stackalloc byte[16];
-		Span<byte> result = stackalloc byte[64];
 
 		BinaryPrimitives.WriteInt64LittleEndian(data[..8], _timestamp);
 		BinaryPrimitives.WriteUInt64LittleEndian(data[^8..], _counter);
 
-		Sha3Digest digest = new(512);
+		byte[] result2 = new byte[data.Length + _fingerprint.Length + _random.Length];
+		
+		Buffer.BlockCopy(data.ToArray(), 0, result2, 0, data.Length);
+		Buffer.BlockCopy(_fingerprint, 0, result2, data.Length, _fingerprint.Length);
+		Buffer.BlockCopy(_random, 0, result2, data.Length + _fingerprint.Length, _random.Length);
 
-		digest.BlockUpdate(data);
-		digest.BlockUpdate(_fingerprint);
-		digest.BlockUpdate(_random);
-
-		int bytesWritten = digest.DoFinal(result);
-
-		if ( bytesWritten != 64 )
-		{
-			return string.Empty;
-		}
-
-		return _prefix + Utils.Encode(result.ToArray())[..( _maxLength - 1 )];
+		using Sha3Hash512 digest = new();
+		
+		byte[] hash = digest.ComputeHash(result2);
+			
+		return _prefix + Utils.Encode(hash)[..( _maxLength - 1 )];
 	}
 
 	private static class Context
