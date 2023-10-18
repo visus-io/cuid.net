@@ -2,7 +2,7 @@
 
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
-using OnixLabs.Security.Cryptography;
+using NSec.Cryptography;
 
 /// <summary>
 ///     Represents a collision resistant unique identifier (CUID).
@@ -109,22 +109,27 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
 	/// <returns>The value of this <see cref="Cuid2" />.</returns>
 	public override string ToString()
 	{
-		Span<byte> data = stackalloc byte[16];
-
-		BinaryPrimitives.WriteInt64LittleEndian(data[..8], _timestamp);
-		BinaryPrimitives.WriteUInt64LittleEndian(data[^8..], _counter);
-
-		byte[] result2 = new byte[data.Length + _fingerprint.Length + _random.Length];
+		Span<byte> buffer = stackalloc byte[16];
+		Span<byte> result = stackalloc byte[64];
 		
-		Buffer.BlockCopy(data.ToArray(), 0, result2, 0, data.Length);
-		Buffer.BlockCopy(_fingerprint, 0, result2, data.Length, _fingerprint.Length);
-		Buffer.BlockCopy(_random, 0, result2, data.Length + _fingerprint.Length, _random.Length);
+		BinaryPrimitives.WriteInt64LittleEndian(buffer[..8], _timestamp);
+		BinaryPrimitives.WriteUInt64LittleEndian(buffer[^8..], _counter);
 
-		using Sha3Hash512 digest = new();
+		byte[] data = new byte[buffer.Length + _fingerprint.Length + _random.Length];
 		
-		byte[] hash = digest.ComputeHash(result2);
-			
-		return _prefix + Utils.Encode(hash)[..( _maxLength - 1 )];
+		Buffer.BlockCopy(buffer.ToArray(), 0, data, 0, buffer.Length);
+		Buffer.BlockCopy(_fingerprint, 0, data, buffer.Length, _fingerprint.Length);
+		Buffer.BlockCopy(_random, 0, data, buffer.Length + _fingerprint.Length, _random.Length);
+		
+		Sha512 sha512 = new();
+
+		sha512.Hash(data, result);
+		if ( !sha512.Verify(data, result) )
+		{
+			return string.Empty;
+		}
+		
+		return _prefix + Utils.Encode(result)[..( _maxLength - 1 )];
 	}
 
 	private static class Context
