@@ -110,26 +110,19 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
 	public override string ToString()
 	{
 		Span<byte> buffer = stackalloc byte[16];
-		Span<byte> result = stackalloc byte[64];
 		
 		BinaryPrimitives.WriteInt64LittleEndian(buffer[..8], _timestamp);
 		BinaryPrimitives.WriteUInt64LittleEndian(buffer[^8..], _counter);
 
-		byte[] data = new byte[buffer.Length + _fingerprint.Length + _random.Length];
+		IncrementalHash.Initialize(HashAlgorithm.Sha512, out IncrementalHash state);
 		
-		Buffer.BlockCopy(buffer.ToArray(), 0, data, 0, buffer.Length);
-		Buffer.BlockCopy(_fingerprint, 0, data, buffer.Length, _fingerprint.Length);
-		Buffer.BlockCopy(_random, 0, data, buffer.Length + _fingerprint.Length, _random.Length);
-		
-		Sha512 sha512 = new();
+		IncrementalHash.Update(ref state, buffer);
+		IncrementalHash.Update(ref state, _fingerprint);
+		IncrementalHash.Update(ref state, _random);
 
-		sha512.Hash(data, result);
-		if ( !sha512.Verify(data, result) )
-		{
-			return string.Empty;
-		}
+		byte[] hash = IncrementalHash.Finalize(ref state);
 		
-		return _prefix + Utils.Encode(result)[..( _maxLength - 1 )];
+		return _prefix + Utils.Encode(hash)[..( _maxLength - 1 )];
 	}
 
 	private static class Context
