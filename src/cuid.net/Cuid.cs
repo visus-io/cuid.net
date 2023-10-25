@@ -4,29 +4,29 @@ using System.Buffers.Binary;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Text.Json.Serialization;
-using System.Xml;
-using System.Xml.Schema;
 using System.Xml.Serialization;
+using Abstractions;
 using Extensions;
 using Serialization.Json.Converters;
-using Visus.Cuid.Abstractions;
 
 /// <summary>
 ///     Represents a collision resistant unique identifier (CUID).
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
 [JsonConverter(typeof(CuidConverter))]
+[Serializable]
 [XmlRoot("cuid")]
 [Obsolete(Obsoletions.CuidMessage, DiagnosticId = Obsoletions.CuidDiagId)]
-public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, IXmlSerializable
+public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>
 {
 	/// <summary>
 	///     A read-only instance of <see cref="Cuid" /> structure whose values are all zeros.
 	/// </summary>
 	public static readonly Cuid Empty;
-	
+
 	private const int BlockSize = 4;
 
 	private const string Prefix = "c";
@@ -58,7 +58,7 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 
 		this = result.ToCuid();
 	}
-
+	
 	/// <summary>
 	///     Initializes a new instance of the <see cref="Cuid" /> structure.
 	/// </summary>
@@ -295,7 +295,7 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 				.WriteTo(ref dest);
 		});
 	}
-	
+
 	private static bool IsAlphaNum(ReadOnlySpan<char> input)
 	{
 		foreach ( char t in input )
@@ -335,27 +335,28 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 		return true;
 	}
 
-	[ExcludeFromCodeCoverage]
-	XmlSchema? IXmlSerializable.GetSchema()
-	{
-		return null;
-	}
+	// [ExcludeFromCodeCoverage]
+	// XmlSchema? IXmlSerializable.GetSchema()
+	// {
+	// 	return null;
+	// }
 
-	void IXmlSerializable.ReadXml(XmlReader reader)
-	{
-		reader.Read();
+	// void IXmlSerializable.ReadXml(XmlReader reader)
+	// {
+	// 	reader.Read();
+	//
+	// 	CuidResult result = new();
+	//
+	// 	_ = TryParseCuid(reader.Value, true, ref result);
+	//
+	// 	this = new Cuid(result.ToCuid().ToString());
+	// 	Unsafe.AsRef(ref this) = result.ToCuid();
+	// }
 
-		CuidResult result = new();
-
-		_ = TryParseCuid(reader.Value, true, ref result);
-
-		Unsafe.AsRef(this) = result.ToCuid();
-	}
-
-	void IXmlSerializable.WriteXml(XmlWriter writer)
-	{
-		writer.WriteString(ToString());
-	}
+	// void IXmlSerializable.WriteXml(XmlWriter writer)
+	// {
+	// 	writer.WriteString(ToString());
+	// }
 
 	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	[StructLayout(LayoutKind.Explicit)]
@@ -364,7 +365,8 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public readonly Cuid ToCuid()
 		{
-			return Unsafe.As<CuidResult, Cuid>(ref Unsafe.AsRef(in this));
+			CuidResult result = this;
+			return Unsafe.As<CuidResult, Cuid>(ref Unsafe.AsRef(ref result));
 		}
 
 #pragma warning disable CA1822

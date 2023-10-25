@@ -29,9 +29,7 @@ jobs:
       - name: Install .NET SDK
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: |
-            6.0.x
-            7.0.x
+          global-json-file: global.json
       - name: Install GitVersion
         uses: gittools/actions/gitversion/setup@v0.10.2
         with:
