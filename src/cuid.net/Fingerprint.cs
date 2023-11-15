@@ -11,8 +11,8 @@ internal static class Fingerprint
 	public static byte[] Generate(FingerprintVersion version = FingerprintVersion.Two)
 	{
 		return version == FingerprintVersion.One
-			? GenerateLegacyIdentity()
-			: GenerateIdentity();
+				   ? GenerateLegacyIdentity()
+				   : GenerateIdentity();
 	}
 
 	private static byte[] GenerateIdentity()
@@ -24,14 +24,14 @@ internal static class Fingerprint
 		identity.CopyTo(buffer[..identity.Length]);
 
 		BinaryPrimitives.WriteInt32LittleEndian(
-			buffer.Slice(identity.Length + 1, 4),
-			Environment.ProcessId
-		);
+												buffer.Slice(identity.Length + 1, 4),
+												Environment.ProcessId
+											   );
 
 		BinaryPrimitives.WriteInt32LittleEndian(
-			buffer.Slice(identity.Length + 6, 4),
-			Environment.CurrentManagedThreadId
-		);
+												buffer.Slice(identity.Length + 6, 4),
+												Environment.CurrentManagedThreadId
+											   );
 
 		Utils.GenerateRandom(32).CopyTo(buffer[^32..]);
 
@@ -46,10 +46,13 @@ internal static class Fingerprint
 		machineIdentifier = machineName.Aggregate(machineIdentifier, (i, c) => i + c);
 
 		string result = string.Create(4, machineIdentifier, (dest, _) =>
-		{
-			Environment.ProcessId.ToString(CultureInfo.InvariantCulture).TrimPad(2).WriteTo(ref dest);
-			machineIdentifier.ToString(CultureInfo.InvariantCulture).TrimPad(2).WriteTo(ref dest);
-		});
+															{
+																Environment.ProcessId
+																		   .ToString(CultureInfo.InvariantCulture)
+																		   .TrimPad(2).WriteTo(ref dest);
+																machineIdentifier.ToString(CultureInfo.InvariantCulture)
+																				 .TrimPad(2).WriteTo(ref dest);
+															});
 
 		return Encoding.UTF8.GetBytes(result);
 	}
@@ -60,8 +63,8 @@ internal static class Fingerprint
 		string hostname = Convert.ToHexString(bytes).ToUpperInvariant();
 
 		return OperatingSystem.IsWindows()
-			? hostname[..15] // windows hostnames are limited to 15 characters 
-			: hostname;
+				   ? hostname[..15] // windows hostnames are limited to 15 characters 
+				   : hostname;
 	}
 
 	private static string RetrieveSystemName()
@@ -70,8 +73,8 @@ internal static class Fingerprint
 		try
 		{
 			machineName = !string.IsNullOrWhiteSpace(Environment.MachineName)
-				? Environment.MachineName
-				: GenerateSystemName();
+							  ? Environment.MachineName
+							  : GenerateSystemName();
 		}
 		catch ( InvalidOperationException )
 		{

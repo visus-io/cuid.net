@@ -5,8 +5,8 @@ internal static class StringExtensions
 	internal static string TrimPad(this string source, int size)
 	{
 		return string.IsNullOrWhiteSpace(source)
-			? string.Empty
-			: source.PadLeft(9, '0')[^size..];
+				   ? string.Empty
+				   : source.PadLeft(9, '0')[^size..];
 	}
 
 	internal static void WriteTo(this string source, ref Span<char> destination)

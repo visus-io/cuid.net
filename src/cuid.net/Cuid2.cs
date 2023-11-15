@@ -48,7 +48,7 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
 		if ( maxLength is < 4 or > 32 )
 		{
 			throw new ArgumentOutOfRangeException(nameof(maxLength),
-				string.Format(Resources.Resources.Arg_Cuid2IntCtor, "4", "32"));
+												  string.Format(Resources.Resources.Arg_Cuid2IntCtor, "4", "32"));
 		}
 
 		_maxLength = maxLength;
@@ -85,10 +85,10 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
 	public bool Equals(Cuid2 other)
 	{
 		return _counter == other._counter &&
-		       _fingerprint.Equals(other._fingerprint) &&
-		       _prefix == other._prefix &&
-		       _random.Equals(other._random) &&
-		       _timestamp == other._timestamp;
+			   _fingerprint.Equals(other._fingerprint) &&
+			   _prefix == other._prefix &&
+			   _random.Equals(other._random) &&
+			   _timestamp == other._timestamp;
 	}
 
 	/// <inheritdoc />
@@ -110,18 +110,18 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
 	public override string ToString()
 	{
 		Span<byte> buffer = stackalloc byte[16];
-		
+
 		BinaryPrimitives.WriteInt64LittleEndian(buffer[..8], _timestamp);
 		BinaryPrimitives.WriteUInt64LittleEndian(buffer[^8..], _counter);
 
 		IncrementalHash.Initialize(HashAlgorithm.Sha512, out IncrementalHash state);
-		
+
 		IncrementalHash.Update(ref state, buffer);
 		IncrementalHash.Update(ref state, _fingerprint);
 		IncrementalHash.Update(ref state, _random);
 
 		byte[] hash = IncrementalHash.Finalize(ref state);
-		
+
 		return _prefix + Utils.Encode(hash)[..( _maxLength - 1 )];
 	}
 
