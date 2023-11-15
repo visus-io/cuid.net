@@ -6,7 +6,7 @@ on:
       - main
     paths-ignore:
       - '**.md'
-      - '**/renovate.json' 
+      - '**/renovate.json'
       - '.github/workflows/release.yaml'
   pull_request:
     paths-ignore:
@@ -20,7 +20,7 @@ jobs:
     env:
       DOTNET_CLI_TELEMETRY_OPTOUT: true
       DOTNET_NOLOGO: true
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -37,7 +37,7 @@ jobs:
         with:
           global-json-file: global.json
       - name: Build
-        run: dotnet build -c release 
+        run: dotnet build -c release
       - name: Test
         run: |
           dotnet test -c release --no-restore --no-build \
@@ -58,5 +58,5 @@ jobs:
         uses: codacy/codacy-coverage-reporter-action@v1
         with:
           project-token: ${{ secrets.CODACY_TOKEN }}
-          coverage-reports: ${{ runner.temp }}/coverage.opencover.*.xml
+          coverage-reports: ${{ runner.temp }}/coverage.opencover.xml
           

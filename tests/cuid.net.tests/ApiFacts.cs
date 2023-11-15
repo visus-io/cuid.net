@@ -3,7 +3,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using PublicApiGenerator;
-using Visus.Cuid;
 
 [ExcludeFromCodeCoverage]
 [UsesVerify]

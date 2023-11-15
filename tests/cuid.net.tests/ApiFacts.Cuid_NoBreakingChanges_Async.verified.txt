@@ -3,8 +3,7 @@
     [System.Obsolete("Cuid is deprecated and should not be used. Use Cuid2 instead.", DiagnosticId="VISLIB0001")]
     [System.Text.Json.Serialization.JsonConverter(typeof(Visus.Cuid.Serialization.Json.Converters.CuidConverter))]
     [System.Xml.Serialization.XmlRoot("cuid")]
-    [System.Serializable]
-    public readonly struct Cuid : System.IComparable, System.IComparable<Visus.Cuid.Cuid>, System.IEquatable<Visus.Cuid.Cuid>
+    public readonly struct Cuid : System.IComparable, System.IComparable<Visus.Cuid.Cuid>, System.IEquatable<Visus.Cuid.Cuid>, System.Xml.Serialization.IXmlSerializable
     {
         public static readonly Visus.Cuid.Cuid Empty;
         public Cuid(string c) { }

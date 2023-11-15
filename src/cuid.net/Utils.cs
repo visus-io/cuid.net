@@ -16,8 +16,8 @@ internal static class Utils
 	internal static ulong Decode(ReadOnlySpan<char> input)
 	{
 		return input.ToString()
-			.Select(s => s is >= '0' and <= '9' ? s - '0' : 10 + s - 'a')
-			.Aggregate((ulong) 0, (i, c) => ( i * Radix ) + (uint) c);
+					.Select(s => s is >= '0' and <= '9' ? s - '0' : 10 + s - 'a')
+					.Aggregate((ulong) 0, (i, c) => ( i * Radix ) + (uint) c);
 	}
 
 	internal static string Encode(ReadOnlySpan<byte> value)

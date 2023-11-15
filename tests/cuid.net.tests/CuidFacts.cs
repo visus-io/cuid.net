@@ -6,7 +6,6 @@ using System.Text;
 using System.Text.Json;
 using System.Xml;
 using System.Xml.Serialization;
-using Visus.Cuid;
 
 [ExcludeFromCodeCoverage]
 public class CuidFacts
@@ -112,8 +111,8 @@ public class CuidFacts
 		var cuidString = cuid.ToString();
 
 		var result = cuidString.Length == 25
-		             && cuidString.All(char.IsLetterOrDigit)
-		             && cuid != Cuid.Empty;
+				  && cuidString.All(char.IsLetterOrDigit)
+				  && cuid != Cuid.Empty;
 
 		Assert.True(result);
 	}
@@ -214,7 +213,11 @@ public class CuidFacts
 		var cuid = new Cuid(CuidString);
 
 		var serializer = new XmlSerializer(typeof(Cuid));
-		var settings = new XmlWriterSettings { Indent = false, Encoding = new UnicodeEncoding(false, false) };
+		var settings = new XmlWriterSettings
+		{
+			Indent = false,
+			Encoding = new UnicodeEncoding(false, false)
+		};
 
 		using var stringWriter = new StringWriter();
 		using var xmlWriter = XmlWriter.Create(stringWriter, settings);

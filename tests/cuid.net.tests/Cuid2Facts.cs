@@ -13,7 +13,7 @@ public class Cuid2Facts
 		var cuidString = cuid.ToString();
 
 		var result = cuidString.Length == 24
-		             && cuidString.All(char.IsLetterOrDigit);
+				  && cuidString.All(char.IsLetterOrDigit);
 
 		Assert.True(result);
 	}
@@ -26,7 +26,7 @@ public class Cuid2Facts
 		var cuidString = cuid.ToString();
 
 		var result = cuidString.Length == 10
-		             && cuidString.All(char.IsLetterOrDigit);
+				  && cuidString.All(char.IsLetterOrDigit);
 
 		Assert.True(result);
 	}

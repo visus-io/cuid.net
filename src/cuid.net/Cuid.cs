@@ -4,9 +4,10 @@ using System.Buffers.Binary;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
 using System.Text;
 using System.Text.Json.Serialization;
+using System.Xml;
+using System.Xml.Schema;
 using System.Xml.Serialization;
 using Abstractions;
 using Extensions;
@@ -17,10 +18,9 @@ using Serialization.Json.Converters;
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
 [JsonConverter(typeof(CuidConverter))]
-[Serializable]
 [XmlRoot("cuid")]
 [Obsolete(Obsoletions.CuidMessage, DiagnosticId = Obsoletions.CuidDiagId)]
-public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>
+public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, IXmlSerializable
 {
 	/// <summary>
 	///     A read-only instance of <see cref="Cuid" /> structure whose values are all zeros.
@@ -58,7 +58,7 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>
 
 		this = result.ToCuid();
 	}
-	
+
 	/// <summary>
 	///     Initializes a new instance of the <see cref="Cuid" /> structure.
 	/// </summary>
@@ -240,17 +240,17 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>
 		}
 
 		return obj is Cuid other
-			? CompareTo(other)
-			: throw new ArgumentException($"Object must be of type {nameof(Cuid)}");
+				   ? CompareTo(other)
+				   : throw new ArgumentException($"Object must be of type {nameof(Cuid)}");
 	}
 
 	/// <inheritdoc />
 	public bool Equals(Cuid other)
 	{
 		return _counter == other._counter &&
-		       string.Equals(_fingerprint, other._fingerprint, StringComparison.OrdinalIgnoreCase) &&
-		       _random == other._random &&
-		       _timestamp == other._timestamp;
+			   string.Equals(_fingerprint, other._fingerprint, StringComparison.OrdinalIgnoreCase) &&
+			   _random == other._random &&
+			   _timestamp == other._timestamp;
 	}
 
 	/// <inheritdoc />
@@ -279,21 +279,37 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>
 	public override string ToString()
 	{
 		return string.Create(25, ( _t: _timestamp, _c: _counter, _f: _fingerprint, _r: _random ), (dest, buffer) =>
-		{
-			Prefix.WriteTo(ref dest);
+																								  {
+																									  Prefix
+																										 .WriteTo(ref
+																												  dest);
 
-			Utils.Encode((ulong) buffer._t).WriteTo(ref dest);
+																									  Utils
+																										 .Encode((ulong)
+																												 buffer
+																													._t)
+																										 .WriteTo(ref
+																												  dest);
 
-			Utils.Encode(buffer._c)
-				.TrimPad(BlockSize)
-				.WriteTo(ref dest);
+																									  Utils
+																										 .Encode(buffer
+																													._c)
+																										 .TrimPad(BlockSize)
+																										 .WriteTo(ref
+																												  dest);
 
-			buffer._f.WriteTo(ref dest);
+																									  buffer._f
+																											.WriteTo(ref
+																													 dest);
 
-			Utils.Encode(buffer._r)
-				.TrimPad(BlockSize * 2)
-				.WriteTo(ref dest);
-		});
+																									  Utils
+																										 .Encode(buffer
+																													._r)
+																										 .TrimPad(BlockSize *
+																												  2)
+																										 .WriteTo(ref
+																												  dest);
+																								  });
 	}
 
 	private static bool IsAlphaNum(ReadOnlySpan<char> input)
@@ -335,28 +351,32 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>
 		return true;
 	}
 
-	// [ExcludeFromCodeCoverage]
-	// XmlSchema? IXmlSerializable.GetSchema()
-	// {
-	// 	return null;
-	// }
+	[ExcludeFromCodeCoverage]
+	XmlSchema? IXmlSerializable.GetSchema()
+	{
+		return null;
+	}
 
-	// void IXmlSerializable.ReadXml(XmlReader reader)
-	// {
-	// 	reader.Read();
-	//
-	// 	CuidResult result = new();
-	//
-	// 	_ = TryParseCuid(reader.Value, true, ref result);
-	//
-	// 	this = new Cuid(result.ToCuid().ToString());
-	// 	Unsafe.AsRef(ref this) = result.ToCuid();
-	// }
+	unsafe void IXmlSerializable.ReadXml(XmlReader reader)
+	{
+		reader.Read();
 
-	// void IXmlSerializable.WriteXml(XmlWriter writer)
-	// {
-	// 	writer.WriteString(ToString());
-	// }
+		CuidResult result = new();
+
+		_ = TryParseCuid(reader.Value, true, ref result);
+
+		#pragma warning disable CS8500 
+		fixed ( Cuid* c = &this )
+		{
+			*c = result.ToCuid();
+		}
+		#pragma warning restore CS8500
+	}
+
+	void IXmlSerializable.WriteXml(XmlWriter writer)
+	{
+		writer.WriteString(ToString());
+	}
 
 	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	[StructLayout(LayoutKind.Explicit)]
@@ -369,14 +389,15 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>
 			return Unsafe.As<CuidResult, Cuid>(ref Unsafe.AsRef(ref result));
 		}
 
-#pragma warning disable CA1822
+		#pragma warning disable CA1822
 		// ReSharper disable once MemberCanBeMadeStatic.Local
 		internal readonly void SetFailure(string message)
-#pragma warning restore CA1822
 		{
 			throw new FormatException(message);
 		}
-#pragma warning disable S4487
+		#pragma warning restore CA1822
+
+		#pragma warning disable S4487
 		[FieldOffset(8)] internal ulong _counter;
 
 		[FieldOffset(0)] internal string _fingerprint;
@@ -384,7 +405,7 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>
 		[FieldOffset(16)] internal ulong _random;
 
 		[FieldOffset(24)] internal long _timestamp;
-#pragma warning restore S4487
+		#pragma warning restore S4487
 	}
 
 	private static class Context
