@@ -4,9 +4,9 @@
     "net8.0": {
       "Microsoft.CodeAnalysis.NetAnalyzers": {
         "type": "Direct",
-        "requested": "[8.0.0-preview.23525.2, )",
-        "resolved": "8.0.0-preview.23525.2",
-        "contentHash": "eaufmOmIK10n0amc4a6VHbpr6fGZEqydysgVBW5lYyLx9NPFLUNx3VSTDbzgYERuGs8MYggKe4tSSsTgcDhqkg=="
+        "requested": "[8.0.0, )",
+        "resolved": "8.0.0",
+        "contentHash": "DxiTgkCl3CGq1rYmBX2wjY7XGbxiBdL4J+/AJIAFLKy5z70NxhnVRnPghnicXZ8oF6JKVXlW3xwznRbI3ioEKg=="
       },
       "Microsoft.NET.ILLink.Tasks": {
         "type": "Direct",
