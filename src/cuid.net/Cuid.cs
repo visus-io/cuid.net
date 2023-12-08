@@ -278,38 +278,24 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 	/// <returns>The value of this <see cref="Cuid" />.</returns>
 	public override string ToString()
 	{
-		return string.Create(25, ( _t: _timestamp, _c: _counter, _f: _fingerprint, _r: _random ), (dest, buffer) =>
-																								  {
-																									  Prefix
-																										 .WriteTo(ref
-																												  dest);
+		return string.Create(25, ( _t: _timestamp, _c: _counter, _f: _fingerprint, _r: _random ),
+							 (dest, buffer) =>
+							 {
+								 Prefix.WriteTo(ref dest);
 
-																									  Utils
-																										 .Encode((ulong)
-																												 buffer
-																													._t)
-																										 .WriteTo(ref
-																												  dest);
+								 Utils.Encode((ulong) buffer._t)
+									  .WriteTo(ref dest);
 
-																									  Utils
-																										 .Encode(buffer
-																													._c)
-																										 .TrimPad(BlockSize)
-																										 .WriteTo(ref
-																												  dest);
+								 Utils.Encode(buffer._c)
+									  .TrimPad(BlockSize)
+									  .WriteTo(ref dest);
 
-																									  buffer._f
-																											.WriteTo(ref
-																													 dest);
+								 buffer._f.WriteTo(ref dest);
 
-																									  Utils
-																										 .Encode(buffer
-																													._r)
-																										 .TrimPad(BlockSize *
-																												  2)
-																										 .WriteTo(ref
-																												  dest);
-																								  });
+								 Utils.Encode(buffer._r)
+									  .TrimPad(BlockSize * 2)
+									  .WriteTo(ref dest);
+							 });
 	}
 
 	private static bool IsAlphaNum(ReadOnlySpan<char> input)
@@ -357,27 +343,24 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
 		return null;
 	}
 
-	unsafe void IXmlSerializable.ReadXml(XmlReader reader)
+	/// <inheritdoc />
+	public void ReadXml(XmlReader reader)
 	{
 		reader.Read();
-
+		
 		CuidResult result = new();
-
+		
 		_ = TryParseCuid(reader.Value, true, ref result);
 
-		#pragma warning disable CS8500 
-		fixed ( Cuid* c = &this )
-		{
-			*c = result.ToCuid();
-		}
-		#pragma warning restore CS8500
+		Unsafe.AsRef(in this) = result.ToCuid();
 	}
 
-	void IXmlSerializable.WriteXml(XmlWriter writer)
+	/// <inheritdoc />
+	public void WriteXml(XmlWriter writer)
 	{
 		writer.WriteString(ToString());
 	}
-
+	
 	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	[StructLayout(LayoutKind.Explicit)]
 	private struct CuidResult

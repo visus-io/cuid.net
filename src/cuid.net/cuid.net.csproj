@@ -6,7 +6,6 @@
         <Nullable>enable</Nullable>
         <RootNamespace>Visus.Cuid</RootNamespace>
         <Copyright>Copyright (c) 2023 Visus Development Team</Copyright>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <PropertyGroup>

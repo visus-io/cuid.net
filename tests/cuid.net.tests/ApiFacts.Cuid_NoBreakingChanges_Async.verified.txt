@@ -12,7 +12,9 @@
         public bool Equals(Visus.Cuid.Cuid other) { }
         public override bool Equals(object? obj) { }
         public override int GetHashCode() { }
+        public void ReadXml(System.Xml.XmlReader reader) { }
         public override string ToString() { }
+        public void WriteXml(System.Xml.XmlWriter writer) { }
         public static Visus.Cuid.Cuid NewCuid() { }
         public static Visus.Cuid.Cuid Parse(System.ReadOnlySpan<char> input) { }
         public static Visus.Cuid.Cuid Parse(string input) { }
