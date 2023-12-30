@@ -1,8 +1,6 @@
 # cuid.net
 
-[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/visus-io/cuid.net/ci.yaml?style=for-the-badge&logo=github)](https://github.com/visus-io/cuid.net/actions/workflows/ci.yaml)
-[![Code Quality](https://img.shields.io/codacy/grade/98f0cdfc65f947629c0434869b30ea21?style=for-the-badge&logo=codacy)](https://app.codacy.com/gh/visus-io/cuid.net/dashboard)
-[![Coverage](https://img.shields.io/codacy/coverage/98f0cdfc65f947629c0434869b30ea21?style=for-the-badge&logo=codacy)](https://app.codacy.com/gh/visus-io/cuid.net/coverage/dashboard)
+**NOTICE: I am no longer maintaining this library as I have nor the time nor the interest.**
 
 [![Nuget](https://img.shields.io/nuget/v/cuid.net?style=for-the-badge&logo=nuget&label=stable)](https://www.nuget.org/packages/cuid.net)
 ![Downloads](https://img.shields.io/nuget/dt/cuid.net?style=for-the-badge&logo=nuget)
