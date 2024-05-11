@@ -1,24 +1,24 @@
-﻿namespace Visus.Cuid.Tests;
-
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
-using PublicApiGenerator;
-
-[ExcludeFromCodeCoverage]
-public class ApiFacts
+﻿namespace Visus.Cuid.Tests
 {
-	[Fact]
-	[MethodImpl(MethodImplOptions.NoInlining)]
-	public async Task Cuid_NoBreakingChanges_Async()
-	{
-		var api = typeof(Cuid2).Assembly.GeneratePublicApi(new ApiGeneratorOptions
-		{
-			ExcludeAttributes = new[]
-			{
-				"System.Runtime.Versioning.TargetFrameworkAttribute", "System.Reflection.AssemblyMetadataAttribute"
-			}
-		});
+	using System.Diagnostics.CodeAnalysis;
+	using System.Runtime.CompilerServices;
+	using System.Threading.Tasks;
+	using PublicApiGenerator;
+	using VerifyXunit;
 
-		await Verify(api);
+	[ExcludeFromCodeCoverage]
+	public class ApiFacts
+	{
+		[Fact]
+		[MethodImpl(MethodImplOptions.NoInlining)]
+		public async Task Cuid_NoBreakingChanges_Async()
+		{
+			var api = typeof(Cuid2).Assembly.GeneratePublicApi(new ApiGeneratorOptions
+			{
+				ExcludeAttributes = ["System.Runtime.Versioning.TargetFrameworkAttribute", "System.Reflection.AssemblyMetadataAttribute"]
+			});
+
+			await Verifier.Verify(api);
+		}
 	}
 }
