@@ -2,11 +2,20 @@
   "version": 2,
   "dependencies": {
     ".NETStandard,Version=v2.0": {
-      "Meziantou.Polyfill": {
+      "CommunityToolkit.Diagnostics": {
         "type": "Direct",
-        "requested": "[1.0.38, )",
-        "resolved": "1.0.38",
-        "contentHash": "VHZvKZPwcYJZUwHi1Oh6ZtnqCRompotJjxtLG0Sk/eKgdM76EX6kn27Gq0jT9vymnwPG38hKHGKRFjRrIP8b3g=="
+        "requested": "[8.2.2, )",
+        "resolved": "8.2.2",
+        "contentHash": "iILVyo7VvzTlQT7b2qOs1ZDcneKsmuy2mTuxCCaBWEfg3tjw35B/ImO9Xw6It7xi2ie8/2PWfXhFn+Prztg03w==",
+        "dependencies": {
+          "System.Memory": "4.5.5"
+        }
+      },
+      "Microsoft.Bcl.HashCode": {
+        "type": "Direct",
+        "requested": "[1.1.1, )",
+        "resolved": "1.1.1",
+        "contentHash": "MalY0Y/uM/LjXtHfX/26l2VtN4LDNZ2OE3aumNOHDLsT4fNYy2hiHXI4CXCqKpNUNm7iJ2brrc4J89UdaL56FA=="
       },
       "Microsoft.CodeAnalysis.NetAnalyzers": {
         "type": "Direct",
@@ -43,6 +52,12 @@
           "System.Runtime.CompilerServices.Unsafe": "4.7.0",
           "libsodium": "[1.0.18, 1.0.19)"
         }
+      },
+      "PolySharp": {
+        "type": "Direct",
+        "requested": "[1.14.1, )",
+        "resolved": "1.14.1",
+        "contentHash": "mOOmFYwad3MIOL14VCjj02LljyF1GNw1wP0YVlxtcPvqdxjGGMNdNJJxHptlry3MOd8b40Flm8RPOM8JOlN2sQ=="
       },
       "System.Text.Json": {
         "type": "Direct",
@@ -134,11 +149,11 @@
       }
     },
     "net8.0": {
-      "Meziantou.Polyfill": {
+      "CommunityToolkit.Diagnostics": {
         "type": "Direct",
-        "requested": "[1.0.38, )",
-        "resolved": "1.0.38",
-        "contentHash": "VHZvKZPwcYJZUwHi1Oh6ZtnqCRompotJjxtLG0Sk/eKgdM76EX6kn27Gq0jT9vymnwPG38hKHGKRFjRrIP8b3g=="
+        "requested": "[8.2.2, )",
+        "resolved": "8.2.2",
+        "contentHash": "iILVyo7VvzTlQT7b2qOs1ZDcneKsmuy2mTuxCCaBWEfg3tjw35B/ImO9Xw6It7xi2ie8/2PWfXhFn+Prztg03w=="
       },
       "Microsoft.CodeAnalysis.NetAnalyzers": {
         "type": "Direct",
@@ -170,6 +185,12 @@
         "dependencies": {
           "libsodium": "[1.0.19, 1.0.20)"
         }
+      },
+      "PolySharp": {
+        "type": "Direct",
+        "requested": "[1.14.1, )",
+        "resolved": "1.14.1",
+        "contentHash": "mOOmFYwad3MIOL14VCjj02LljyF1GNw1wP0YVlxtcPvqdxjGGMNdNJJxHptlry3MOd8b40Flm8RPOM8JOlN2sQ=="
       },
       "libsodium": {
         "type": "Transitive",

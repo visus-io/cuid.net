@@ -10,6 +10,7 @@ namespace Visus.Cuid.Tests
 	using System.Text.Json;
 	using System.Xml;
 	using System.Xml.Serialization;
+	using Xunit;
 
 	[ExcludeFromCodeCoverage]
 	public class CuidFacts
@@ -153,7 +154,7 @@ namespace Visus.Cuid.Tests
 		[Fact]
 		public void Cuid_TryParse_Null_ReturnsFalse()
 		{
-			var result = Cuid.TryParse(null, out _);
+			var result = Cuid.TryParse((string) null, out _);
 
 			Assert.False(result);
 		}
@@ -202,12 +203,24 @@ namespace Visus.Cuid.Tests
 
 			var serializer = new XmlSerializer(typeof(Cuid));
 
+#if NET8_0_OR_GREATER
 			using var stringReader = new StringReader(xml);
 			using var xmlReader = XmlReader.Create(stringReader);
 
 			var cuid = serializer.Deserialize(xmlReader);
 
 			Assert.Equal(expected, cuid);
+#else
+			using ( var stringReader = new StringReader(xml) )
+			{
+				using ( var xmlReader = XmlReader.Create(stringReader) )
+				{
+					var cuid = serializer.Deserialize(xmlReader);
+
+					Assert.Equal(expected, cuid);
+				}
+			}
+#endif
 		}
 
 		[Fact]
@@ -223,12 +236,24 @@ namespace Visus.Cuid.Tests
 				Encoding = new UnicodeEncoding(false, false)
 			};
 
+#if NET8_0_OR_GREATER
 			using var stringWriter = new StringWriter();
 			using var xmlWriter = XmlWriter.Create(stringWriter, settings);
 
 			serializer.Serialize(xmlWriter, cuid);
 
 			Assert.Equal(expected, stringWriter.ToString());
+#else
+			using ( var stringWriter = new StringWriter() )
+			{
+				using ( var xmlWriter = XmlWriter.Create(stringWriter, settings) )
+				{
+					serializer.Serialize(xmlWriter, cuid);
+
+					Assert.Equal(expected, stringWriter.ToString());
+				}
+			}
+#endif
 		}
 	}
 }

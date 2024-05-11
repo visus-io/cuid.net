@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
+        <TargetFrameworks>net4.7;net8.0</TargetFrameworks>
         <IsPackable>false</IsPackable>
         <RootNamespace>Visus.Cuid.Tests</RootNamespace>
         <OutputType>Library</OutputType>
@@ -16,11 +16,11 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Meziantou.Polyfill">
+        <PackageReference Include="Meziantou.Polyfill" Condition="$(TargetFramework) == 'netstandard2.0'">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers"/>
+        <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" />
         <PackageReference Include="Microsoft.NET.Test.Sdk"/>
         <PackageReference Include="PublicApiGenerator"/>
         <PackageReference Include="System.Text.Json" Condition="$(TargetFramework) == 'netstandard2.0'" />

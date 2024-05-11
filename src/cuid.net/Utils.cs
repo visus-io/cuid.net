@@ -1,27 +1,47 @@
 ﻿namespace Visus.Cuid
 {
 	using System;
-	using System.Linq;
 	using System.Numerics;
 	using System.Security.Cryptography;
+#if NET8_0_OR_GREATER
+	using System.Linq;
+	using System.Runtime.CompilerServices;
+#endif
 
 	internal static class Utils
 	{
+#if NET8_0_OR_GREATER
 		private static readonly BigInteger BigRadix = new(36);
+#else
+		private static readonly BigInteger BigRadix = new BigInteger(36);
+#endif
 
 		private static readonly double BitsPerDigit = Math.Log(36, 2);
 
 		private const int Radix = 36;
 
+#if NET8_0_OR_GREATER
 		private static readonly Random Random = new();
+#else
+		private static readonly Random Random = new Random();
+#endif
 
-		internal static ulong Decode(ReadOnlySpan<char> input)
+#if NET8_0_OR_GREATER
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		internal static long Decode(ReadOnlySpan<char> input)
 		{
 			return input.ToString()
 						.Select(s => s is >= '0' and <= '9' ? s - '0' : 10 + s - 'a')
-						.Aggregate((ulong) 0, (i, c) => ( i * Radix ) + (uint) c);
+						.Aggregate((long) 0, (i, c) => ( i * Radix ) + c);
 		}
+#else
+		internal static long Decode(ReadOnlySpan<char> input)
+		{
+			return 0;
+		}
+#endif
 
+#if NET8_0_OR_GREATER
 		internal static string Encode(ReadOnlySpan<byte> value)
 		{
 			if ( value.IsEmpty )
@@ -64,6 +84,17 @@
 
 			return new string(buffer.Slice(i, length - i));
 		}
+#else
+		internal static string Encode(ReadOnlySpan<byte> value)
+		{
+			return string.Empty;
+		}
+
+		internal static string Encode(ulong value)
+		{
+			return string.Empty;
+		}
+#endif
 
 		internal static char GenerateCharacterPrefix()
 		{
@@ -71,9 +102,20 @@
 			return c > 13 ? char.ToLowerInvariant((char) ( 'a' + c )) : (char) ( 'a' + c );
 		}
 
+#if NET8_0_OR_GREATER
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static byte[] GenerateRandom(int length = 8)
 		{
 			return RandomNumberGenerator.GetBytes(length);
 		}
+#else
+		internal static byte[] GenerateRandom(int length = 8)
+		{
+			byte[] seed = new byte[length];
+			RandomNumberGenerator.Create().GetBytes(seed);
+
+			return seed;
+		}
+#endif
 	}
 }

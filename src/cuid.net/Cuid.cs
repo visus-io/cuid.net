@@ -12,8 +12,11 @@
 	using System.Xml.Schema;
 	using System.Xml.Serialization;
 	using Abstractions;
-	using Extensions;
+	using CommunityToolkit.Diagnostics;
 	using Serialization.Json.Converters;
+#if NET8_0_OR_GREATER
+	using Extensions;
+#endif
 
 	/// <summary>
 	///     Represents a collision resistant unique identifier (CUID).
@@ -21,7 +24,11 @@
 	[StructLayout(LayoutKind.Sequential)]
 	[JsonConverter(typeof(CuidConverter))]
 	[XmlRoot("cuid")]
+#if NET8_0_OR_GREATER
 	[Obsolete(Obsoletions.CuidMessage, DiagnosticId = Obsoletions.CuidDiagId)]
+#else
+	[Obsolete(Obsoletions.CuidMessage)]
+#endif
 	public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, IXmlSerializable
 	{
 		/// <summary>
@@ -37,7 +44,7 @@
 
 		private readonly ulong _counter;
 
-		private readonly string _fingerprint = default!;
+		private readonly string _fingerprint;
 
 		private readonly ulong _random;
 
@@ -52,11 +59,16 @@
 		/// </param>
 		public Cuid(string c)
 		{
-			ArgumentNullException.ThrowIfNull(c);
+			_fingerprint = default!;
+			Guard.IsNotNullOrWhiteSpace(c);
 
+#if NET8_0_OR_GREATER
 			CuidResult result = new();
+#else
+			CuidResult result = new CuidResult();
+#endif
 
-			_ = TryParseCuid(c, true, ref result);
+			_ = TryParseCuid(c.AsSpan(), true, ref result);
 
 			this = result.ToCuid();
 		}
@@ -67,13 +79,23 @@
 		/// <returns>A new CUID object.</returns>
 		public static Cuid NewCuid()
 		{
+#if NET8_0_OR_GREATER
 			CuidResult result = new()
 			{
 				_counter = Counter.Instance.Value,
 				_fingerprint = Context.IdentityFingerprint,
-				_random = BinaryPrimitives.ReadUInt64LittleEndian(Utils.GenerateRandom()),
+				_random = BinaryPrimitives.ReadInt64LittleEndian(Utils.GenerateRandom()),
 				_timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
 			};
+#else
+			CuidResult result = new CuidResult
+			{
+				_counter = Counter.Instance.Value,
+				_fingerprint = Context.IdentityFingerprint,
+				_random = BinaryPrimitives.ReadInt64LittleEndian(Utils.GenerateRandom()),
+				_timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
+			};
+#endif
 
 			return result.ToCuid();
 		}
@@ -151,9 +173,8 @@
 		/// <returns>A structure that contains the value that was parsed.</returns>
 		public static Cuid Parse(string input)
 		{
-			ArgumentNullException.ThrowIfNull(input);
-
-			return Parse((ReadOnlySpan<char>) input);
+			Guard.IsNotNullOrWhiteSpace(input);
+			return Parse(input.AsSpan());
 		}
 
 		/// <summary>
@@ -164,7 +185,11 @@
 		[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 		public static Cuid Parse(ReadOnlySpan<char> input)
 		{
+#if NET8_0_OR_GREATER
 			CuidResult result = new();
+#else
+			CuidResult result = new CuidResult();
+#endif
 
 			_ = TryParseCuid(input, true, ref result);
 
@@ -183,7 +208,11 @@
 		/// <returns><c>true</c> if the parse operation was successful; otherwise, <c>false</c>.</returns>
 		public static bool TryParse(ReadOnlySpan<char> input, out Cuid result)
 		{
+#if NET8_0_OR_GREATER
 			CuidResult parseResult = new();
+#else
+			CuidResult parseResult = new CuidResult();
+#endif
 			if ( TryParseCuid(input, false, ref parseResult) )
 			{
 				result = parseResult.ToCuid();
@@ -203,11 +232,15 @@
 		///     <c>result</c> contains a valid Guid. If the method returns <c>false</c>, result equals <see cref="Empty" />.
 		/// </param>
 		/// <returns><c>true</c> if the parse operation was successful; otherwise, <c>false</c>.</returns>
+#if NET8_0_OR_GREATER
 		public static bool TryParse([NotNullWhen(true)] string? input, out Cuid result)
+#else
+		public static bool TryParse([AllowNull] string input, out Cuid result)
+#endif
 		{
-			if ( input is not null )
+			if ( !string.IsNullOrWhiteSpace(input) )
 			{
-				return TryParse((ReadOnlySpan<char>) input, out result);
+				return TryParse(input.AsSpan(), out result);
 			}
 
 			result = default;
@@ -264,14 +297,7 @@
 		/// <inheritdoc />
 		public override int GetHashCode()
 		{
-			HashCode hashCode = new();
-
-			hashCode.Add(_counter);
-			hashCode.Add(_fingerprint, StringComparer.OrdinalIgnoreCase);
-			hashCode.Add(_random);
-			hashCode.Add(_timestamp);
-
-			return hashCode.ToHashCode();
+			return HashCode.Combine(_counter, _fingerprint, _random, _timestamp);
 		}
 
 		/// <inheritdoc />
@@ -279,9 +305,13 @@
 		{
 			reader.Read();
 
+#if NET8_0_OR_GREATER
 			CuidResult result = new();
+#else
+			CuidResult result = new CuidResult();
+#endif
 
-			_ = TryParseCuid(reader.Value, true, ref result);
+			_ = TryParseCuid(reader.Value.AsSpan(), true, ref result);
 
 			Unsafe.AsRef(in this) = result.ToCuid();
 		}
@@ -292,6 +322,7 @@
 		/// <returns>The value of this <see cref="Cuid" />.</returns>
 		public override string ToString()
 		{
+#if NET8_0_OR_GREATER
 			return string.Create(25, ( _t: _timestamp, _c: _counter, _f: _fingerprint, _r: _random ),
 								 (dest, buffer) =>
 								 {
@@ -310,6 +341,9 @@
 										  .TrimPad(BlockSize * 2)
 										  .WriteTo(ref dest);
 								 });
+#else
+			return string.Empty;
+#endif
 		}
 
 		/// <inheritdoc />
@@ -334,7 +368,7 @@
 		private static bool TryParseCuid(ReadOnlySpan<char> cuidString, bool throwException, ref CuidResult result)
 		{
 			cuidString = cuidString.Trim();
-			if ( cuidString.Length != ValueLength || !cuidString.StartsWith(Prefix) || !IsAlphaNum(cuidString) )
+			if ( cuidString.Length != ValueLength || !cuidString.StartsWith(Prefix.AsSpan()) || !IsAlphaNum(cuidString) )
 			{
 				if ( throwException )
 				{
@@ -352,7 +386,7 @@
 			result._counter = Utils.Decode(counter);
 			result._fingerprint = fingerprint.ToString();
 			result._random = Utils.Decode(random);
-			result._timestamp = (long) Utils.Decode(timestamp);
+			result._timestamp = Utils.Decode(timestamp);
 
 			return true;
 		}
@@ -370,8 +404,12 @@
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			public readonly Cuid ToCuid()
 			{
+#if NET8_0_OR_GREATER
 				CuidResult result = this;
 				return Unsafe.As<CuidResult, Cuid>(ref Unsafe.AsRef(ref result));
+#else
+				return Unsafe.As<CuidResult, Cuid>(ref Unsafe.AsRef(in this));
+#endif
 			}
 
 			#pragma warning disable CA1822
@@ -384,13 +422,13 @@
 
 			#pragma warning disable S4487
 			[FieldOffset(8)]
-			internal ulong _counter;
+			internal long _counter;
 
 			[FieldOffset(0)]
 			internal string _fingerprint;
 
 			[FieldOffset(16)]
-			internal ulong _random;
+			internal long _random;
 
 			[FieldOffset(24)]
 			internal long _timestamp;
@@ -412,14 +450,19 @@
 		private sealed class Counter
 		{
 			// ReSharper disable once InconsistentNaming
+#if NET8_0_OR_GREATER
 			private static readonly Lazy<Counter> _counter = new(() => new Counter());
-			private static readonly ulong DiscreteValues = (ulong) Math.Pow(36, 4);
+#else
+			private static readonly Lazy<Counter> _counter = new Lazy<Counter>(() => new Counter());
+#endif
 
-			private volatile uint _value;
+			private static readonly long DiscreteValues = (long) Math.Pow(36, 4);
+
+			private volatile int _value;
 
 			public static Counter Instance => _counter.Value;
 
-			public uint Value
+			public int Value
 			{
 				get
 				{

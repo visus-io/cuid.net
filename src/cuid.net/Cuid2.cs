@@ -4,6 +4,7 @@
 	using System.Buffers.Binary;
 	using System.Runtime.InteropServices;
 	using System.Threading;
+	using CommunityToolkit.Diagnostics;
 	using NSec.Cryptography;
 
 	/// <summary>
@@ -12,9 +13,11 @@
 	[StructLayout(LayoutKind.Sequential)]
 	public readonly struct Cuid2 : IEquatable<Cuid2>
 	{
+#if NET8_0_OR_GREATER
 		private const int DefaultLength = 24;
+#endif
 
-		private readonly ulong _counter = Counter.Instance.Value;
+		private readonly long _counter;
 
 		private readonly byte[] _fingerprint;
 
@@ -26,6 +29,7 @@
 
 		private readonly long _timestamp;
 
+#if NET8_0_OR_GREATER
 		/// <summary>
 		///     Initializes a new instance of the <see cref="Cuid2" /> structure.
 		/// </summary>
@@ -35,6 +39,7 @@
 			: this(DefaultLength)
 		{
 		}
+#endif
 
 		/// <summary>
 		///     Initializes a new instance of the <see cref="Cuid2" /> structure.
@@ -47,12 +52,10 @@
 		/// </exception>
 		public Cuid2(int maxLength)
 		{
-			if ( maxLength is < 4 or > 32 )
-			{
-				throw new ArgumentOutOfRangeException(nameof(maxLength),
-													  string.Format(Resources.Resources.Arg_Cuid2IntCtor, "4", "32"));
-			}
+			Guard.IsLessThan(maxLength, 4);
+			Guard.IsGreaterThan(maxLength, 32);
 
+			_counter = Counter.Instance.Value;
 			_maxLength = maxLength;
 
 			_fingerprint = Context.IdentityFingerprint;
@@ -114,7 +117,7 @@
 			Span<byte> buffer = stackalloc byte[16];
 
 			BinaryPrimitives.WriteInt64LittleEndian(buffer[..8], _timestamp);
-			BinaryPrimitives.WriteUInt64LittleEndian(buffer[^8..], _counter);
+			BinaryPrimitives.WriteInt64LittleEndian(buffer[^8..], _counter);
 
 			IncrementalHash.Initialize(HashAlgorithm.Sha512, out IncrementalHash state);
 
@@ -135,18 +138,22 @@
 		private sealed class Counter
 		{
 			// ReSharper disable once InconsistentNaming
+#if NET8_0_OR_GREATER
 			private static readonly Lazy<Counter> _counter = new(() => new Counter());
+#else
+			private static readonly Lazy<Counter> _counter = new Lazy<Counter>(() => new Counter());
+#endif
 
-			private ulong _value;
+			private long _value;
 
 			private Counter()
 			{
-				_value = BinaryPrimitives.ReadUInt64LittleEndian(Utils.GenerateRandom()) * 476782367;
+				_value = BinaryPrimitives.ReadInt64LittleEndian(Utils.GenerateRandom()) * 476782367;
 			}
 
 			public static Counter Instance => _counter.Value;
 
-			public ulong Value => Interlocked.Increment(ref _value);
+			public long Value => Interlocked.Increment(ref _value);
 		}
 	}
 }
