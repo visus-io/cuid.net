@@ -2,6 +2,8 @@
     <PropertyGroup>
         <Version>0.0.1</Version>
         <Copyright>Copyright (c) 2023 Visus Development Team</Copyright>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>        
         <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     </PropertyGroup>
 

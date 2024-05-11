@@ -24,6 +24,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.gitignore = .gitignore
 		global.json = global.json
 		.editorconfig = .editorconfig
+		nuget.config = nuget.config
+		Directory.Packages.props = Directory.Packages.props
 	EndProjectSection
 EndProject
 Global

@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "dependencies": {
     "net8.0": {
       "coverlet.collector": {
@@ -13,6 +13,12 @@
         "requested": "[6.0.2, )",
         "resolved": "6.0.2",
         "contentHash": "8b4jBNH7mcQy1otyQErjjIUuGD74XxKZ1wvDufbY7jhWwckl7wIa+icjwdPYeI0aYMS4Tp63LIZvyMFjWwOMDw=="
+      },
+      "Microsoft.CodeAnalysis.NetAnalyzers": {
+        "type": "Direct",
+        "requested": "[8.0.0, )",
+        "resolved": "8.0.0",
+        "contentHash": "DxiTgkCl3CGq1rYmBX2wjY7XGbxiBdL4J+/AJIAFLKy5z70NxhnVRnPghnicXZ8oF6JKVXlW3xwznRbI3ioEKg=="
       },
       "Microsoft.NET.Test.Sdk": {
         "type": "Direct",
@@ -118,14 +124,6 @@
         "resolved": "13.0.1",
         "contentHash": "ppPFpBcvxdsfUonNcvITKqLl3bqxWbDCZIzDWHzjpdAHRFfZe0Dw9HmA0+za13IdyrgJwpkDTDA9fHaxOrt20A=="
       },
-      "NSec.Cryptography": {
-        "type": "Transitive",
-        "resolved": "24.4.0",
-        "contentHash": "R89OF0T5OY9QnPRoTsMCaPKMqtXcWKZSWAO4zyUaFHI+ZRMgXU7WaIwg/rPP3vOfdaLl8HdUHWkDB+2B9FOO7g==",
-        "dependencies": {
-          "libsodium": "[1.0.19, 1.0.20)"
-        }
-      },
       "SimpleInfoName": {
         "type": "Transitive",
         "resolved": "2.2.0",
@@ -209,6 +207,15 @@
         "type": "Project",
         "dependencies": {
           "NSec.Cryptography": "[24.4.0, )"
+        }
+      },
+      "NSec.Cryptography": {
+        "type": "CentralTransitive",
+        "requested": "[24.4.0, )",
+        "resolved": "24.4.0",
+        "contentHash": "R89OF0T5OY9QnPRoTsMCaPKMqtXcWKZSWAO4zyUaFHI+ZRMgXU7WaIwg/rPP3vOfdaLl8HdUHWkDB+2B9FOO7g==",
+        "dependencies": {
+          "libsodium": "[1.0.19, 1.0.20)"
         }
       }
     }
