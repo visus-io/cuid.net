@@ -18,14 +18,13 @@ jobs:
     name: Unit Tests
     runs-on: ubuntu-latest
     env:
-      DOTNET_CLI_TELEMETRY_OPTOUT: true
-      DOTNET_NOLOGO: true
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          show-progress: false
       - name: NuGet Cache
         uses: actions/cache@v3
         with:
