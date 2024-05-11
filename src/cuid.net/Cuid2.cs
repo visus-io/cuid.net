@@ -1,11 +1,17 @@
 ﻿namespace Visus.Cuid
 {
+#if NET8_0_OR_GREATER
+	using NSec.Cryptography;
+#endif
+
 	using System;
 	using System.Buffers.Binary;
 	using System.Runtime.InteropServices;
 	using System.Threading;
 	using CommunityToolkit.Diagnostics;
-	using NSec.Cryptography;
+#if NETSTANDARD2_0
+	using Org.BouncyCastle.Crypto.Digests;
+#endif
 
 	/// <summary>
 	///     Represents a collision resistant unique identifier (CUID).
@@ -13,9 +19,7 @@
 	[StructLayout(LayoutKind.Sequential)]
 	public readonly struct Cuid2 : IEquatable<Cuid2>
 	{
-#if NET8_0_OR_GREATER
 		private const int DefaultLength = 24;
-#endif
 
 		private readonly long _counter;
 
@@ -29,18 +33,6 @@
 
 		private readonly long _timestamp;
 
-#if NET8_0_OR_GREATER
-		/// <summary>
-		///     Initializes a new instance of the <see cref="Cuid2" /> structure.
-		/// </summary>
-		/// <remarks>The structure will initialize with a default maximum length of 24.</remarks>
-		/// <returns>A new CUID object.</returns>
-		public Cuid2()
-			: this(DefaultLength)
-		{
-		}
-#endif
-
 		/// <summary>
 		///     Initializes a new instance of the <see cref="Cuid2" /> structure.
 		/// </summary>
@@ -52,8 +44,7 @@
 		/// </exception>
 		public Cuid2(int maxLength)
 		{
-			Guard.IsLessThan(maxLength, 4);
-			Guard.IsGreaterThan(maxLength, 32);
+			Guard.IsInRange(maxLength, 4, 33);
 
 			_counter = Counter.Instance.Value;
 			_maxLength = maxLength;
@@ -63,6 +54,19 @@
 			_random = Utils.GenerateRandom(maxLength);
 			_timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 		}
+		
+#if NET8_0_OR_GREATER
+		/// <summary>
+		///     Initializes a new instance of the <see cref="Cuid2" /> structure.
+		/// </summary>
+		/// <remarks>The structure will initialize with a default maximum length of 24.</remarks>
+		/// <returns>A new CUID object.</returns>
+
+		public Cuid2()
+			: this(DefaultLength)
+		{
+		}
+#endif
 
 		/// <summary>
 		///     Indicates whether the values of two specified <see cref="Cuid2" /> objects are equal.
@@ -119,6 +123,7 @@
 			BinaryPrimitives.WriteInt64LittleEndian(buffer[..8], _timestamp);
 			BinaryPrimitives.WriteInt64LittleEndian(buffer[^8..], _counter);
 
+#if NET8_0_OR_GREATER
 			IncrementalHash.Initialize(HashAlgorithm.Sha512, out IncrementalHash state);
 
 			IncrementalHash.Update(ref state, buffer);
@@ -126,6 +131,16 @@
 			IncrementalHash.Update(ref state, _random);
 
 			byte[] hash = IncrementalHash.Finalize(ref state);
+#else
+			Sha3Digest digest = new Sha3Digest(512);
+
+			digest.BlockUpdate(buffer.ToArray(), 0, buffer.Length);
+			digest.BlockUpdate(_fingerprint, 0, _fingerprint.Length);
+			digest.BlockUpdate(_random, 0, _random.Length);
+
+			byte[] hash = new byte[digest.GetByteLength()];
+			digest.DoFinal(hash, 0);
+#endif
 
 			return _prefix + Utils.Encode(hash)[..( _maxLength - 1 )];
 		}

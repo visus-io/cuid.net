@@ -7,7 +7,7 @@
 	using System.Text;
 	using Abstractions;
 	using Extensions;
-#if NETSTANDARD2_0_OR_GREATER
+#if NETSTANDARD2_0
 	using System.Diagnostics;
 	using System.Runtime.InteropServices;
 #endif

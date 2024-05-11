@@ -1,15 +1,17 @@
 ﻿namespace Visus.Cuid
 {
 	using System;
-	using System.Numerics;
-	using System.Security.Cryptography;
-#if NET8_0_OR_GREATER
 	using System.Linq;
+	using System.Numerics;
 	using System.Runtime.CompilerServices;
-#endif
+	using System.Security.Cryptography;
 
 	internal static class Utils
 	{
+#if NETSTANDARD2_0
+		private const string Alphanumeric = "0123456789abcdefghijklmnopqrstuvwxyz";
+#endif
+
 #if NET8_0_OR_GREATER
 		private static readonly BigInteger BigRadix = new(36);
 #else
@@ -26,22 +28,20 @@
 		private static readonly Random Random = new Random();
 #endif
 
-#if NET8_0_OR_GREATER
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static long Decode(ReadOnlySpan<char> input)
 		{
+#if NET8_0_OR_GREATER
 			return input.ToString()
 						.Select(s => s is >= '0' and <= '9' ? s - '0' : 10 + s - 'a')
 						.Aggregate((long) 0, (i, c) => ( i * Radix ) + c);
-		}
 #else
-		internal static long Decode(ReadOnlySpan<char> input)
-		{
-			return 0;
-		}
+			return input.ToString()
+						.Select(s => s >= '0' && s <= '9' ? s - '0' : 10 + s - 'a')
+						.Aggregate((long) 0, (i, c) => ( i * Radix ) + c);
 #endif
+		}
 
-#if NET8_0_OR_GREATER
 		internal static string Encode(ReadOnlySpan<byte> value)
 		{
 			if ( value.IsEmpty )
@@ -53,15 +53,30 @@
 			int i = length;
 			Span<char> buffer = stackalloc char[length];
 
+#if NET8_0_OR_GREATER
 			BigInteger d = new(value, true);
+#else
+			ulong unsigned = BitConverter.ToUInt64(value.ToArray(), 0);
+			BigInteger d = new BigInteger(unsigned);
+#endif
 			while ( !d.IsZero )
 			{
 				d = BigInteger.DivRem(d, BigRadix, out BigInteger r);
 				int c = (int) r;
+
+#if NET8_0_OR_GREATER
 				buffer[--i] = (char) ( c is >= 0 and <= 9 ? c + 48 : c + 'a' - 10 );
+#else
+				c += c >= 0 && c <= 9 ? 48 : 'a' - 10;
+				buffer[--i] = (char) c;
+#endif
 			}
 
+#if NET8_0_OR_GREATER
 			return new string(buffer.Slice(i, length - i));
+#else
+			return new string(buffer.Slice(i, length - i).ToArray());
+#endif
 		}
 
 		internal static string Encode(ulong value)
@@ -78,23 +93,23 @@
 			do
 			{
 				ulong c = value % Radix;
+
+#if NET8_0_OR_GREATER
 				buffer[--i] = (char) ( c is >= 0 and <= 9 ? c + 48 : c + 'a' - 10 );
+#else
+				c += (ulong) ( c <= 9 ? 48 : 'a' - 10 );
+				buffer[--i] = (char) c;
+#endif
+
 				value /= Radix;
 			} while ( value > 0 );
 
+#if NET8_0_OR_GREATER
 			return new string(buffer.Slice(i, length - i));
-		}
 #else
-		internal static string Encode(ReadOnlySpan<byte> value)
-		{
-			return string.Empty;
-		}
-
-		internal static string Encode(ulong value)
-		{
-			return string.Empty;
-		}
+			return new string(buffer.Slice(i, length - i).ToArray());
 #endif
+		}
 
 		internal static char GenerateCharacterPrefix()
 		{
@@ -104,18 +119,17 @@
 
 #if NET8_0_OR_GREATER
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		internal static byte[] GenerateRandom(int length = 8)
 		{
+#if NET8_0_OR_GREATER
 			return RandomNumberGenerator.GetBytes(length);
-		}
 #else
-		internal static byte[] GenerateRandom(int length = 8)
-		{
 			byte[] seed = new byte[length];
 			RandomNumberGenerator.Create().GetBytes(seed);
 
 			return seed;
-		}
 #endif
+		}
 	}
 }

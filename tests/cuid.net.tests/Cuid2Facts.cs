@@ -1,6 +1,7 @@
 ﻿namespace Visus.Cuid.Tests
 {
 	using System;
+	using System.Diagnostics;
 	using System.Diagnostics.CodeAnalysis;
 	using System.Linq;
 	using Xunit;
@@ -17,6 +18,8 @@
 
 			var result = cuidString.Length == 24
 					  && cuidString.All(char.IsLetterOrDigit);
+			
+			Debug.WriteLine(result);
 
 			Assert.True(result);
 		}
@@ -43,8 +46,8 @@
 		[Fact]
 		public void Cuid2_Equality()
 		{
-			var c1 = new Cuid2();
-			var c2 = new Cuid2();
+			var c1 = new Cuid2(10);
+			var c2 = new Cuid2(10);
 
 			Assert.False(c1.Equals(c2));
 			Assert.False(c1.Equals((object) c2));

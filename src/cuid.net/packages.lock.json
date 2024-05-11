@@ -2,6 +2,12 @@
   "version": 2,
   "dependencies": {
     ".NETStandard,Version=v2.0": {
+      "BouncyCastle.Cryptography": {
+        "type": "Direct",
+        "requested": "[2.3.1, )",
+        "resolved": "2.3.1",
+        "contentHash": "buwoISwecYke3CmgG1AQSg+sNZjJeIb93vTAtJiHZX35hP/teYMxsfg0NDXGUKjGx6BKBTNKc77O2M3vKvlXZQ=="
+      },
       "CommunityToolkit.Diagnostics": {
         "type": "Direct",
         "requested": "[8.2.2, )",
@@ -42,17 +48,6 @@
           "Microsoft.NETCore.Platforms": "1.1.0"
         }
       },
-      "NSec.Cryptography": {
-        "type": "Direct",
-        "requested": "[20.2.0, 20.2.0]",
-        "resolved": "20.2.0",
-        "contentHash": "NxzHaDQm3JfH+9VQdLI1bC4h/ZTKPo5o/4BEscBu4KK0Yv35sB87hSRuzpr09VahxY5ZpJfE2tHyK4u27jfiyQ==",
-        "dependencies": {
-          "System.Memory": "4.5.3",
-          "System.Runtime.CompilerServices.Unsafe": "4.7.0",
-          "libsodium": "[1.0.18, 1.0.19)"
-        }
-      },
       "PolySharp": {
         "type": "Direct",
         "requested": "[1.14.1, )",
@@ -71,14 +66,6 @@
           "System.Runtime.CompilerServices.Unsafe": "6.0.0",
           "System.Text.Encodings.Web": "8.0.0",
           "System.Threading.Tasks.Extensions": "4.5.4"
-        }
-      },
-      "libsodium": {
-        "type": "Transitive",
-        "resolved": "1.0.18",
-        "contentHash": "Ajv3AR9Qg/C4SQcE2ONx/UieeKnn5lSvVNc6egC3p6NP6qjZzWJ+Xg2vJURNYjkpHui/KctBwQjMPqpZK8/CHA==",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.0.1"
         }
       },
       "Microsoft.Bcl.AsyncInterfaces": {

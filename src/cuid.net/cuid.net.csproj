@@ -37,6 +37,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="BouncyCastle.Cryptography" Condition="$(TargetFramework) == 'netstandard2.0'" />
         <PackageReference Include="CommunityToolkit.Diagnostics" />
         <PackageReference Include="Microsoft.Bcl.HashCode" Condition="$(TargetFramework) == 'netstandard2.0'" />
         <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers">
@@ -47,7 +48,7 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="NSec.Cryptography"/>
+        <PackageReference Include="NSec.Cryptography" Condition="$(TargetFramework) == 'net8.0'" />
         <PackageReference Include="PolySharp">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

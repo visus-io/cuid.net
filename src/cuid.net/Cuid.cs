@@ -13,7 +13,11 @@
 	using System.Xml.Serialization;
 	using Abstractions;
 	using CommunityToolkit.Diagnostics;
+	using Extensions;
 	using Serialization.Json.Converters;
+#if NETSTANDARD2_0
+	using System.Collections.Generic;
+#endif
 #if NET8_0_OR_GREATER
 	using Extensions;
 #endif
@@ -59,7 +63,6 @@
 		/// </param>
 		public Cuid(string c)
 		{
-			_fingerprint = default!;
 			Guard.IsNotNullOrWhiteSpace(c);
 
 #if NET8_0_OR_GREATER

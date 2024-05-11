@@ -154,7 +154,11 @@ namespace Visus.Cuid.Tests
 		[Fact]
 		public void Cuid_TryParse_Null_ReturnsFalse()
 		{
+#if NET8_0_OR_GREATER
+			var result = Cuid.TryParse(null, out _);
+#else
 			var result = Cuid.TryParse((string) null, out _);
+#endif
 
 			Assert.False(result);
 		}
