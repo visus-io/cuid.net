@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
         <IsPackable>false</IsPackable>
         <RootNamespace>Visus.Cuid.Tests</RootNamespace>
         <OutputType>Library</OutputType>
@@ -16,12 +16,17 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="Meziantou.Polyfill">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
         <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers"/>
         <PackageReference Include="Microsoft.NET.Test.Sdk"/>
         <PackageReference Include="PublicApiGenerator"/>
-        <PackageReference Include="Verify.Xunit"/>
+        <PackageReference Include="System.Text.Json" Condition="$(TargetFramework) == 'netstandard2.0'" />
+        <PackageReference Include="Verify.Xunit" Condition="$(TargetFramework) == 'net8.0'" />
         <PackageReference Include="xunit"/>
-        <PackageReference Include="xunit.runner.visualstudio">
+        <PackageReference Include="xunit.runner.visualstudio" Condition="$(TargetFramework) == 'net8.0'">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>

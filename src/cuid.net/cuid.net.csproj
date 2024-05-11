@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
         <RootNamespace>Visus.Cuid</RootNamespace>
         <Copyright>Copyright (c) 2023 Visus Development Team</Copyright>
     </PropertyGroup>
@@ -13,10 +13,14 @@
         <Description>.NET implementation of collision-resistant ids</Description>
     </PropertyGroup>
 
+    <PropertyGroup Condition="$(TargetFramework) == 'net8.0'">
+        <IsTrimmable>true</IsTrimmable>
+    </PropertyGroup>
+    
     <PropertyGroup>
         <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
-        <IsTrimmable>true</IsTrimmable>
+
         <IncludeSymbols>true</IncludeSymbols>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -34,6 +38,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Meziantou.Polyfill">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
         <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -43,6 +51,7 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="NSec.Cryptography"/>
+        <PackageReference Include="System.Text.Json" Condition="$(TargetFramework) == 'netstandard2.0'" />
     </ItemGroup>
 
     <ItemGroup>
