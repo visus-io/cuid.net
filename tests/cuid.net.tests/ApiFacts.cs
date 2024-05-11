@@ -5,7 +5,6 @@ using System.Runtime.CompilerServices;
 using PublicApiGenerator;
 
 [ExcludeFromCodeCoverage]
-[UsesVerify]
 public class ApiFacts
 {
 	[Fact]

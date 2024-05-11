@@ -44,7 +44,7 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="NSec.Cryptography" Version="22.4.0"/>
+        <PackageReference Include="NSec.Cryptography" Version="24.4.0" />
     </ItemGroup>
 
     <ItemGroup>

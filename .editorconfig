@@ -188,12 +188,19 @@ resharper_csharp_indent_preprocessor_region = no_indent
 resharper_csharp_indent_type_constraints = true
 resharper_csharp_initializer_braces = next_line
 resharper_csharp_invocable_declaration_braces = next_line
+resharper_csharp_keep_existing_attribute_arrangement = false
 resharper_csharp_keep_existing_initializer_arrangement = false
+resharper_csharp_max_attribute_length_for_same_line = 120
 resharper_csharp_max_initializer_elements_on_line = 1
 resharper_csharp_other_braces = next_line
 resharper_csharp_outdent_binary_ops = true
 resharper_csharp_outdent_binary_pattern_ops = true
 resharper_csharp_outdent_dots = true
+resharper_csharp_place_attribute_on_same_line = false
+resharper_csharp_place_record_field_attribute_on_same_line = true
 resharper_csharp_place_simple_initializer_on_single_line = true
 resharper_csharp_type_declaration_braces = next_line
 resharper_csharp_wrap_object_and_collection_initializer_style = chop_always
+
+# warning suppressions
+dotnet_diagnostic.CA2255.severity = none

@@ -19,7 +19,10 @@
       "labels": [
         "dependencies"
       ],
-      "automerge": true
+      "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": true,
+      "ignoreTests": true
     },
     {
       "matchPackagePatterns": [

@@ -10,9 +10,9 @@
       },
       "Microsoft.NET.ILLink.Tasks": {
         "type": "Direct",
-        "requested": "[8.0.0, )",
-        "resolved": "8.0.0",
-        "contentHash": "B3etT5XQ2nlWkZGO2m/ytDYrOmSsQG1XNBaM6ZYlX5Ch/tDrMFadr0/mK6gjZwaQc55g+5+WZMw4Cz3m8VEF7g=="
+        "requested": "[8.0.4, )",
+        "resolved": "8.0.4",
+        "contentHash": "PZb5nfQ+U19nhnmnR9T1jw+LTmozhuG2eeuzuW5A7DqxD/UXW2ucjmNJqnqOuh8rdPzM3MQXoF8AfFCedJdCUw=="
       },
       "Microsoft.SourceLink.GitHub": {
         "type": "Direct",
@@ -26,17 +26,17 @@
       },
       "NSec.Cryptography": {
         "type": "Direct",
-        "requested": "[22.4.0, )",
-        "resolved": "22.4.0",
-        "contentHash": "lEntcPYd7h3aZ8xxi/y/4TML7o8w0GEGqd+w4L1omqFLbdCBmhxJAeO2YBmv/fXbJKgKCQLm7+TD4bR605PEUQ==",
+        "requested": "[24.4.0, )",
+        "resolved": "24.4.0",
+        "contentHash": "R89OF0T5OY9QnPRoTsMCaPKMqtXcWKZSWAO4zyUaFHI+ZRMgXU7WaIwg/rPP3vOfdaLl8HdUHWkDB+2B9FOO7g==",
         "dependencies": {
-          "libsodium": "[1.0.18.2, 1.0.19)"
+          "libsodium": "[1.0.19, 1.0.20)"
         }
       },
       "libsodium": {
         "type": "Transitive",
-        "resolved": "1.0.18.2",
-        "contentHash": "flArHoVdscSzyV8ZdPV+bqqY2TTFlaN+xZf/vIqsmHI51KVcD/mOdUPaK3n/k/wGKz8dppiktXUqSmf3AXFgig=="
+        "resolved": "1.0.19",
+        "contentHash": "tupm/HViwBN6Knd/gckR+cLaJGR39GLmiU4iDMM5hp/1BoczMr8fwJhSU+3/C2V4hi9nBK/4FICRKtTLU30TCA=="
       },
       "Microsoft.Build.Tasks.Git": {
         "type": "Transitive",
