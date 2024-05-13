@@ -2,7 +2,9 @@
 {
 	using System;
 	using System.Buffers.Binary;
+	using System.Collections;
 	using System.Diagnostics.CodeAnalysis;
+	using System.Linq;
 	using System.Runtime.CompilerServices;
 	using System.Runtime.InteropServices;
 	using System.Text;
@@ -18,8 +20,8 @@
 #if NETSTANDARD2_0
 	using System.Collections.Generic;
 #endif
-#if NET8_0_OR_GREATER
-	using Extensions;
+
+#if NET6_0_OR_GREATER
 #endif
 
 	/// <summary>
@@ -28,7 +30,7 @@
 	[StructLayout(LayoutKind.Sequential)]
 	[JsonConverter(typeof(CuidConverter))]
 	[XmlRoot("cuid")]
-#if NET8_0_OR_GREATER
+#if NET6_0_OR_GREATER
 	[Obsolete(Obsoletions.CuidMessage, DiagnosticId = Obsoletions.CuidDiagId)]
 #else
 	[Obsolete(Obsoletions.CuidMessage)]
@@ -48,7 +50,7 @@
 
 		private readonly ulong _counter;
 
-		private readonly string _fingerprint;
+		private readonly byte[] _fingerprint;
 
 		private readonly ulong _random;
 
@@ -65,7 +67,7 @@
 		{
 			Guard.IsNotNullOrWhiteSpace(c);
 
-#if NET8_0_OR_GREATER
+#if NET6_0_OR_GREATER
 			CuidResult result = new();
 #else
 			CuidResult result = new CuidResult();
@@ -82,7 +84,7 @@
 		/// <returns>A new CUID object.</returns>
 		public static Cuid NewCuid()
 		{
-#if NET8_0_OR_GREATER
+#if NET6_0_OR_GREATER
 			CuidResult result = new()
 			{
 				_counter = Counter.Instance.Value,
@@ -188,7 +190,7 @@
 		[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 		public static Cuid Parse(ReadOnlySpan<char> input)
 		{
-#if NET8_0_OR_GREATER
+#if NET6_0_OR_GREATER
 			CuidResult result = new();
 #else
 			CuidResult result = new CuidResult();
@@ -211,7 +213,7 @@
 		/// <returns><c>true</c> if the parse operation was successful; otherwise, <c>false</c>.</returns>
 		public static bool TryParse(ReadOnlySpan<char> input, out Cuid result)
 		{
-#if NET8_0_OR_GREATER
+#if NET6_0_OR_GREATER
 			CuidResult parseResult = new();
 #else
 			CuidResult parseResult = new CuidResult();
@@ -235,7 +237,7 @@
 		///     <c>result</c> contains a valid Guid. If the method returns <c>false</c>, result equals <see cref="Empty" />.
 		/// </param>
 		/// <returns><c>true</c> if the parse operation was successful; otherwise, <c>false</c>.</returns>
-#if NET8_0_OR_GREATER
+#if NET6_0_OR_GREATER
 		public static bool TryParse([NotNullWhen(true)] string? input, out Cuid result)
 #else
 		public static bool TryParse([AllowNull] string input, out Cuid result)
@@ -248,25 +250,6 @@
 
 			result = default;
 			return false;
-		}
-
-		/// <inheritdoc />
-		public int CompareTo(Cuid other)
-		{
-			int cComparison = _counter.CompareTo(other._counter);
-			if ( cComparison != 0 )
-			{
-				return cComparison;
-			}
-
-			int fComparison = string.Compare(_fingerprint, other._fingerprint, StringComparison.OrdinalIgnoreCase);
-			if ( fComparison != 0 )
-			{
-				return fComparison;
-			}
-
-			int rComparison = _random.CompareTo(other._random);
-			return rComparison != 0 ? rComparison : _timestamp.CompareTo(other._timestamp);
 		}
 
 		/// <inheritdoc />
@@ -285,8 +268,15 @@
 		/// <inheritdoc />
 		public bool Equals(Cuid other)
 		{
+			if ( _fingerprint == null )
+			{
+				return _counter == other._counter &&
+					   _random == other._random &&
+					   _timestamp == other._timestamp;
+			}
+
 			return _counter == other._counter &&
-				   string.Equals(_fingerprint, other._fingerprint, StringComparison.OrdinalIgnoreCase) &&
+				   _fingerprint.SequenceEqual(other._fingerprint) &&
 				   _random == other._random &&
 				   _timestamp == other._timestamp;
 		}
@@ -300,7 +290,7 @@
 		/// <inheritdoc />
 		public override int GetHashCode()
 		{
-			return HashCode.Combine(_counter, _fingerprint, _random, _timestamp);
+			return HashCode.Combine(_counter, StructuralComparisons.StructuralEqualityComparer.GetHashCode(_fingerprint), _random, _timestamp);
 		}
 
 		/// <inheritdoc />
@@ -308,7 +298,7 @@
 		{
 			reader.Read();
 
-#if NET8_0_OR_GREATER
+#if NET6_0_OR_GREATER
 			CuidResult result = new();
 #else
 			CuidResult result = new CuidResult();
@@ -325,7 +315,7 @@
 		/// <returns>The value of this <see cref="Cuid" />.</returns>
 		public override string ToString()
 		{
-#if NET8_0_OR_GREATER
+#if NET6_0_OR_GREATER
 			return string.Create(25, ( _t: _timestamp, _c: _counter, _f: _fingerprint, _r: _random ),
 								 (dest, buffer) =>
 								 {
@@ -338,7 +328,7 @@
 										  .TrimPad(BlockSize)
 										  .WriteTo(ref dest);
 
-									 buffer._f.WriteTo(ref dest);
+									 Encoding.UTF8.GetString(buffer._f).WriteTo(ref dest);
 
 									 Utils.Encode(buffer._r)
 										  .TrimPad(BlockSize * 2)
@@ -387,7 +377,7 @@
 			ReadOnlySpan<char> random = cuidString[^8..];
 
 			result._counter = Utils.Decode(counter);
-			result._fingerprint = fingerprint.ToString();
+			result._fingerprint = Encoding.UTF8.GetBytes(fingerprint.ToString());
 			result._random = Utils.Decode(random);
 			result._timestamp = Utils.Decode(timestamp);
 
@@ -407,7 +397,7 @@
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			public readonly Cuid ToCuid()
 			{
-#if NET8_0_OR_GREATER
+#if NET6_0_OR_GREATER
 				CuidResult result = this;
 				return Unsafe.As<CuidResult, Cuid>(ref Unsafe.AsRef(ref result));
 #else
@@ -428,7 +418,7 @@
 			internal long _counter;
 
 			[FieldOffset(0)]
-			internal string _fingerprint;
+			internal byte[] _fingerprint;
 
 			[FieldOffset(16)]
 			internal long _random;
@@ -440,20 +430,13 @@
 
 		private static class Context
 		{
-			public static readonly string IdentityFingerprint = GenerateFingerprint();
-
-			private static string GenerateFingerprint()
-			{
-				byte[] identity = Fingerprint.Generate(FingerprintVersion.One);
-
-				return Encoding.UTF8.GetString(identity);
-			}
+			public static readonly byte[] IdentityFingerprint = Fingerprint.Generate(FingerprintVersion.One);
 		}
 
 		private sealed class Counter
 		{
 			// ReSharper disable once InconsistentNaming
-#if NET8_0_OR_GREATER
+#if NET6_0_OR_GREATER
 			private static readonly Lazy<Counter> _counter = new(() => new Counter());
 #else
 			private static readonly Lazy<Counter> _counter = new Lazy<Counter>(() => new Counter());
@@ -475,6 +458,19 @@
 					return _value;
 				}
 			}
+		}
+
+		/// <inheritdoc />
+		public int CompareTo(Cuid other)
+		{
+			int counterComparison = _counter.CompareTo(other._counter);
+			if ( counterComparison != 0 )
+			{
+				return counterComparison;
+			}
+
+			int randomComparison = _random.CompareTo(other._random);
+			return randomComparison != 0 ? randomComparison : _timestamp.CompareTo(other._timestamp);
 		}
 	}
 }

@@ -1,14 +1,17 @@
 ﻿namespace Visus.Cuid
 {
-#if NET8_0_OR_GREATER
-	using NSec.Cryptography;
-#endif
-
 	using System;
 	using System.Buffers.Binary;
+	using System.Collections;
+	using System.Diagnostics.CodeAnalysis;
+	using System.Linq;
 	using System.Runtime.InteropServices;
 	using System.Threading;
 	using CommunityToolkit.Diagnostics;
+#if NET6_0_OR_GREATER
+	using NSec.Cryptography;
+#endif
+
 #if NETSTANDARD2_0
 	using Org.BouncyCastle.Crypto.Digests;
 #endif
@@ -19,6 +22,11 @@
 	[StructLayout(LayoutKind.Sequential)]
 	public readonly struct Cuid2 : IEquatable<Cuid2>
 	{
+		/// <summary>
+		///     A read-only instance of <see cref="Cuid2" /> structure whose values are all zeros.
+		/// </summary>
+		public static readonly Cuid2 Empty;
+
 		private const int DefaultLength = 24;
 
 		private readonly long _counter;
@@ -54,19 +62,6 @@
 			_random = Utils.GenerateRandom(maxLength);
 			_timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 		}
-		
-#if NET8_0_OR_GREATER
-		/// <summary>
-		///     Initializes a new instance of the <see cref="Cuid2" /> structure.
-		/// </summary>
-		/// <remarks>The structure will initialize with a default maximum length of 24.</remarks>
-		/// <returns>A new CUID object.</returns>
-
-		public Cuid2()
-			: this(DefaultLength)
-		{
-		}
-#endif
 
 		/// <summary>
 		///     Indicates whether the values of two specified <see cref="Cuid2" /> objects are equal.
@@ -91,17 +86,22 @@
 		}
 
 		/// <inheritdoc />
+		[SuppressMessage("ReSharper", "SimplifyConditionalTernaryExpression")]
 		public bool Equals(Cuid2 other)
 		{
-			return _counter == other._counter &&
-				   _fingerprint.Equals(other._fingerprint) &&
-				   _prefix == other._prefix &&
-				   _random.Equals(other._random) &&
-				   _timestamp == other._timestamp;
+			return ( _counter == other._counter &&
+					 _fingerprint == null ) || ( _fingerprint.SequenceEqual(other._fingerprint) &&
+												 _prefix == other._prefix &&
+												 _random == null ) || ( _random.SequenceEqual(other._random) &&
+																		_timestamp == other._timestamp );
 		}
 
 		/// <inheritdoc />
+#if NET6_0_OR_GREATER
 		public override bool Equals(object? obj)
+#else
+		public override bool Equals(object obj)
+#endif
 		{
 			return obj is Cuid2 other && Equals(other);
 		}
@@ -109,7 +109,7 @@
 		/// <inheritdoc />
 		public override int GetHashCode()
 		{
-			return HashCode.Combine(_counter, _fingerprint, _prefix, _random, _timestamp);
+			return HashCode.Combine(_counter, StructuralComparisons.StructuralEqualityComparer.GetHashCode(_fingerprint), _prefix, _random, _timestamp);
 		}
 
 		/// <summary>
@@ -118,12 +118,22 @@
 		/// <returns>The value of this <see cref="Cuid2" />.</returns>
 		public override string ToString()
 		{
+			if ( _counter == 0 ||
+				 _fingerprint == null ||
+				 _maxLength == 0 ||
+				 _prefix == char.MinValue ||
+				 _random == null ||
+				 _timestamp == 0 )
+			{
+				return new string('0', DefaultLength);
+			}
+
 			Span<byte> buffer = stackalloc byte[16];
 
 			BinaryPrimitives.WriteInt64LittleEndian(buffer[..8], _timestamp);
 			BinaryPrimitives.WriteInt64LittleEndian(buffer[^8..], _counter);
 
-#if NET8_0_OR_GREATER
+#if NET6_0_OR_GREATER
 			IncrementalHash.Initialize(HashAlgorithm.Sha512, out IncrementalHash state);
 
 			IncrementalHash.Update(ref state, buffer);
@@ -153,7 +163,7 @@
 		private sealed class Counter
 		{
 			// ReSharper disable once InconsistentNaming
-#if NET8_0_OR_GREATER
+#if NET6_0_OR_GREATER
 			private static readonly Lazy<Counter> _counter = new(() => new Counter());
 #else
 			private static readonly Lazy<Counter> _counter = new Lazy<Counter>(() => new Counter());

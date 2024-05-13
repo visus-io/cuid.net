@@ -29,7 +29,7 @@
 
 			identity.CopyTo(buffer[..identity.Length]);
 
-#if NET8_0_OR_GREATER
+#if NET6_0_OR_GREATER
 			BinaryPrimitives.WriteInt32LittleEndian(
 													buffer.Slice(identity.Length + 1, 4),
 													Environment.ProcessId
@@ -58,7 +58,7 @@
 			int machineIdentifier = machineName.Length + 36;
 			machineIdentifier = machineName.Aggregate(machineIdentifier, (i, c) => i + c);
 
-#if NET8_0_OR_GREATER
+#if NET6_0_OR_GREATER
 			string result = string.Create(4, machineIdentifier, (dest, _) =>
 																{
 																	Environment.ProcessId
@@ -83,7 +83,7 @@
 		{
 			byte[] bytes = Utils.GenerateRandom(32);
 
-#if NET8_0_OR_GREATER
+#if NET6_0_OR_GREATER
 			string hostname = Convert.ToHexString(bytes).ToUpperInvariant();
 			return OperatingSystem.IsWindows()
 					   ? hostname[..15] // windows hostnames are limited to 15 characters 

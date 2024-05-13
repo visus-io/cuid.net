@@ -5,14 +5,14 @@
 	using System.Threading.Tasks;
 	using PublicApiGenerator;
 	using Xunit;
-#if NET8_0_OR_GREATER
+#if NET6_0_OR_GREATER
 	using VerifyXunit;
 #endif
 
 	[ExcludeFromCodeCoverage]
 	public class ApiFacts
 	{
-#if NET8_0_OR_GREATER
+#if NET6_0_OR_GREATER
 		[Fact]
 		[MethodImpl(MethodImplOptions.NoInlining)]
 		public async Task Cuid_NoBreakingChanges_Async()

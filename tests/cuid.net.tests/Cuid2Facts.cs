@@ -18,7 +18,7 @@
 
 			var result = cuidString.Length == 24
 					  && cuidString.All(char.IsLetterOrDigit);
-			
+
 			Debug.WriteLine(result);
 
 			Assert.True(result);
@@ -35,6 +35,13 @@
 					  && cuidString.All(char.IsLetterOrDigit);
 
 			Assert.True(result);
+		}
+
+		[Fact]
+		public void Cuid2_Constructor_IsCuid2Empty()
+		{
+			var cuid = new Cuid2();
+			Assert.Equal(cuid, Cuid2.Empty);
 		}
 
 		[Fact]

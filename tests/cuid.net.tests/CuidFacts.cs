@@ -36,6 +36,13 @@ namespace Visus.Cuid.Tests
 		}
 
 		[Fact]
+		public void Cuid_Constructor_IsCuidEmpty()
+		{
+			var cuid = new Cuid();
+			Assert.Equal(cuid, Cuid.Empty);
+		}
+
+		[Fact]
 		public void Cuid_Equality()
 		{
 			var c1 = new Cuid(CuidString);
@@ -54,11 +61,14 @@ namespace Visus.Cuid.Tests
 			Assert.True(c1.Equals((object) c2));
 
 			Assert.True(c1.CompareTo(null) > 0);
-			Assert.True(c1.CompareTo(c2) == 0);
-			Assert.True(c1.CompareTo((object) c2) == 0);
+			Assert.Equal(0, c1.CompareTo(c2));
+			Assert.Equal(0, c1.CompareTo((object) c2));
 
 			Assert.True(c1 >= c2);
 			Assert.True(c1 <= c2);
+
+			var x1 = c1.GetHashCode();
+			var x2 = c2.GetHashCode();
 
 			Assert.True(c1.GetHashCode() == c2.GetHashCode());
 		}
@@ -154,7 +164,7 @@ namespace Visus.Cuid.Tests
 		[Fact]
 		public void Cuid_TryParse_Null_ReturnsFalse()
 		{
-#if NET8_0_OR_GREATER
+#if NET6_0_OR_GREATER
 			var result = Cuid.TryParse(null, out _);
 #else
 			var result = Cuid.TryParse((string) null, out _);
@@ -207,7 +217,7 @@ namespace Visus.Cuid.Tests
 
 			var serializer = new XmlSerializer(typeof(Cuid));
 
-#if NET8_0_OR_GREATER
+#if NET6_0_OR_GREATER
 			using var stringReader = new StringReader(xml);
 			using var xmlReader = XmlReader.Create(stringReader);
 
@@ -240,7 +250,7 @@ namespace Visus.Cuid.Tests
 				Encoding = new UnicodeEncoding(false, false)
 			};
 
-#if NET8_0_OR_GREATER
+#if NET6_0_OR_GREATER
 			using var stringWriter = new StringWriter();
 			using var xmlWriter = XmlWriter.Create(stringWriter, settings);
 

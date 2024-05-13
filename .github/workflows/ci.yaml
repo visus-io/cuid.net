@@ -16,7 +16,7 @@ on:
 jobs:
   unit-tests:
     name: Unit Tests
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -39,11 +39,11 @@ jobs:
         run: dotnet build -c release
       - name: Test
         run: |
-          dotnet test -c release --no-restore --no-build \
-            --logger:trx \
-            --results-directory ${{ runner.temp }}/TestResults \
-            -p:CollectCoverage=true \
-            -p:CoverletOutputFormat=opencover \
+          dotnet test -c release --no-restore --no-build `
+            --logger:trx `
+            --results-directory ${{ runner.temp }}/TestResults `
+            -p:CollectCoverage=true `
+            -p:CoverletOutputFormat=opencover `
             -p:CoverletOutput=${{ runner.temp }}/coverage.opencover.xml
       - name: Publish Test Results
         uses: dorny/test-reporter@v1
@@ -57,5 +57,5 @@ jobs:
         uses: codacy/codacy-coverage-reporter-action@v1
         with:
           project-token: ${{ secrets.CODACY_TOKEN }}
-          coverage-reports: ${{ runner.temp }}/coverage.opencover.xml
+          coverage-reports: ${{ runner.temp }}/coverage.opencover.*.xml
           
