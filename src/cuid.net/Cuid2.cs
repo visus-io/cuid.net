@@ -1,5 +1,9 @@
 ﻿namespace Visus.Cuid
 {
+#if NET6_0_OR_GREATER
+	using NSec.Cryptography;
+#endif
+
 	using System;
 	using System.Buffers.Binary;
 	using System.Collections;
@@ -8,10 +12,6 @@
 	using System.Runtime.InteropServices;
 	using System.Threading;
 	using CommunityToolkit.Diagnostics;
-#if NET6_0_OR_GREATER
-	using NSec.Cryptography;
-#endif
-
 #if NETSTANDARD2_0
 	using Org.BouncyCastle.Crypto.Digests;
 #endif
@@ -142,7 +142,7 @@
 
 			byte[] hash = IncrementalHash.Finalize(ref state);
 #else
-			Sha3Digest digest = new Sha3Digest(512);
+			Sha3Digest digest = new(512);
 
 			digest.BlockUpdate(buffer.ToArray(), 0, buffer.Length);
 			digest.BlockUpdate(_fingerprint, 0, _fingerprint.Length);
@@ -163,11 +163,7 @@
 		private sealed class Counter
 		{
 			// ReSharper disable once InconsistentNaming
-#if NET6_0_OR_GREATER
 			private static readonly Lazy<Counter> _counter = new(() => new Counter());
-#else
-			private static readonly Lazy<Counter> _counter = new Lazy<Counter>(() => new Counter());
-#endif
 
 			private long _value;
 

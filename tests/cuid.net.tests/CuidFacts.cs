@@ -1,4 +1,7 @@
-﻿#pragma warning disable VISLIB0001
+﻿#if NETSTANDARD2_0 || NET472
+#pragma warning disable CS0618 // Type or member is obsolete
+#endif
+#pragma warning disable VISLIB0001
 namespace Visus.Cuid.Tests
 {
 	using System;

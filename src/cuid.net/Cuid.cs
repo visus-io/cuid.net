@@ -1,5 +1,8 @@
 ﻿namespace Visus.Cuid
 {
+#if NETSTANDARD2_0
+#endif
+
 	using System;
 	using System.Buffers.Binary;
 	using System.Collections;
@@ -15,13 +18,9 @@
 	using System.Xml.Serialization;
 	using Abstractions;
 	using CommunityToolkit.Diagnostics;
-	using Extensions;
 	using Serialization.Json.Converters;
-#if NETSTANDARD2_0
-	using System.Collections.Generic;
-#endif
-
 #if NET6_0_OR_GREATER
+	using Extensions;
 #endif
 
 	/// <summary>
@@ -66,12 +65,7 @@
 		public Cuid(string c)
 		{
 			Guard.IsNotNullOrWhiteSpace(c);
-
-#if NET6_0_OR_GREATER
 			CuidResult result = new();
-#else
-			CuidResult result = new CuidResult();
-#endif
 
 			_ = TryParseCuid(c.AsSpan(), true, ref result);
 
@@ -84,7 +78,6 @@
 		/// <returns>A new CUID object.</returns>
 		public static Cuid NewCuid()
 		{
-#if NET6_0_OR_GREATER
 			CuidResult result = new()
 			{
 				_counter = Counter.Instance.Value,
@@ -92,15 +85,6 @@
 				_random = BinaryPrimitives.ReadInt64LittleEndian(Utils.GenerateRandom()),
 				_timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
 			};
-#else
-			CuidResult result = new CuidResult
-			{
-				_counter = Counter.Instance.Value,
-				_fingerprint = Context.IdentityFingerprint,
-				_random = BinaryPrimitives.ReadInt64LittleEndian(Utils.GenerateRandom()),
-				_timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
-			};
-#endif
 
 			return result.ToCuid();
 		}
@@ -178,8 +162,7 @@
 		/// <returns>A structure that contains the value that was parsed.</returns>
 		public static Cuid Parse(string input)
 		{
-			Guard.IsNotNullOrWhiteSpace(input);
-			return Parse(input.AsSpan());
+			return string.IsNullOrWhiteSpace(input) ? Empty : Parse(input.AsSpan());
 		}
 
 		/// <summary>
@@ -190,11 +173,7 @@
 		[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 		public static Cuid Parse(ReadOnlySpan<char> input)
 		{
-#if NET6_0_OR_GREATER
 			CuidResult result = new();
-#else
-			CuidResult result = new CuidResult();
-#endif
 
 			_ = TryParseCuid(input, true, ref result);
 
@@ -213,11 +192,8 @@
 		/// <returns><c>true</c> if the parse operation was successful; otherwise, <c>false</c>.</returns>
 		public static bool TryParse(ReadOnlySpan<char> input, out Cuid result)
 		{
-#if NET6_0_OR_GREATER
 			CuidResult parseResult = new();
-#else
-			CuidResult parseResult = new CuidResult();
-#endif
+
 			if ( TryParseCuid(input, false, ref parseResult) )
 			{
 				result = parseResult.ToCuid();
@@ -253,7 +229,11 @@
 		}
 
 		/// <inheritdoc />
+#if NET6_0_OR_GREATER
 		public int CompareTo(object? obj)
+#else
+		public int CompareTo(object obj)
+#endif
 		{
 			if ( ReferenceEquals(null, obj) )
 			{
@@ -282,7 +262,11 @@
 		}
 
 		/// <inheritdoc />
+#if NET6_0_OR_GREATER
 		public override bool Equals(object? obj)
+#else
+		public override bool Equals(object obj)
+#endif
 		{
 			return obj is Cuid other && Equals(other);
 		}
@@ -298,11 +282,7 @@
 		{
 			reader.Read();
 
-#if NET6_0_OR_GREATER
 			CuidResult result = new();
-#else
-			CuidResult result = new CuidResult();
-#endif
 
 			_ = TryParseCuid(reader.Value.AsSpan(), true, ref result);
 
@@ -385,7 +365,11 @@
 		}
 
 		[ExcludeFromCodeCoverage]
+#if NET6_0_OR_GREATER
 		XmlSchema? IXmlSerializable.GetSchema()
+#else
+		XmlSchema IXmlSerializable.GetSchema()
+#endif
 		{
 			return null;
 		}
@@ -436,11 +420,7 @@
 		private sealed class Counter
 		{
 			// ReSharper disable once InconsistentNaming
-#if NET6_0_OR_GREATER
 			private static readonly Lazy<Counter> _counter = new(() => new Counter());
-#else
-			private static readonly Lazy<Counter> _counter = new Lazy<Counter>(() => new Counter());
-#endif
 
 			private static readonly long DiscreteValues = (long) Math.Pow(36, 4);
 

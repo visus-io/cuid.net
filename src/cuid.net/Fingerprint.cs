@@ -68,8 +68,8 @@
 																					 .TrimPad(2).WriteTo(ref dest);
 																});
 #else
-			StringBuilder sb = new StringBuilder();
-			
+			StringBuilder sb = new();
+
 			sb.Append(Process.GetCurrentProcess().Id.ToString(CultureInfo.InvariantCulture).TrimPad(2));
 			sb.Append(machineIdentifier.ToString(CultureInfo.InvariantCulture).TrimPad(2));
 
