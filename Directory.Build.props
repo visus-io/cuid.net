@@ -16,7 +16,7 @@
         <LangVersion>8</LangVersion>
     </PropertyGroup>
 
-<!--    <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">-->
-<!--        <RestoreLockedMode>true</RestoreLockedMode>-->
-<!--    </PropertyGroup>-->
+    <PropertyGroup Condition="'$(CI)' == 'true'">
+        <RestoreLockedMode>true</RestoreLockedMode>
+    </PropertyGroup>
 </Project>

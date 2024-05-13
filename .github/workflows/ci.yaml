@@ -35,11 +35,9 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           global-json-file: global.json
-      - name: Build
-        run: dotnet build -c release
       - name: Test
         run: |
-          dotnet test -c release --no-restore --no-build `
+          dotnet test -c release `
             --logger:trx `
             --results-directory ${{ runner.temp }}/TestResults `
             -p:CollectCoverage=true `
