@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
+        <TargetFrameworks>net472;netstandard2.0;net6.0;net8.0</TargetFrameworks>
         <RootNamespace>Visus.Cuid</RootNamespace>
         <Copyright>Copyright (c) 2023 Visus Development Team</Copyright>
     </PropertyGroup>
@@ -37,9 +37,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="BouncyCastle.Cryptography" Condition="$(TargetFramework) == 'netstandard2.0'" />
+        <PackageReference Include="BouncyCastle.Cryptography" Condition="($(TargetFramework) == 'netstandard2.0') Or ($(TargetFramework) == 'net472')" />
         <PackageReference Include="CommunityToolkit.Diagnostics" />
-        <PackageReference Include="Microsoft.Bcl.HashCode" Condition="$(TargetFramework) == 'netstandard2.0'" />
+        <PackageReference Include="Microsoft.Bcl.HashCode" Condition="($(TargetFramework) == 'netstandard2.0') Or ($(TargetFramework) == 'net472')" />
         <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -48,12 +48,12 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="NSec.Cryptography" Condition="$(TargetFramework) == 'net8.0'" />
+        <PackageReference Include="NSec.Cryptography" Condition="($(TargetFramework) == 'net6.0') Or ($(TargetFramework) == 'net8.0')" />
         <PackageReference Include="PolySharp">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="System.Text.Json" Condition="$(TargetFramework) == 'netstandard2.0'" />
+        <PackageReference Include="System.Text.Json" Condition="($(TargetFramework) == 'netstandard2.0') Or ($(TargetFramework) == 'net472')" />
     </ItemGroup>
 
     <ItemGroup>

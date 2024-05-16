@@ -12,7 +12,7 @@
 	using System.Runtime.InteropServices;
 	using System.Threading;
 	using CommunityToolkit.Diagnostics;
-#if NETSTANDARD2_0
+#if NETSTANDARD2_0 || NET472
 	using Org.BouncyCastle.Crypto.Digests;
 #endif
 
@@ -22,11 +22,6 @@
 	[StructLayout(LayoutKind.Sequential)]
 	public readonly struct Cuid2 : IEquatable<Cuid2>
 	{
-		/// <summary>
-		///     A read-only instance of <see cref="Cuid2" /> structure whose values are all zeros.
-		/// </summary>
-		public static readonly Cuid2 Empty;
-
 		private const int DefaultLength = 24;
 
 		private readonly long _counter;
@@ -41,6 +36,16 @@
 
 		private readonly long _timestamp;
 
+		/// <summary>
+		///     Initializes a new instance of the <see cref="Cuid2" /> structure.
+		/// </summary>
+		/// <remarks>The structure will initialize with a default maximum length of 24.</remarks>
+		/// <returns>A new CUID object.</returns>
+		public Cuid2()
+			: this(DefaultLength)
+		{
+		}
+		
 		/// <summary>
 		///     Initializes a new instance of the <see cref="Cuid2" /> structure.
 		/// </summary>

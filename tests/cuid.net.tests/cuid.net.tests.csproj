@@ -19,8 +19,8 @@
         <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" />
         <PackageReference Include="Microsoft.NET.Test.Sdk"/>
         <PackageReference Include="PublicApiGenerator"/>
-        <PackageReference Include="System.Text.Json" Condition="$(TargetFramework) == 'netstandard2.0'" />
-        <PackageReference Include="Verify.Xunit" Condition="$(TargetFramework) == 'net8.0'" />
+        <PackageReference Include="System.Text.Json" Condition="($(TargetFramework) == 'netstandard2.0') Or ($(TargetFramework) == 'net472')" />
+        <PackageReference Include="Verify.Xunit" />
         <PackageReference Include="xunit"/>
         <PackageReference Include="xunit.runner.visualstudio">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

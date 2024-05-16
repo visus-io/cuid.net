@@ -7,7 +7,7 @@
 	using System.Text;
 	using Abstractions;
 	using Extensions;
-#if NETSTANDARD2_0
+#if NETSTANDARD2_0 || NET472
 	using System.Diagnostics;
 	using System.Runtime.InteropServices;
 #endif

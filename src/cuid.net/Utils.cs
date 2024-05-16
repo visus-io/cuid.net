@@ -52,20 +52,15 @@
 #if NET6_0_OR_GREATER
 			BigInteger d = new(value, true);
 #else
-			ulong unsigned = BitConverter.ToUInt64(value.ToArray(), 0);
-			BigInteger d = new BigInteger(unsigned);
+			byte[] unsigned = value.ToArray().Concat(new byte[] { 00 }).ToArray();
+			BigInteger d = new(unsigned);
 #endif
 			while ( !d.IsZero )
 			{
 				d = BigInteger.DivRem(d, BigRadix, out BigInteger r);
 				int c = (int) r;
 
-#if NET6_0_OR_GREATER
 				buffer[--i] = (char) ( c is >= 0 and <= 9 ? c + 48 : c + 'a' - 10 );
-#else
-				c += c >= 0 && c <= 9 ? 48 : 'a' - 10;
-				buffer[--i] = (char) c;
-#endif
 			}
 
 #if NET6_0_OR_GREATER

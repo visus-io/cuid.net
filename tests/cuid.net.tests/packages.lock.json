@@ -48,6 +48,32 @@
           "System.CodeDom": "8.0.0"
         }
       },
+      "System.Text.Json": {
+        "type": "Direct",
+        "requested": "[8.0.3, )",
+        "resolved": "8.0.3",
+        "contentHash": "hpagS9joOwv6efWfrMmV9MjQXpiXZH72PgN067Ysfr6AWMSD1/1hEcvh/U5mUpPLezEWsOJSuVrmqDIVD958iA==",
+        "dependencies": {
+          "Microsoft.Bcl.AsyncInterfaces": "8.0.0",
+          "System.Buffers": "4.5.1",
+          "System.Memory": "4.5.5",
+          "System.Runtime.CompilerServices.Unsafe": "6.0.0",
+          "System.Text.Encodings.Web": "8.0.0",
+          "System.Threading.Tasks.Extensions": "4.5.4",
+          "System.ValueTuple": "4.5.0"
+        }
+      },
+      "Verify.Xunit": {
+        "type": "Direct",
+        "requested": "[24.2.0, )",
+        "resolved": "24.2.0",
+        "contentHash": "qyN2PWmhog5185n0xFzRIM4Is9Dgukq24Vdph3t+Df/g1rVeB0hMzb0HFWk3HvDRh3fuvTJN6orNnJYBXnFN1w==",
+        "dependencies": {
+          "Verify": "24.2.0",
+          "xunit.abstractions": "2.0.3",
+          "xunit.extensibility.execution": "2.8.0"
+        }
+      },
       "xunit": {
         "type": "Direct",
         "requested": "[2.8.0, )",
@@ -66,6 +92,36 @@
         "contentHash": "mqQbS2zr8dfgSWxkNOC6UTzO8JoqpTmM5+FFn2XR/2nVmx2JvEY0YbM5pt2FmXVg9YVe+jKUPHd6KrroyCl67w==",
         "dependencies": {
           "Microsoft.TestPlatform.ObjectModel": "17.9.0"
+        }
+      },
+      "Argon": {
+        "type": "Transitive",
+        "resolved": "0.17.0",
+        "contentHash": "TC/5P8sb2AKeC6dLAEx7ex1sr2IiQOI0tZ8yV6J3QT8qp7bUfP/blmwrgZ/zIab84XQ+XScT1zUeok96iZ7ReQ==",
+        "dependencies": {
+          "System.Buffers": "4.5.1",
+          "System.Collections.Immutable": "8.0.0",
+          "System.Memory": "4.5.5",
+          "System.ValueTuple": "4.5.0"
+        }
+      },
+      "DiffEngine": {
+        "type": "Transitive",
+        "resolved": "15.4.0",
+        "contentHash": "2UTLer/h9u6zKTEXuHmgG7lQPjUiOP7YuIWKY5XP25v7uCDQmJXQnyaNbW6g4JzG5gyMhgbulVYPyqaglwP1zw==",
+        "dependencies": {
+          "EmptyFiles": "8.2.0",
+          "System.Collections.Immutable": "8.0.0",
+          "System.Management": "8.0.0"
+        }
+      },
+      "EmptyFiles": {
+        "type": "Transitive",
+        "resolved": "8.2.0",
+        "contentHash": "LnZLh5IPCc0zDjVWnta9pwLR9UxH0Ki08iru+2BRZ2tMigZDSlQQ9u3GnEjaDemaSCJwKLQyf3lsnVnbVldQ/g==",
+        "dependencies": {
+          "System.Collections.Immutable": "8.0.0",
+          "System.Memory": "4.5.5"
         }
       },
       "Microsoft.Bcl.AsyncInterfaces": {
@@ -99,6 +155,11 @@
         "resolved": "0.11.5",
         "contentHash": "fxfX+0JGTZ8YQeu1MYjbBiK2CYTSzDyEeIixt+yqKKTn7FW8rv7JMY70qevup4ZJfD7Kk/VG/jDzQQTpfch87g=="
       },
+      "SimpleInfoName": {
+        "type": "Transitive",
+        "resolved": "2.2.0",
+        "contentHash": "jZwJajqdF56n0HcwvM8wqrwhr8tBqp7E3dWVoa5XWMC4tqSXP4+rIfYipeVIavRUI5MSj5vYPCdwtF3h4RJvxA=="
+      },
       "System.Buffers": {
         "type": "Transitive",
         "resolved": "4.5.1",
@@ -111,8 +172,34 @@
       },
       "System.Collections.Immutable": {
         "type": "Transitive",
-        "resolved": "1.5.0",
-        "contentHash": "EXKiDFsChZW0RjrZ4FYHu9aW6+P4MCgEDCklsVseRfhoO0F+dXeMSsMRAlVXIo06kGJ/zv+2w1a2uc2+kxxSaQ=="
+        "resolved": "8.0.0",
+        "contentHash": "AurL6Y5BA1WotzlEvVaIDpqzpIPvYnnldxru8oXJU2yFxFUy3+pNXjXd1ymO+RA0rq0+590Q8gaz2l3Sr7fmqg==",
+        "dependencies": {
+          "System.Memory": "4.5.5",
+          "System.Runtime.CompilerServices.Unsafe": "6.0.0"
+        }
+      },
+      "System.IO.Compression": {
+        "type": "Transitive",
+        "resolved": "4.3.0",
+        "contentHash": "YHndyoiV90iu4iKG115ibkhrG+S3jBm8Ap9OwoUAzO5oPDAWcr0SFwQFm0HjM8WkEZWo0zvLTyLmbvTkW1bXgg=="
+      },
+      "System.IO.Hashing": {
+        "type": "Transitive",
+        "resolved": "8.0.0",
+        "contentHash": "ne1843evDugl0md7Fjzy6QjJrzsjh46ZKbhf8GwBXb5f/gw97J4bxMs0NQKifDuThh/f0bZ0e62NPl1jzTuRqA==",
+        "dependencies": {
+          "System.Buffers": "4.5.1",
+          "System.Memory": "4.5.5"
+        }
+      },
+      "System.Management": {
+        "type": "Transitive",
+        "resolved": "8.0.0",
+        "contentHash": "jrK22i5LRzxZCfGb+tGmke2VH7oE0DvcDlJ1HAKYU8cPmD8XnpUT0bYn2Gy98GEhGjtfbR/sxKTVb+dE770pfA==",
+        "dependencies": {
+          "System.CodeDom": "8.0.0"
+        }
       },
       "System.Memory": {
         "type": "Transitive",
@@ -164,6 +251,20 @@
         "type": "Transitive",
         "resolved": "4.5.0",
         "contentHash": "okurQJO6NRE/apDIP23ajJ0hpiNmJ+f0BwOlB/cSqTLQlw5upkf+5+96+iG2Jw40G1fCVCyPz/FhIABUjMR+RQ=="
+      },
+      "Verify": {
+        "type": "Transitive",
+        "resolved": "24.2.0",
+        "contentHash": "PlWBOlByTPNp9cEc22TZ6I04yfbqICKDMJOw1k+6eWomVl1qSOhbc8QITBkoNspOsSb4oyrkYusjd3DspFerPg==",
+        "dependencies": {
+          "Argon": "0.17.0",
+          "DiffEngine": "15.4.0",
+          "Microsoft.Bcl.AsyncInterfaces": "8.0.0",
+          "SimpleInfoName": "2.2.0",
+          "System.IO.Compression": "4.3.0",
+          "System.IO.Hashing": "8.0.0",
+          "System.Memory": "4.5.5"
+        }
       },
       "xunit.abstractions": {
         "type": "Transitive",
@@ -234,21 +335,6 @@
         "requested": "[1.1.1, )",
         "resolved": "1.1.1",
         "contentHash": "MalY0Y/uM/LjXtHfX/26l2VtN4LDNZ2OE3aumNOHDLsT4fNYy2hiHXI4CXCqKpNUNm7iJ2brrc4J89UdaL56FA=="
-      },
-      "System.Text.Json": {
-        "type": "CentralTransitive",
-        "requested": "[8.0.3, )",
-        "resolved": "8.0.3",
-        "contentHash": "hpagS9joOwv6efWfrMmV9MjQXpiXZH72PgN067Ysfr6AWMSD1/1hEcvh/U5mUpPLezEWsOJSuVrmqDIVD958iA==",
-        "dependencies": {
-          "Microsoft.Bcl.AsyncInterfaces": "8.0.0",
-          "System.Buffers": "4.5.1",
-          "System.Memory": "4.5.5",
-          "System.Runtime.CompilerServices.Unsafe": "6.0.0",
-          "System.Text.Encodings.Web": "8.0.0",
-          "System.Threading.Tasks.Extensions": "4.5.4",
-          "System.ValueTuple": "4.5.0"
-        }
       }
     },
     "net8.0": {

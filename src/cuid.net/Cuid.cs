@@ -1,11 +1,9 @@
 ﻿namespace Visus.Cuid
 {
-#if NETSTANDARD2_0
-#endif
-
 	using System;
 	using System.Buffers.Binary;
 	using System.Collections;
+	using System.Collections.Generic;
 	using System.Diagnostics.CodeAnalysis;
 	using System.Linq;
 	using System.Runtime.CompilerServices;
@@ -18,6 +16,7 @@
 	using System.Xml.Serialization;
 	using Abstractions;
 	using CommunityToolkit.Diagnostics;
+	using Extensions;
 	using Serialization.Json.Converters;
 #if NET6_0_OR_GREATER
 	using Extensions;
@@ -315,7 +314,16 @@
 										  .WriteTo(ref dest);
 								 });
 #else
-			return string.Empty;
+			List<string> items =
+			[
+				Prefix,
+				Utils.Encode((ulong) _timestamp),
+				Utils.Encode(_counter).TrimPad(BlockSize),
+				Encoding.UTF8.GetString(_fingerprint),
+				Utils.Encode(_random).TrimPad(BlockSize * 2)
+			];
+
+			return string.Join(string.Empty, items);
 #endif
 		}
 

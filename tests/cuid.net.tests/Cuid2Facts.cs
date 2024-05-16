@@ -38,13 +38,6 @@
 		}
 
 		[Fact]
-		public void Cuid2_Constructor_IsCuid2Empty()
-		{
-			var cuid = new Cuid2();
-			Assert.Equal(cuid, Cuid2.Empty);
-		}
-
-		[Fact]
 		public void Cuid2_Constructor_ThrowsArgumentOutOfRangeException()
 		{
 			Assert.Throws<ArgumentOutOfRangeException>(() => new Cuid2(64));
