@@ -18,9 +18,6 @@
 	using CommunityToolkit.Diagnostics;
 	using Extensions;
 	using Serialization.Json.Converters;
-#if NET6_0_OR_GREATER
-	using Extensions;
-#endif
 
 	/// <summary>
 	///     Represents a collision resistant unique identifier (CUID).
@@ -389,7 +386,7 @@
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			public readonly Cuid ToCuid()
 			{
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
 				CuidResult result = this;
 				return Unsafe.As<CuidResult, Cuid>(ref Unsafe.AsRef(ref result));
 #else

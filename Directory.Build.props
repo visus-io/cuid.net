@@ -3,18 +3,8 @@
         <Version>0.0.1</Version>
         <Copyright>Copyright (c) 2023 Visus Development Team</Copyright>
         <LangVersion>12</LangVersion>
+        <Nullable Condition="($(TargetFramework) == 'net6.0') Or ($(TargetFramework) == 'net8.0')">enable</Nullable>
         <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="($(TargetFramework) == 'net6.0') Or ($(TargetFramework) == 'net8.0')">
-        <Nullable>enable</Nullable>
-    </PropertyGroup>
-    
-    <PropertyGroup Condition="$(TargetFramework) == 'netstandard2.0'">
-        <Nullable>disable</Nullable>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(CI)' == 'true'">
-        <RestoreLockedMode>true</RestoreLockedMode>
+        <RestoreLockedMode Condition="'$(CI)' == 'true'">true</RestoreLockedMode>
     </PropertyGroup>
 </Project>
