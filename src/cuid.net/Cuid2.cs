@@ -1,9 +1,5 @@
 ﻿namespace Visus.Cuid
 {
-#if NET6_0_OR_GREATER
-	using NSec.Cryptography;
-#endif
-
 	using System;
 	using System.Buffers.Binary;
 	using System.Collections;
@@ -12,9 +8,7 @@
 	using System.Runtime.InteropServices;
 	using System.Threading;
 	using CommunityToolkit.Diagnostics;
-#if NETSTANDARD2_0 || NET472
 	using Org.BouncyCastle.Crypto.Digests;
-#endif
 
 	/// <summary>
 	///     Represents a collision resistant unique identifier (CUID).
@@ -138,15 +132,6 @@
 			BinaryPrimitives.WriteInt64LittleEndian(buffer[..8], _timestamp);
 			BinaryPrimitives.WriteInt64LittleEndian(buffer[^8..], _counter);
 
-#if NET6_0_OR_GREATER
-			IncrementalHash.Initialize(HashAlgorithm.Sha512, out IncrementalHash state);
-
-			IncrementalHash.Update(ref state, buffer);
-			IncrementalHash.Update(ref state, _fingerprint);
-			IncrementalHash.Update(ref state, _random);
-
-			byte[] hash = IncrementalHash.Finalize(ref state);
-#else
 			Sha3Digest digest = new(512);
 
 			digest.BlockUpdate(buffer.ToArray(), 0, buffer.Length);
@@ -155,7 +140,6 @@
 
 			byte[] hash = new byte[digest.GetByteLength()];
 			digest.DoFinal(hash, 0);
-#endif
 
 			return _prefix + Utils.Encode(hash)[..( _maxLength - 1 )];
 		}

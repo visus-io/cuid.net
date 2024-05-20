@@ -29,15 +29,6 @@
         "resolved": "8.0.0",
         "contentHash": "DxiTgkCl3CGq1rYmBX2wjY7XGbxiBdL4J+/AJIAFLKy5z70NxhnVRnPghnicXZ8oF6JKVXlW3xwznRbI3ioEKg=="
       },
-      "Microsoft.NETFramework.ReferenceAssemblies": {
-        "type": "Direct",
-        "requested": "[1.0.3, )",
-        "resolved": "1.0.3",
-        "contentHash": "vUc9Npcs14QsyOD01tnv/m8sQUnGTGOw1BCmKcv77LBJY7OxhJ+zJF7UD/sCL3lYNFuqmQEVlkfS4Quif6FyYg==",
-        "dependencies": {
-          "Microsoft.NETFramework.ReferenceAssemblies.net472": "1.0.3"
-        }
-      },
       "Microsoft.SourceLink.GitHub": {
         "type": "Direct",
         "requested": "[8.0.0, )",
@@ -81,11 +72,6 @@
         "type": "Transitive",
         "resolved": "8.0.0",
         "contentHash": "bZKfSIKJRXLTuSzLudMFte/8CempWjVamNUR5eHJizsy+iuOuO/k2gnh7W0dHJmYY0tBf+gUErfluCv5mySAOQ=="
-      },
-      "Microsoft.NETFramework.ReferenceAssemblies.net472": {
-        "type": "Transitive",
-        "resolved": "1.0.3",
-        "contentHash": "0E7evZXHXaDYYiLRfpyXvCh+yzM2rNTyuZDI+ZO7UUqSc6GfjePiXTdqJGtgIKUwdI81tzQKmaWprnUiPj9hAw=="
       },
       "Microsoft.SourceLink.Common": {
         "type": "Transitive",
@@ -276,6 +262,12 @@
       }
     },
     "net6.0": {
+      "BouncyCastle.Cryptography": {
+        "type": "Direct",
+        "requested": "[2.3.1, )",
+        "resolved": "2.3.1",
+        "contentHash": "buwoISwecYke3CmgG1AQSg+sNZjJeIb93vTAtJiHZX35hP/teYMxsfg0NDXGUKjGx6BKBTNKc77O2M3vKvlXZQ=="
+      },
       "CommunityToolkit.Diagnostics": {
         "type": "Direct",
         "requested": "[8.2.2, )",
@@ -298,25 +290,11 @@
           "Microsoft.SourceLink.Common": "8.0.0"
         }
       },
-      "NSec.Cryptography": {
-        "type": "Direct",
-        "requested": "[24.4.0, )",
-        "resolved": "24.4.0",
-        "contentHash": "R89OF0T5OY9QnPRoTsMCaPKMqtXcWKZSWAO4zyUaFHI+ZRMgXU7WaIwg/rPP3vOfdaLl8HdUHWkDB+2B9FOO7g==",
-        "dependencies": {
-          "libsodium": "[1.0.19, 1.0.20)"
-        }
-      },
       "PolySharp": {
         "type": "Direct",
         "requested": "[1.14.1, )",
         "resolved": "1.14.1",
         "contentHash": "mOOmFYwad3MIOL14VCjj02LljyF1GNw1wP0YVlxtcPvqdxjGGMNdNJJxHptlry3MOd8b40Flm8RPOM8JOlN2sQ=="
-      },
-      "libsodium": {
-        "type": "Transitive",
-        "resolved": "1.0.19",
-        "contentHash": "tupm/HViwBN6Knd/gckR+cLaJGR39GLmiU4iDMM5hp/1BoczMr8fwJhSU+3/C2V4hi9nBK/4FICRKtTLU30TCA=="
       },
       "Microsoft.Build.Tasks.Git": {
         "type": "Transitive",
@@ -330,6 +308,12 @@
       }
     },
     "net8.0": {
+      "BouncyCastle.Cryptography": {
+        "type": "Direct",
+        "requested": "[2.3.1, )",
+        "resolved": "2.3.1",
+        "contentHash": "buwoISwecYke3CmgG1AQSg+sNZjJeIb93vTAtJiHZX35hP/teYMxsfg0NDXGUKjGx6BKBTNKc77O2M3vKvlXZQ=="
+      },
       "CommunityToolkit.Diagnostics": {
         "type": "Direct",
         "requested": "[8.2.2, )",
@@ -358,25 +342,11 @@
           "Microsoft.SourceLink.Common": "8.0.0"
         }
       },
-      "NSec.Cryptography": {
-        "type": "Direct",
-        "requested": "[24.4.0, )",
-        "resolved": "24.4.0",
-        "contentHash": "R89OF0T5OY9QnPRoTsMCaPKMqtXcWKZSWAO4zyUaFHI+ZRMgXU7WaIwg/rPP3vOfdaLl8HdUHWkDB+2B9FOO7g==",
-        "dependencies": {
-          "libsodium": "[1.0.19, 1.0.20)"
-        }
-      },
       "PolySharp": {
         "type": "Direct",
         "requested": "[1.14.1, )",
         "resolved": "1.14.1",
         "contentHash": "mOOmFYwad3MIOL14VCjj02LljyF1GNw1wP0YVlxtcPvqdxjGGMNdNJJxHptlry3MOd8b40Flm8RPOM8JOlN2sQ=="
-      },
-      "libsodium": {
-        "type": "Transitive",
-        "resolved": "1.0.19",
-        "contentHash": "tupm/HViwBN6Knd/gckR+cLaJGR39GLmiU4iDMM5hp/1BoczMr8fwJhSU+3/C2V4hi9nBK/4FICRKtTLU30TCA=="
       },
       "Microsoft.Build.Tasks.Git": {
         "type": "Transitive",
