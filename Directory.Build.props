@@ -4,7 +4,5 @@
         <Copyright>Copyright (c) 2023 Visus Development Team</Copyright>
         <LangVersion>12</LangVersion>
         <Nullable Condition="($(TargetFramework) == 'net6.0') Or ($(TargetFramework) == 'net8.0')">enable</Nullable>
-        <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
-        <RestoreLockedMode Condition="'$(CI)' == 'true'">true</RestoreLockedMode>
     </PropertyGroup>
 </Project>
