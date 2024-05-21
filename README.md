@@ -5,6 +5,7 @@
 [![Coverage](https://img.shields.io/codacy/coverage/d20b5dbb3a7a4837ae83f2908c85451c?style=for-the-badge&logo=codacy)](https://app.codacy.com/gh/visus-io/cuid.net/coverage/dashboard)
 
 [![Nuget](https://img.shields.io/nuget/v/cuid.net?style=for-the-badge&logo=nuget&label=stable)](https://www.nuget.org/packages/cuid.net)
+[![Nuget](https://img.shields.io/nuget/vpre/cuid.net?style=for-the-badge&logo=nuget&label=dev)](https://www.nuget.org/packages/cuid.net)
 ![Downloads](https://img.shields.io/nuget/dt/cuid.net?style=for-the-badge&logo=nuget)
 ![GitHub](https://img.shields.io/github/license/visus-io/cuid.net?style=for-the-badge)
 
