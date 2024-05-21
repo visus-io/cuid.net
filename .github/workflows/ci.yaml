@@ -43,12 +43,12 @@ jobs:
         if: success() || failure()
         with:
           name: Test Results
-          path: ${{ runner.temp }}\TestResults\*.trx
+          path: '**\TestResults\*.trx'
           reporter: dotnet-trx
       - name: Codacy Coverage
         if: always()
         uses: codacy/codacy-coverage-reporter-action@v1
         with:
           project-token: ${{ secrets.CODACY_TOKEN }}
-          coverage-reports: ${{ runner.temp }}\coverage.opencover.*.xml
+          coverage-reports: '**\coverage.opencover.*.xml'
           

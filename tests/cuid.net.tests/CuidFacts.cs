@@ -70,9 +70,6 @@ namespace Visus.Cuid.Tests
 			Assert.True(c1 >= c2);
 			Assert.True(c1 <= c2);
 
-			var x1 = c1.GetHashCode();
-			var x2 = c2.GetHashCode();
-
 			Assert.True(c1.GetHashCode() == c2.GetHashCode());
 		}
 
