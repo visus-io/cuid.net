@@ -1,10 +1,15 @@
 {
   "extends": [
-    "config:base",
+    "mergeConfidence:all-badges",
+    "config:recommended",
     ":disableDependencyDashboard",
     ":gitSignOff"
   ],
   "assigneesFromCodeOwners": true,
+  "timezone": "America/New_York",
+  "schedule": [
+    "before 5am"
+  ],
   "packageRules": [
     {
       "matchPackagePatterns": [
@@ -21,8 +26,7 @@
       ],
       "automerge": true,
       "automergeType": "pr",
-      "platformAutomerge": true,
-      "ignoreTests": true
+      "platformAutomerge": true
     },
     {
       "matchPackagePatterns": [
