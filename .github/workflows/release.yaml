@@ -32,16 +32,16 @@ jobs:
         run: dotnet restore --verbosity Quiet
       - name: Build
         run: |
-          dotnet build -c release --no-restore \
-            -p:Version=${{ steps.gitversion.outputs.assemblySemVer }} \
-            -p:FileVersion=${{ steps.gitversion.outputs.assemblySemFileVer }} \
+          dotnet build -c release --no-restore `
+            -p:Version=${{ steps.gitversion.outputs.assemblySemVer }} `
+            -p:FileVersion=${{ steps.gitversion.outputs.assemblySemFileVer }} `
             -p:InformationalVersion=${{ steps.gitversion.outputs.informationalVersion }}
       - name: Test
         run: dotnet test -c release --no-restore --no-build
       - name: Pack
         run: |
-          dotnet pack -c release --no-restore --no-build \
-            -p:PackageVersion=${{ steps.gitversion.outputs.fullSemVer }} \
+          dotnet pack -c release --no-restore --no-build `
+            -p:PackageVersion=${{ steps.gitversion.outputs.fullSemVer }} `
             -p:PackageOutputPath=${{ runner.temp }}/packages
       - name: Push
         run: dotnet nuget push *.nupkg -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json --skip-duplicate
