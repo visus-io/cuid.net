@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - 'release/**'
     paths-ignore:
       - '**.md'
       - '**/renovate.json'
@@ -16,7 +17,7 @@ on:
 jobs:
   unit-tests:
     name: Unit Tests
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -25,37 +26,31 @@ jobs:
         with:
           fetch-depth: 0
           show-progress: false
-      - name: NuGet Cache
-        uses: actions/cache@v3
-        with:
-          path: ~/.nuget/packages
-          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
-          restore-keys: ${{ runner.os}}-nuget
       - name: Install .NET SDK
         uses: actions/setup-dotnet@v4
         with:
           global-json-file: global.json
-      - name: Build
-        run: dotnet build -c release
       - name: Test
         run: |
-          dotnet test -c release --no-restore --no-build \
-            --logger:trx \
-            --results-directory ${{ runner.temp }}/TestResults \
-            -p:CollectCoverage=true \
-            -p:CoverletOutputFormat=opencover \
-            -p:CoverletOutput=${{ runner.temp }}/coverage.opencover.xml
+          dotnet test -c release `
+            --logger:trx `
+            --results-directory ${{ runner.temp }}\TestResults `
+            -p:CollectCoverage=true `
+            -p:CoverletOutputFormat=opencover `
+            -p:CoverletOutput=${{ github.workspace }}\CodeCoverage\coverage.opencover.xml
       - name: Publish Test Results
         uses: dorny/test-reporter@v1
         if: success() || failure()
         with:
           name: Test Results
-          path: ${{ runner.temp }}/TestResults/*.trx
+          path: ${{ runner.temp }}\TestResults\*.trx
           reporter: dotnet-trx
+          path-replace-backslashes: true
       - name: Codacy Coverage
         if: always()
         uses: codacy/codacy-coverage-reporter-action@v1
         with:
           project-token: ${{ secrets.CODACY_TOKEN }}
-          coverage-reports: ${{ runner.temp }}/coverage.opencover.xml
+          coverage-reports: CodeCoverage/coverage.opencover.*.xml
+          
           

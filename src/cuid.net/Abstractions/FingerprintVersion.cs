@@ -1,8 +1,9 @@
-﻿namespace Visus.Cuid.Abstractions;
-
-internal enum FingerprintVersion : byte
+﻿namespace Visus.Cuid.Abstractions
 {
-	None = 0,
-	One = 1,
-	Two = 2
+	internal enum FingerprintVersion : byte
+	{
+		None = 0,
+		One = 1,
+		Two = 2
+	}
 }

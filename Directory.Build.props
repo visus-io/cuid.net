@@ -2,12 +2,7 @@
     <PropertyGroup>
         <Version>0.0.1</Version>
         <Copyright>Copyright (c) 2023 Visus Development Team</Copyright>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>        
-        <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
-        <RestoreLockedMode>true</RestoreLockedMode>
+        <LangVersion>12</LangVersion>
+        <Nullable Condition="($(TargetFramework) == 'net6.0') Or ($(TargetFramework) == 'net8.0')">enable</Nullable>
     </PropertyGroup>
 </Project>

@@ -80,6 +80,9 @@ csharp_style_expression_bodied_properties = true
 csharp_style_pattern_matching_over_as_with_null_check = true:suggestion
 csharp_style_pattern_matching_over_is_with_cast_check = true:suggestion
 
+# Namespace Declaration Style
+csharp_style_namespace_declarations = block_scoped
+
 # Null-checking preferences
 csharp_style_conditional_delegate_call = true:suggestion
 
