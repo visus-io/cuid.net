@@ -3,13 +3,10 @@
     "mergeConfidence:all-badges",
     "config:recommended",
     ":disableDependencyDashboard",
-    ":gitSignOff"
+    ":gitSignOff",
+    "schedule:daily"
   ],
   "assigneesFromCodeOwners": true,
-  "timezone": "America/New_York",
-  "schedule": [
-    "before 5am"
-  ],
   "packageRules": [
     {
       "matchPackagePatterns": [
