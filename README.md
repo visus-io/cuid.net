@@ -49,7 +49,7 @@ Designed and optimized for horizontal scaling and binary searches, `Cuid` is an 
 potential alternative to `Guid` for situations where a clean "string safe" unique and sortable identifier is needed and
 where security is not of the upmost concern.
 
-**Structure**
+##### Structure
 
 CUIDv1 values are composed of several data points which are base 36 encoded.
 
@@ -63,7 +63,7 @@ CUIDv1 values are composed of several data points which are base 36 encoded.
 | 07ld     | Client fingerprint (host process identifier + system hostname) |
 | 63liebkf | Random data                                                    |
 
-**Instantiation**
+##### Instantiation
 
 ```csharp
 using Visus.Cuid;
@@ -85,11 +85,11 @@ bool success = Cuid.TryParse("clbvi4441000007ld63liebkf", out Cuid cuid);
 `Cuid` fully implements `IComparable`, `IComparable<T>`, and `IEquatable<T>` along with including `Cuid.Empty` for
 comparing against empty or uninitialized `Cuid` objects.
 
-**Serialization**
+##### Serialization
 
 `Cuid` has built-in support for serialization either with `System.Text.Json` or `XmlSerializer`.
 
-**JSON**
+##### JSON
 
 ```csharp
 using Visus.Cuid;
@@ -104,7 +104,7 @@ Console.WriteLine(json); // "clbvi4441000007ld63liebkf"
 Cuid cuid = JsonSerializer.Deserialize<Cuid>("\"clbvi4441000007ld63liebkf\"");
 ```
 
-**XML**
+##### XML
 
 ```csharp
 using Visus.Cuid;
@@ -145,7 +145,7 @@ using (TextReader sr = new StringReader(xml))
 over `Cuid` where security context is important. The length of the value can also be adjusted to be anywhere from 4
 characters to 32 characters in length, the default is 24.
 
-**Structure**
+##### Structure
 
 CUIDv2 values follow a different variable structure length than that of their predecessor. As such, there is no
 predefined pattern of how they will look once generated. However, with that said, they do use the following data
@@ -162,7 +162,7 @@ sources:
 The information is then combined and a SHA-512 (SHA-3 Keccak) salted hash is computed and then encoded into a base 36
 string.
 
-**Instantiation**
+##### Instantiation
 
 ```csharp
 using Visus.Cuid;
