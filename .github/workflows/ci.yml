@@ -6,12 +6,15 @@ on:
       - develop
     paths-ignore:
       - '**.md'
-      - '**/renovate.json'
+      - '**/dependabot.yml'
+      - '**/codacy-security-scan.yml'
       - '.github/workflows/release.yaml'
+
   pull_request:
     paths-ignore:
       - '**.md'
-      - '**/renovate.json'
+      - '**/dependabot.yml'
+      - '**/codacy-security-scan.yml'
       - '.github/workflows/release.yaml'
 jobs:
   unit-tests:
