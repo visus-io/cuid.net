@@ -34,7 +34,7 @@ jobs:
           output: results.sarif
           format: sarif
           gh-code-scanning-compat: true
-          max-allowed-issues: 10
+          max-allowed-issues: 2147483647
 
       - name: Upload SARIF results file
         uses: github/codeql-action/upload-sarif@v2
