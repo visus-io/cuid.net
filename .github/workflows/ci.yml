@@ -42,7 +42,7 @@ jobs:
             -p:CoverletOutput=${{ github.workspace }}\CodeCoverage\coverage.opencover.xml
       - name: Publish Test Results
         uses: dorny/test-reporter@v1
-        if: success() || failure()
+        if: success() || failure() && github.actor != 'dependabot[bot]'
         with:
           name: Test Results
           path: ${{ runner.temp }}\TestResults\*.trx
