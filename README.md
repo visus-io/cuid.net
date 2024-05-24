@@ -1,6 +1,6 @@
 # cuid.net
 
-[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/visus-io/cuid.net/ci.yaml?style=for-the-badge&logo=github)](https://github.com/visus-io/cuid.net/actions/workflows/ci.yaml)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/visus-io/cuid.net/ci.yml?style=for-the-badge&logo=github)](https://github.com/visus-io/cuid.net/actions/workflows/ci.yaml)
 [![Code Quality](https://img.shields.io/codacy/grade/d20b5dbb3a7a4837ae83f2908c85451c?style=for-the-badge&logo=codacy)](https://app.codacy.com/gh/visus-io/cuid.net/dashboard)
 [![Coverage](https://img.shields.io/codacy/coverage/d20b5dbb3a7a4837ae83f2908c85451c?style=for-the-badge&logo=codacy)](https://app.codacy.com/gh/visus-io/cuid.net/coverage/dashboard)
 
@@ -135,7 +135,7 @@ using (TextReader sr = new StringReader(xml))
 }
 ```
 
-----
+---
 
 #### CUIDv2
 
