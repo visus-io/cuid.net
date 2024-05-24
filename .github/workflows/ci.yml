@@ -42,14 +42,14 @@ jobs:
             -p:CoverletOutput=${{ github.workspace }}\CodeCoverage\coverage.opencover.xml
       - name: Publish Test Results
         uses: dorny/test-reporter@v1
-        if: success() || failure() && github.actor != 'dependabot[bot]'
+        if: ${{ github.actor != 'dependabot[bot]' && always() }}
         with:
           name: Test Results
           path: ${{ runner.temp }}\TestResults\*.trx
           reporter: dotnet-trx
           path-replace-backslashes: true
       - name: Codacy Coverage
-        if: always()
+        if: ${{ github.actor != 'dependabot[bot]' && always() }}
         uses: codacy/codacy-coverage-reporter-action@v1
         with:
           project-token: ${{ secrets.CODACY_TOKEN }}

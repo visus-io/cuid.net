@@ -1,5 +1,24 @@
 version: 2
 updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule: 
+      interval: "daily"
+    groups:
+      major-updates:
+        applies-to: version-updates
+        update-types:
+          - "major"
+      minor-patch-updates:
+        applies-to: version-updates
+        update-types:
+          - "minor"
+          - "patch"
+      security-updates:
+        applies-to: security-updates
+        update-types:
+          - "minor"
+          - "patch"
   - package-ecosystem: "nuget"
     directory: "/"
     schedule:
