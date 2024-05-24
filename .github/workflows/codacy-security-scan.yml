@@ -2,9 +2,11 @@ name: Codacy Security Scan
 
 on:
   push:
-    branches: [ "develop" ]
+    branches:
+      - develop
   pull_request:
-    branches: [ "develop" ]
+    branches: 
+      - develop
   schedule:
     - cron: '16 9 * * 2'
 
@@ -13,6 +15,7 @@ permissions:
 
 jobs:
   codacy-security-scan:
+    if: ${{ github.actor != 'dependabot[bot]' }}
     permissions:
       contents: read
       security-events: write
