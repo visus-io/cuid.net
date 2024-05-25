@@ -381,8 +381,36 @@
 
 		[SuppressMessage("ReSharper", "InconsistentNaming")]
 		[StructLayout(LayoutKind.Explicit)]
-		private struct CuidResult
+		private struct CuidResult : IEquatable<CuidResult>
 		{
+			public static bool operator ==(CuidResult left, CuidResult right)
+			{
+				return left.Equals(right);
+			}
+
+			public static bool operator !=(CuidResult left, CuidResult right)
+			{
+				return !left.Equals(right);
+			}
+
+			public bool Equals(CuidResult other)
+			{
+				return _counter == other._counter
+					&& _fingerprint.Equals(other._fingerprint)
+					&& _random == other._random
+					&& _timestamp == other._timestamp;
+			}
+
+			public override bool Equals(object obj)
+			{
+				return obj is CuidResult other && Equals(other);
+			}
+
+			public override int GetHashCode()
+			{
+				return HashCode.Combine(_counter, _fingerprint, _random, _timestamp);
+			}
+
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			public readonly Cuid ToCuid()
 			{
