@@ -401,7 +401,11 @@
 					&& _timestamp == other._timestamp;
 			}
 
+#if NET6_0_OR_GREATER
+			public override bool Equals(object? obj)
+#else
 			public override bool Equals(object obj)
+#endif
 			{
 				return obj is CuidResult other && Equals(other);
 			}
