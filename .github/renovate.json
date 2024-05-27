@@ -1,0 +1,48 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "configMigration": true,
+  "extends": [
+    "config:recommended",
+    ":disableDependencyDashboard",
+    ":gitSignOff",
+    ":preserveSemverRanges"
+  ],
+  "timezone": "America/New_York",
+  "packageRules": [
+    {
+      "automerge": true,
+      "matchPackagePatterns": [
+        "*"
+      ],
+      "matchUpdateTypes": [
+        "digest",
+        "minor",
+        "patch"
+      ],
+      "groupName": "all non-major dependencies",
+      "groupSlug": "all-minor-patch",
+      "labels": [
+        "dependencies"
+      ],
+      "schedule": [
+        "after 8:00am"
+      ]
+    },
+    {
+      "automerge": false,
+      "matchPackagePatterns": [
+        "*"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "labels": [
+        "dependencies",
+        "breaking"
+      ],
+      "schedule": [
+        "after 8:00am on tuesday"
+      ]
+    }
+  ]
+}
