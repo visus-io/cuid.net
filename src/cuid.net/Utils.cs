@@ -14,7 +14,9 @@
 
 		private const int Radix = 36;
 
+#if NETSTANDARD2_0 || NET472
 		private static readonly Random Random = new();
+#endif
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static long Decode(ReadOnlySpan<char> input)
@@ -70,7 +72,7 @@
 			do
 			{
 				ulong c = value % Radix;
-				buffer[--i] = (char) ( c is >= 0 and <= 9 ? c + 48 : c + 'a' - 10 );
+				buffer[--i] = (char) ( c <= 9 ? c + 48 : c + 'a' - 10 );
 
 				value /= Radix;
 			} while ( value > 0 );
