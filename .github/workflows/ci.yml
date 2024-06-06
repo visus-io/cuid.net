@@ -6,53 +6,81 @@ on:
       - develop
     paths-ignore:
       - '**.md'
-      - '**/dependabot.yml'
-      - '**/codacy-security-scan.yml'
+      - '.github/renovate.json'
       - '.github/workflows/release.yaml'
 
   pull_request:
     paths-ignore:
       - '**.md'
-      - '**/dependabot.yml'
-      - '**/codacy-security-scan.yml'
+      - '.github/renovate.json'
       - '.github/workflows/release.yaml'
+
 jobs:
   unit-tests:
     name: Unit Tests
     runs-on: windows-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           show-progress: false
+      - name: SonarCloud Packages Cache
+        uses: actions/cache@v4
+        with:
+          path: .\sonar\cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+      - name: SonarCloud Scanner Cache
+        id: cache-sonar-scanner
+        uses: actions/cache@v4
+        with:
+          path: .\.sonar\scanner
+          key: ${{ runner.os }}-sonar-scanner
+          restore-keys: ${{ runner.os }}-sonar-scanner
+      - name: Install Java SDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: 'zulu'
       - name: Install .NET SDK
         uses: actions/setup-dotnet@v4
         with:
           global-json-file: global.json
+      - name: Install SonarCloud Scanner
+        if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
+        shell: powershell
+        run: |
+          New-Item -Path .\.sonar\scanner -ItemType Directory
+          dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
       - name: Test
         run: |
+          .\.sonar\scanner\dotnet-sonarscanner begin `
+            /k:"visus:cuid.net" `
+            /o:"visus" `
+            /d:sonar.token="${{ secrets.SONAR_TOKEN }}" `
+            /d:sonar.cs.opencover.reportsPaths=${{ runner.temp }}\CodeCoverage\*.xml `
+            /d:sonar.cs.vstest.reportsPaths=${{ runner.temp }}\TestResults\*.trx `
+            /d:sonar.host.url="https://sonarcloud.io"
+          
           dotnet test -c release `
             --logger:trx `
             --results-directory ${{ runner.temp }}\TestResults `
             -p:CollectCoverage=true `
             -p:CoverletOutputFormat=opencover `
-            -p:CoverletOutput=${{ github.workspace }}\CodeCoverage\coverage.opencover.xml
-      - name: Publish Test Results
+            -p:CoverletOutput=${{ runner.temp }}\CodeCoverage\coverage.opencover.xml
+          
+          .\.sonar\scanner\dotnet-sonarscanner end `
+            /d:sonar.token="${{ secrets.SONAR_TOKEN }}"          
+      - name: Test Results
         uses: dorny/test-reporter@v1
-        if: ${{ github.actor != 'dependabot[bot]' && always() }}
         with:
           name: Test Results
           path: ${{ runner.temp }}\TestResults\*.trx
           reporter: dotnet-trx
           path-replace-backslashes: true
-      - name: Codacy Coverage
-        if: ${{ github.actor != 'dependabot[bot]' && always() }}
-        uses: codacy/codacy-coverage-reporter-action@v1
-        with:
-          project-token: ${{ secrets.CODACY_TOKEN }}
-          coverage-reports: 'CodeCoverage/coverage.opencover.*.xml'
-          
+
           
