@@ -141,8 +141,8 @@ namespace Visus.Cuid.Tests
 			Assert.False(c1.Equals(c2));
 			Assert.False(c1.Equals((object) c2));
 
-			Assert.False(c1.CompareTo(c2) == 0);
-			Assert.False(c1.CompareTo((object) c2) == 0);
+			Assert.NotEqual(0, c1.CompareTo(c2));
+			Assert.NotEqual(0, c1.CompareTo((object) c2));
 
 			Assert.False(c1.GetHashCode() == c2.GetHashCode());
 		}
