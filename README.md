@@ -4,7 +4,7 @@
 
 [![Sonar Quality Gate](https://img.shields.io/sonar/quality_gate/visus%3Acuid.net?server=https%3A%2F%2Fsonarcloud.io&style=for-the-badge&logo=sonarcloud&logoColor=white)](https://sonarcloud.io/summary/overall?id=visus%3Acuid.net)
 [![Sonar Coverage](https://img.shields.io/sonar/coverage/visus%3Acuid.net?server=https%3A%2F%2Fsonarcloud.io&style=for-the-badge&logo=sonarcloud&logoColor=white)](https://sonarcloud.io/summary/overall?id=visus%3Acuid.net)
-[![Sonar Tests](https://img.shields.io/sonar/tests/visus%3Aaddressvalidation.net?server=https%3A%2F%2Fsonarcloud.io&style=for-the-badge&logo=sonarcloud&logoColor=white)](https://sonarcloud.io/summary/overall?id=visus%3Acuid.net)
+[![Sonar Tests](https://img.shields.io/sonar/tests/visus%3Acuid.net?server=https%3A%2F%2Fsonarcloud.io&style=for-the-badge&logo=sonarcloud&logoColor=white)](https://sonarcloud.io/summary/overall?id=visus%3Acuid.net)
 
 [![Nuget](https://img.shields.io/nuget/v/cuid.net?style=for-the-badge&logo=nuget&label=stable)](https://www.nuget.org/packages/cuid.net)
 [![Nuget](https://img.shields.io/nuget/vpre/cuid.net?style=for-the-badge&logo=nuget&label=dev)](https://www.nuget.org/packages/cuid.net)
