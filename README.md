@@ -1,8 +1,10 @@
 # cuid.net
 
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/visus-io/cuid.net/ci.yml?style=for-the-badge&logo=github)](https://github.com/visus-io/cuid.net/actions/workflows/ci.yaml)
-[![Code Quality](https://img.shields.io/codacy/grade/d20b5dbb3a7a4837ae83f2908c85451c?style=for-the-badge&logo=codacy)](https://app.codacy.com/gh/visus-io/cuid.net/dashboard)
-[![Coverage](https://img.shields.io/codacy/coverage/d20b5dbb3a7a4837ae83f2908c85451c?style=for-the-badge&logo=codacy)](https://app.codacy.com/gh/visus-io/cuid.net/coverage/dashboard)
+
+[![Sonar Quality Gate](https://img.shields.io/sonar/quality_gate/visus%3Acuid.net?server=https%3A%2F%2Fsonarcloud.io&style=for-the-badge&logo=sonarcloud&logoColor=white)](https://sonarcloud.io/summary/overall?id=visus%3Acuid.net)
+[![Sonar Coverage](https://img.shields.io/sonar/coverage/visus%3Acuid.net?server=https%3A%2F%2Fsonarcloud.io&style=for-the-badge&logo=sonarcloud&logoColor=white)](https://sonarcloud.io/summary/overall?id=visus%3Acuid.net)
+[![Sonar Tests](https://img.shields.io/sonar/tests/visus%3Aaddressvalidation.net?server=https%3A%2F%2Fsonarcloud.io&style=for-the-badge&logo=sonarcloud&logoColor=white)](https://sonarcloud.io/summary/overall?id=visus%3Acuid.net)
 
 [![Nuget](https://img.shields.io/nuget/v/cuid.net?style=for-the-badge&logo=nuget&label=stable)](https://www.nuget.org/packages/cuid.net)
 [![Nuget](https://img.shields.io/nuget/vpre/cuid.net?style=for-the-badge&logo=nuget&label=dev)](https://www.nuget.org/packages/cuid.net)
@@ -141,7 +143,7 @@ using (TextReader sr = new StringReader(xml))
 
 > :memo: `Cuid2` implements `IEquatable<T>` but does not implement `IComparable` or `IComparable<T>`.
 
-`Cuid2` is an immutable structure that generates a cryptographically strong identity. `Cuid2` and is recommended for use
+`Cuid2` is an immutable structure that generates a cryptographically strong identity. `Cuid2` is recommended for use
 over `Cuid` where security context is important. The length of the value can also be adjusted to be anywhere from 4
 characters to 32 characters in length, the default is 24.
 
