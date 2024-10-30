@@ -1,9 +1,7 @@
 # Remove the line below if you want to inherit .editorconfig settings from higher directories
 root = true
 
-# C# files
-[*.cs]
-
+[*]
 #### Core EditorConfig Options ####
 
 # Indentation and spacing
@@ -15,6 +13,12 @@ tab_width = 4
 end_of_line = lf
 insert_final_newline = true
 
+# Razor files
+[*.{cs,razor}]
+dotnet_diagnostic.CA2007.severity = none
+
+# C# files
+[*.cs]
 #### .NET Coding Conventions ####
 
 # this. and Me. preferences
@@ -79,9 +83,6 @@ csharp_style_expression_bodied_properties = true
 # Pattern matching preferences
 csharp_style_pattern_matching_over_as_with_null_check = true:suggestion
 csharp_style_pattern_matching_over_is_with_cast_check = true:suggestion
-
-# Namespace Declaration Style
-csharp_style_namespace_declarations = block_scoped
 
 # Null-checking preferences
 csharp_style_conditional_delegate_call = true:suggestion
@@ -195,6 +196,7 @@ resharper_csharp_keep_existing_attribute_arrangement = false
 resharper_csharp_keep_existing_initializer_arrangement = false
 resharper_csharp_max_attribute_length_for_same_line = 120
 resharper_csharp_max_initializer_elements_on_line = 1
+resharper_csharp_naming_rule.enum_member = AaBb
 resharper_csharp_other_braces = next_line
 resharper_csharp_outdent_binary_ops = true
 resharper_csharp_outdent_binary_pattern_ops = true
@@ -204,6 +206,8 @@ resharper_csharp_place_record_field_attribute_on_same_line = true
 resharper_csharp_place_simple_initializer_on_single_line = true
 resharper_csharp_type_declaration_braces = next_line
 resharper_csharp_wrap_object_and_collection_initializer_style = chop_always
+
+dotnet_diagnostic.CA2007.severity = error
 
 # warning suppressions
 dotnet_diagnostic.CA2255.severity = none

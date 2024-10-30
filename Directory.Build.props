@@ -1,8 +1,8 @@
 <Project>
-    <PropertyGroup>
-        <Version>0.0.1</Version>
-        <Copyright>Copyright (c) 2023 Visus Development Team</Copyright>
-        <LangVersion>12</LangVersion>
-        <Nullable Condition="($(TargetFramework) == 'net6.0') Or ($(TargetFramework) == 'net8.0')">enable</Nullable>
-    </PropertyGroup>
+	<PropertyGroup>
+		<Version>0.0.1</Version>
+		<Copyright>Copyright (c) 2023 Visus Development Team</Copyright>
+		<LangVersion>12</LangVersion>
+		<Nullable Condition="($(TargetFramework) == 'net6.0') Or ($(TargetFramework) == 'net8.0')">enable</Nullable>
+	</PropertyGroup>
 </Project>
