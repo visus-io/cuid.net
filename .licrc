@@ -1,0 +1,10 @@
+[licenses]
+accepted = ["MIT"]
+
+[dependencies]
+ignore_dev_dependencies = true
+ignore_optional_dependencies = true
+
+[behavior]
+run_only_on_dependency_modification = false
+do_not_block_pr = false
