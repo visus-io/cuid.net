@@ -1,51 +1,51 @@
 name: Release
 
 on:
-  workflow_dispatch:
-  push:
-    tags:
-      - '*'
-    
+    workflow_dispatch:
+    push:
+        tags:
+            - '*'
+
 jobs:
-  release:
-    name: Release
-    runs-on: windows-latest
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          show-progress: false
-      - name: Install .NET SDK
-        uses: actions/setup-dotnet@v4
-        with:
-          global-json-file: global.json
-      - name: Install GitVersion
-        uses: gittools/actions/gitversion/setup@v3.0.0
-        with:
-          versionSpec: '5.x'
-      - name: Determine Version
-        id: gitversion
-        uses: gittools/actions/gitversion/execute@v3.0.0
-        with:
-          useConfigFile: true
-      - name: Restore
-        run: dotnet restore --verbosity Quiet
-      - name: Build
-        run: |
-          dotnet build -c release --no-restore `
-            -p:Version=${{ steps.gitversion.outputs.assemblySemVer }} `
-            -p:FileVersion=${{ steps.gitversion.outputs.assemblySemFileVer }} `
-            -p:InformationalVersion=${{ steps.gitversion.outputs.informationalVersion }}
-      - name: Test
-        run: dotnet test -c release --no-restore --no-build
-      - name: Pack
-        run: |
-          dotnet pack -c release --no-restore --no-build `
-            -p:PackageVersion=${{ steps.gitversion.outputs.fullSemVer }} `
-            -p:PackageOutputPath=${{ runner.temp }}/packages
-      - name: Push
-        run: dotnet nuget push *.nupkg -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json --skip-duplicate
-        working-directory: ${{ runner.temp }}/packages
+    release:
+        name: Release
+        runs-on: windows-latest
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v4
+                with:
+                    fetch-depth: 0
+                    show-progress: false
+            -   name: Install .NET SDK
+                uses: actions/setup-dotnet@v4
+                with:
+                    global-json-file: global.json
+            -   name: Install GitVersion
+                uses: gittools/actions/gitversion/setup@v3.0.0
+                with:
+                    versionSpec: '5.x'
+            -   name: Determine Version
+                id: gitversion
+                uses: gittools/actions/gitversion/execute@v3.0.0
+                with:
+                    useConfigFile: true
+            -   name: Restore
+                run: dotnet restore --verbosity Quiet
+            -   name: Build
+                run: |
+                    dotnet build -c release --no-restore `
+                      -p:Version=${{ steps.gitversion.outputs.assemblySemVer }} `
+                      -p:FileVersion=${{ steps.gitversion.outputs.assemblySemFileVer }} `
+                      -p:InformationalVersion=${{ steps.gitversion.outputs.informationalVersion }}
+            -   name: Test
+                run: dotnet test -c release --no-restore --no-build
+            -   name: Pack
+                run: |
+                    dotnet pack -c release --no-restore --no-build `
+                      -p:PackageVersion=${{ steps.gitversion.outputs.fullSemVer }} `
+                      -p:PackageOutputPath=${{ runner.temp }}/packages
+            -   name: Push
+                run: dotnet nuget push *.nupkg -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json --skip-duplicate
+                working-directory: ${{ runner.temp }}/packages

@@ -1,77 +1,77 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFrameworks>net472;netstandard2.0;net6.0;net8.0</TargetFrameworks>
-        <RootNamespace>Visus.Cuid</RootNamespace>
-        <Copyright>Copyright (c) 2023 Visus Development Team</Copyright>
-    </PropertyGroup>
+	<PropertyGroup>
+		<TargetFrameworks>net472;netstandard2.0;net6.0;net8.0</TargetFrameworks>
+		<RootNamespace>Visus.Cuid</RootNamespace>
+		<Copyright>Copyright (c) 2023 Visus Development Team</Copyright>
+	</PropertyGroup>
 
-    <PropertyGroup>
-        <Title>cuid.net</Title>
-        <Authors>Visus</Authors>
-        <DebugType>embedded</DebugType>
-        <Description>.NET implementation of collision-resistant ids</Description>
-    </PropertyGroup>
+	<PropertyGroup>
+		<Title>cuid.net</Title>
+		<Authors>Visus</Authors>
+		<DebugType>embedded</DebugType>
+		<Description>.NET implementation of collision-resistant ids</Description>
+	</PropertyGroup>
 
-    <PropertyGroup Condition="$(TargetFramework) == 'net8.0'">
-        <IsTrimmable>true</IsTrimmable>
-    </PropertyGroup>
-    
-    <PropertyGroup>
-        <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
-        <EmbedUntrackedSources>true</EmbedUntrackedSources>
-        <IncludeSymbols>true</IncludeSymbols>
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <PackageProjectUrl>https://github.com/visus-io/cuid.net</PackageProjectUrl>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-        <PackageTags>cuid</PackageTags>
-        <PublishRepositoryUrl>true</PublishRepositoryUrl>
-        <RepositoryType>git</RepositoryType>
-        <RepositoryUrl>https://github.com/visus-io/cuid.net</RepositoryUrl>
-    </PropertyGroup>
+	<PropertyGroup Condition="$(TargetFramework) == 'net8.0'">
+		<IsTrimmable>true</IsTrimmable>
+	</PropertyGroup>
 
-    <PropertyGroup Condition="'$(CI)' == 'true'">
-        <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
-    </PropertyGroup>
+	<PropertyGroup>
+		<AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+		<IncludeSymbols>true</IncludeSymbols>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageProjectUrl>https://github.com/visus-io/cuid.net</PackageProjectUrl>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+		<PackageTags>cuid</PackageTags>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<RepositoryUrl>https://github.com/visus-io/cuid.net</RepositoryUrl>
+	</PropertyGroup>
 
-    <ItemGroup>
-        <PackageReference Include="BouncyCastle.Cryptography" />
-        <PackageReference Include="CommunityToolkit.Diagnostics" />
-        <PackageReference Include="Microsoft.Bcl.HashCode" Condition="($(TargetFramework) == 'netstandard2.0') Or ($(TargetFramework) == 'net472')" />
-        <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="Microsoft.SourceLink.GitHub">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="PolySharp">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="System.Text.Json" Condition="($(TargetFramework) == 'netstandard2.0') Or ($(TargetFramework) == 'net472')" />
-    </ItemGroup>
+	<PropertyGroup Condition="'$(CI)' == 'true'">
+		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+	</PropertyGroup>
 
-    <ItemGroup>
-        <None Include="..\..\README.md" Pack="true" PackagePath="\"/>
-    </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="BouncyCastle.Cryptography"/>
+		<PackageReference Include="CommunityToolkit.Diagnostics"/>
+		<PackageReference Include="Microsoft.Bcl.HashCode" Condition="($(TargetFramework) == 'netstandard2.0') Or ($(TargetFramework) == 'net472')"/>
+		<PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.SourceLink.GitHub">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="PolySharp">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="System.Text.Json" Condition="($(TargetFramework) == 'netstandard2.0') Or ($(TargetFramework) == 'net472')"/>
+	</ItemGroup>
 
-    <ItemGroup>
-        <EmbeddedResource Update="Resources\Resources.resx">
-            <Generator>ResXFileCodeGenerator</Generator>
-            <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-        </EmbeddedResource>
-    </ItemGroup>
+	<ItemGroup>
+		<None Include="..\..\README.md" Pack="true" PackagePath="\"/>
+	</ItemGroup>
 
-    <ItemGroup>
-        <Compile Update="Resources\Resources.Designer.cs">
-            <DesignTime>True</DesignTime>
-            <AutoGen>True</AutoGen>
-            <DependentUpon>Resources.resx</DependentUpon>
-        </Compile>
-    </ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Update="Resources\Resources.resx">
+			<Generator>ResXFileCodeGenerator</Generator>
+			<LastGenOutput>Resources.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Compile Update="Resources\Resources.Designer.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Resources.resx</DependentUpon>
+		</Compile>
+	</ItemGroup>
 
 </Project>
