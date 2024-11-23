@@ -21,8 +21,8 @@ library for those wishing to leverage CUIDs in scripting environments.
 
 - [Getting Started](#getting-started)
 - [Implementations](#implementations)
- - [CUIDv1](#CUIDv1)
- - [CUIDv2](#CUIDv2)- [Performance](#performance)
+  - [CUIDv1](#cuidv1)
+  - [CUIDv2](#cuidv2)
 
 ### Getting Started
 
@@ -40,11 +40,14 @@ cuid.net supports the construction and use of both CUIDv1 (deprecated) and CUIDv
 
 #### CUIDv1
 
-> :exclamation: CUIDv1 has been deprecated for security reasons. Efforts should be made towards migrating to `Cuid2`.
->
-> :warning: It is possible to derive with a degree of certainty when and where a CUIDv1 has been created.
->
-> :memo: Usage of CUIDv1 will emit the compiler warning `VISLIB0001`.
+> [!IMPORTANT]
+> CUIDv1 has been deprecated for security reasons. Efforts should be made towards migrating to `Cuid2`.
+
+> [!WARNING]
+> It is possible to derive with a degree of certainty when and where a CUIDv1 has been created.
+
+> [!NOTE]
+> Usage of CUIDv1 will emit the compiler warning `VISLIB0001`.
 
 Designed and optimized for horizontal scaling and binary searches, `Cuid` is an immutable structure that can be a
 potential alternative to `Guid` for situations where a clean "string safe" unique and sortable identifier is needed and
@@ -140,7 +143,8 @@ using (TextReader sr = new StringReader(xml))
 
 #### CUIDv2
 
-> :memo: `Cuid2` implements `IEquatable<T>` but does not implement `IComparable` or `IComparable<T>`.
+> [!NOTE]
+> `Cuid2` implements `IEquatable<T>` but does not implement `IComparable` or `IComparable<T>`.
 
 `Cuid2` is an immutable structure that generates a cryptographically strong identity. `Cuid2` is recommended for use
 over `Cuid` where security context is important. The length of the value can also be adjusted to be anywhere from 4
