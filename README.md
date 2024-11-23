@@ -40,7 +40,7 @@ cuid.net supports the construction and use of both CUIDv1 (deprecated) and CUIDv
 
 #### CUIDv1
 
-> [!IMPORTANT]
+> [!CAUTION]
 > CUIDv1 has been deprecated for security reasons. Efforts should be made towards migrating to `Cuid2`.
 
 > [!WARNING]
