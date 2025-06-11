@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net472;net6.0;net8.0</TargetFrameworks>
+		<TargetFrameworks>net472;net8.0</TargetFrameworks>
 		<IsPackable>false</IsPackable>
 		<RootNamespace>Visus.Cuid.Tests</RootNamespace>
 		<OutputType>Library</OutputType>
@@ -19,7 +19,6 @@
 		<PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers"/>
 		<PackageReference Include="Microsoft.NET.Test.Sdk"/>
 		<PackageReference Include="PublicApiGenerator"/>
-		<PackageReference Include="System.Text.Json" Condition="($(TargetFramework) == 'netstandard2.0') Or ($(TargetFramework) == 'net472')"/>
 		<PackageReference Include="Verify.Xunit"/>
 		<PackageReference Include="xunit"/>
 		<PackageReference Include="xunit.runner.visualstudio">
@@ -31,6 +30,10 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\src\cuid.net\cuid.net.csproj"/>
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net472'">
+	  <PackageReference Include="System.Text.Json" />
 	</ItemGroup>
 
 </Project>

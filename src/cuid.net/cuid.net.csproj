@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net472;netstandard2.0;net6.0;net8.0</TargetFrameworks>
+		<TargetFrameworks>net472;netstandard2.0;net8.0</TargetFrameworks>
 		<RootNamespace>Visus.Cuid</RootNamespace>
 		<Copyright>Copyright (c) 2023 Visus Development Team</Copyright>
 	</PropertyGroup>
@@ -52,7 +52,6 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="System.Text.Json" Condition="($(TargetFramework) == 'netstandard2.0') Or ($(TargetFramework) == 'net472')"/>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -72,6 +71,14 @@
 			<AutoGen>True</AutoGen>
 			<DependentUpon>Resources.resx</DependentUpon>
 		</Compile>
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net472'">
+	  <PackageReference Include="System.Text.Json" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+	  <PackageReference Include="System.Text.Json" />
 	</ItemGroup>
 
 </Project>

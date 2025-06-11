@@ -6,7 +6,7 @@ root = true
 
 # Indentation and spacing
 indent_size = 4
-indent_style = tab
+indent_style = space
 tab_width = 4
 
 # New line preferences
@@ -103,6 +103,11 @@ csharp_style_unused_value_expression_statement_preference = discard_variable
 
 # 'using' directive preferences
 csharp_using_directive_placement = inside_namespace
+
+# Constructor Preferences
+csharp_style_prefer_primary_constructors = false
+dotnet_diagnostic.IDE0290.severity = none
+resharper_convert_to_primary_constructor_highlighting = none
 
 #### C# Formatting Rules ####
 
