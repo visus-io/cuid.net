@@ -1,6 +1,8 @@
 ﻿namespace Visus.Cuid.Extensions;
 
+#if NET8_0_OR_GREATER
 using System;
+#endif
 
 internal static class StringExtensions
 {
@@ -11,6 +13,7 @@ internal static class StringExtensions
                    : source.PadLeft(9, '0')[^size..];
     }
 
+#if NET8_0_OR_GREATER
     internal static void WriteTo(this string source, ref Span<char> destination)
     {
         source.AsSpan().WriteToInternal(ref destination);
@@ -21,4 +24,5 @@ internal static class StringExtensions
         source.CopyTo(destination);
         destination = destination[source.Length..];
     }
+#endif
 }

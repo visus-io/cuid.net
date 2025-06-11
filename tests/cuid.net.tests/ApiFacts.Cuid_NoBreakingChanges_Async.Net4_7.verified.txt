@@ -1,6 +1,8 @@
-﻿namespace Visus.Cuid
+﻿[assembly: System.Reflection.AssemblyMetadata("RepositoryUrl", "https://github.com/visus-io/cuid.net")]
+[assembly: System.Runtime.Versioning.TargetFramework(".NETFramework,Version=v4.7.2", FrameworkDisplayName=".NET Framework 4.7.2")]
+namespace Visus.Cuid
 {
-    [System.Obsolete("Cuid is deprecated and should not be used. Use Cuid2 instead.", DiagnosticId="VISLIB0001")]
+    [System.Obsolete("Cuid is deprecated and should not be used. Use Cuid2 instead.")]
     [System.Text.Json.Serialization.JsonConverter(typeof(Visus.Cuid.Serialization.Json.Converters.CuidConverter))]
     [System.Xml.Serialization.XmlRoot("cuid")]
     public readonly struct Cuid : System.IComparable, System.IComparable<Visus.Cuid.Cuid>, System.IEquatable<Visus.Cuid.Cuid>, System.Xml.Serialization.IXmlSerializable
@@ -8,9 +10,9 @@
         public static readonly Visus.Cuid.Cuid Empty;
         public Cuid(string c) { }
         public int CompareTo(Visus.Cuid.Cuid other) { }
-        public int CompareTo(object? obj) { }
+        public int CompareTo(object obj) { }
         public bool Equals(Visus.Cuid.Cuid other) { }
-        public override bool Equals(object? obj) { }
+        public override bool Equals(object obj) { }
         public override int GetHashCode() { }
         public void ReadXml(System.Xml.XmlReader reader) { }
         public override string ToString() { }
@@ -19,7 +21,7 @@
         public static Visus.Cuid.Cuid Parse(System.ReadOnlySpan<char> input) { }
         public static Visus.Cuid.Cuid Parse(string input) { }
         public static bool TryParse(System.ReadOnlySpan<char> input, out Visus.Cuid.Cuid result) { }
-        public static bool TryParse([System.Diagnostics.CodeAnalysis.NotNullWhen(true)] string? input, out Visus.Cuid.Cuid result) { }
+        public static bool TryParse([System.Diagnostics.CodeAnalysis.AllowNull] string input, out Visus.Cuid.Cuid result) { }
         public static bool operator !=(Visus.Cuid.Cuid left, Visus.Cuid.Cuid right) { }
         public static bool operator <(Visus.Cuid.Cuid left, Visus.Cuid.Cuid right) { }
         public static bool operator <=(Visus.Cuid.Cuid left, Visus.Cuid.Cuid right) { }
@@ -32,7 +34,7 @@
         public Cuid2() { }
         public Cuid2(int maxLength) { }
         public bool Equals(Visus.Cuid.Cuid2 other) { }
-        public override bool Equals(object? obj) { }
+        public override bool Equals(object obj) { }
         public override int GetHashCode() { }
         public override string ToString() { }
         public static bool operator !=(Visus.Cuid.Cuid2 left, Visus.Cuid.Cuid2 right) { }

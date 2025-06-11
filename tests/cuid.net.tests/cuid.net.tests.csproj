@@ -2,9 +2,10 @@
 
     <PropertyGroup>
         <TargetFrameworks>net472;net8.0</TargetFrameworks>
-        <IsPackable>false</IsPackable>
         <RootNamespace>Visus.Cuid.Tests</RootNamespace>
         <OutputType>Library</OutputType>
+        <IsPackable>false</IsPackable>
+        <Nullable Condition="($(TargetFramework) == 'net6.0') Or ($(TargetFramework) == 'net8.0')">enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
@@ -27,7 +28,7 @@
         </PackageReference>
 
     </ItemGroup>
-
+    
     <ItemGroup>
         <ProjectReference Include="..\..\src\cuid.net\cuid.net.csproj"/>
     </ItemGroup>
