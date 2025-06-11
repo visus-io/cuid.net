@@ -21,8 +21,8 @@ library for those wishing to leverage CUIDs in scripting environments.
 
 - [Getting Started](#getting-started)
 - [Implementations](#implementations)
-  - [CUIDv1](#cuidv1)
-  - [CUIDv2](#cuidv2)
+    - [CUIDv1](#cuidv1)
+    - [CUIDv2](#cuidv2)
 
 ### Getting Started
 

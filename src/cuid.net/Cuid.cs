@@ -429,12 +429,14 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
         }
 
         #pragma warning disable CA1822
-        // ReSharper disable once MemberCanBeMadeStatic.Local
+        #pragma warning disable S2325
+        [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Local")]
         internal readonly void SetFailure(string message)
         {
             throw new FormatException(message);
         }
         #pragma warning restore CA1822
+        #pragma warning restore S2325
 
         #pragma warning disable S4487
         [FieldOffset(8)]

@@ -84,6 +84,7 @@ internal static class Utils
 #endif
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static char GenerateCharacterPrefix()
     {
 #if NET8_0_OR_GREATER
@@ -94,9 +95,7 @@ internal static class Utils
         return (char) c;
     }
 
-#if NET8_0_OR_GREATER
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
     internal static byte[] GenerateRandom(int length = 8)
     {
 #if NET8_0_OR_GREATER
