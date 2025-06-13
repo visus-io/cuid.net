@@ -2,6 +2,8 @@
 
 using System;
 using System.Buffers.Binary;
+using System.Collections;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -9,7 +11,6 @@ using System.Text;
 using Abstractions;
 using Extensions;
 #if NETSTANDARD2_0 || NET472
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 #endif
@@ -27,13 +28,14 @@ internal static class Fingerprint
     private static byte[] GenerateIdentity()
     {
         ReadOnlySpan<byte> identity = Encoding.UTF8.GetBytes(GetSystemName());
+        ReadOnlySpan<byte> process = GetProcessIdentifier();
+        ReadOnlySpan<byte> environment = GetEnvironmentVariables();
 
-        Span<byte> buffer = stackalloc byte[identity.Length + 40];
+        Span<byte> buffer = stackalloc byte[identity.Length + sizeof(int) + environment.Length];
 
         identity.CopyTo(buffer[..identity.Length]);
-
-        GetProcessIdentifier().CopyTo(buffer[identity.Length..]);
-        GetThreadIdentifier().CopyTo(buffer[( identity.Length + sizeof(int) )..]);
+        process.CopyTo(buffer[identity.Length..]);
+        environment.CopyTo(buffer[( identity.Length + sizeof(int) )..]);
 
         Utils.GenerateRandom(32).CopyTo(buffer[^32..]);
 
@@ -86,6 +88,14 @@ internal static class Fingerprint
 #endif
     }
 
+    private static ReadOnlySpan<byte> GetEnvironmentVariables()
+    {
+        IEnumerable<string> data = from DictionaryEntry item in Environment.GetEnvironmentVariables()
+                                   select $"{item.Key}={item.Value}";
+
+        return Encoding.UTF8.GetBytes(string.Join(string.Empty, data));
+    }
+
     private static ReadOnlySpan<byte> GetProcessIdentifier()
     {
         Span<byte> result = stackalloc byte[sizeof(int)];
@@ -116,12 +126,5 @@ internal static class Fingerprint
         }
 
         return machineName;
-    }
-
-    private static ReadOnlySpan<byte> GetThreadIdentifier()
-    {
-        Span<byte> result = stackalloc byte[sizeof(int)];
-        BinaryPrimitives.WriteInt32LittleEndian(result, Environment.CurrentManagedThreadId);
-        return result.ToArray();
     }
 }
