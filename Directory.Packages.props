@@ -10,7 +10,7 @@
         <PackageVersion Include="coverlet.msbuild" Version="6.0.4"/>
         <PackageVersion Include="Microsoft.Bcl.HashCode" Version="6.0.0"/>
         <PackageVersion Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="9.0.0"/>
-        <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1"/>
+        <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.0.0"/>
         <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0"/>
         <PackageVersion Include="PolySharp" Version="1.15.0"/>
         <PackageVersion Include="PublicApiGenerator" Version="11.4.6"/>
