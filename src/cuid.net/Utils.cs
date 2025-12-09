@@ -1,7 +1,6 @@
 ﻿namespace Visus.Cuid;
 
-using System;
-using System.Linq;
+using System.Buffers.Binary;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
@@ -14,16 +13,30 @@ internal static class Utils
 
     private const int Radix = 36;
 
-#if NETSTANDARD2_0 || NET472
-	private static readonly Random Random = new();
-#endif
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static long Decode(ReadOnlySpan<char> input)
     {
-        return input.ToString()
-                    .Select(s => s is >= '0' and <= '9' ? s - '0' : 10 + s - 'a')
-                    .Aggregate((long) 0, (i, c) => ( i * Radix ) + c);
+        long result = 0;
+
+        foreach ( char c in input )
+        {
+            int digit = c is >= '0' and <= '9' ? c - '0' : 10 + c - 'a';
+            result = ( result * Radix ) + digit;
+        }
+
+        return result;
+    }
+
+    internal static ulong DecodeUlong(ReadOnlySpan<char> input)
+    {
+        ulong result = 0;
+
+        foreach ( char c in input )
+        {
+            ulong digit = c is >= '0' and <= '9' ? (ulong)( c - '0' ) : (ulong)( 10 + c - 'a' );
+            result = ( result * Radix ) + digit;
+        }
+
+        return result;
     }
 
     internal static string Encode(ReadOnlySpan<byte> value)
@@ -33,28 +46,32 @@ internal static class Utils
             return string.Empty;
         }
 
-        int length = (int) Math.Ceiling(value.Length * 8 / BitsPerDigit);
+        int length = (int)Math.Ceiling(value.Length * 8 / BitsPerDigit);
         int i = length;
+
         Span<char> buffer = stackalloc char[length];
 
-#if NET8_0_OR_GREATER
-        BigInteger d = new(value, true);
+#if NETSTANDARD2_0
+        byte[] unsigned = new byte[value.Length + 1];
+        value.CopyTo(unsigned);
+
+        BigInteger d = new(unsigned);
 #else
-		byte[] unsigned = value.ToArray().Concat(new byte[] { 00 }).ToArray();
-		BigInteger d = new(unsigned);
+        BigInteger d = new(value, true);
 #endif
+
         while ( !d.IsZero )
         {
             d = BigInteger.DivRem(d, BigRadix, out BigInteger r);
-            int c = (int) r;
+            int c = (int)r;
 
-            buffer[--i] = (char) ( c is >= 0 and <= 9 ? c + 48 : c + 'a' - 10 );
+            buffer[--i] = (char)( c is >= 0 and <= 9 ? c + 48 : c + 'a' - 10 );
         }
 
-#if NET8_0_OR_GREATER
-        return new string(buffer.Slice(i, length - i));
+#if NETSTANDARD2_0
+        return new string(buffer[i..length].ToArray());
 #else
-		return new string(buffer.Slice(i, length - i).ToArray());
+        return new string(buffer[i..length]);
 #endif
     }
 
@@ -72,41 +89,47 @@ internal static class Utils
         do
         {
             ulong c = value % Radix;
-            buffer[--i] = (char) ( c <= 9 ? c + 48 : c + 'a' - 10 );
+            buffer[--i] = (char)( c <= 9 ? c + 48 : c + 'a' - 10 );
 
             value /= Radix;
         } while ( value > 0 );
 
-#if NET8_0_OR_GREATER
-        return new string(buffer.Slice(i, length - i));
+#if NETSTANDARD2_0
+        return new string(buffer[i..length].ToArray());
 #else
-		return new string(buffer.Slice(i, length - i).ToArray());
+        return new string(buffer[i..length]);
 #endif
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static char GenerateCharacterPrefix()
     {
-#if NET8_0_OR_GREATER
-        int c = RandomNumberGenerator.GetInt32(97, 122);
+#if NETSTANDARD
+        byte[] buffer = new byte[4];
+
+        using RandomNumberGenerator rng = RandomNumberGenerator.Create();
+        rng.GetBytes(buffer);
+
+        uint value = BinaryPrimitives.ReadUInt32LittleEndian(buffer);
+        int c = (int)( value % 26 ) + 97;
 #else
-		int c = Random.Next(97, 122);
+        int c = RandomNumberGenerator.GetInt32(97, 123);
 #endif
-        return (char) c;
+
+        return (char)c;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static byte[] GenerateRandom(int length = 8)
     {
-#if NET8_0_OR_GREATER
-        return RandomNumberGenerator.GetBytes(length);
+#if NETSTANDARD
+        byte[] buffer = new byte[length];
+
+        using RandomNumberGenerator rng = RandomNumberGenerator.Create();
+        rng.GetBytes(buffer);
+        return buffer;
 #else
-		byte[] seed = new byte[length];
-
-		using RandomNumberGenerator crypto = RandomNumberGenerator.Create();
-		crypto.GetBytes(seed);
-
-		return seed;
+        return RandomNumberGenerator.GetBytes(length);
 #endif
     }
 }

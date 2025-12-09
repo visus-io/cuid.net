@@ -1,8 +1,21 @@
 <Project>
-    <PropertyGroup>
-        <Version>0.0.1</Version>
-        <Copyright>Copyright (c) 2023 Visus Development Team</Copyright>
-        <LangVersion>12</LangVersion>
-        <Nullable Condition="($(TargetFramework) == 'net6.0') Or ($(TargetFramework) == 'net8.0')">enable</Nullable>
-    </PropertyGroup>
+  <PropertyGroup>
+    <Version>0.0.1</Version>
+    <Copyright>Copyright (c) 2023-2025 Visus Development Team</Copyright>
+    <LangVersion>14</LangVersion>
+    <ImplicitUsings>true</ImplicitUsings>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <CodeAnalysisTreatWarningsAsErrors>false</CodeAnalysisTreatWarningsAsErrors>
+    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+    <AnalysisLevel>latest</AnalysisLevel>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(CI)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
 </Project>
