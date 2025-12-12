@@ -1,12 +1,9 @@
 ﻿namespace Visus.Cuid;
 
-using System;
 using System.Buffers.Binary;
 using System.Collections;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Threading;
+using System.Xml.Serialization;
 using CommunityToolkit.Diagnostics;
 using Org.BouncyCastle.Crypto.Digests;
 
@@ -14,6 +11,7 @@ using Org.BouncyCastle.Crypto.Digests;
 ///     Represents a collision resistant unique identifier (CUID).
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
+[XmlRoot("cuid2")]
 public readonly struct Cuid2 : IEquatable<Cuid2>
 {
     private const int DefaultLength = 24;
@@ -29,6 +27,8 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
     private readonly byte[] _random;
 
     private readonly long _timestamp;
+
+    private readonly string _value;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="Cuid2" /> structure.
@@ -53,13 +53,25 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
     {
         Guard.IsInRange(maxLength, 4, 33);
 
+#if NETSTANDARD
+        #pragma warning disable S6588 // DateTimeOffset.UnixEpoch is not available in .NET Standard 2.0
+        #pragma warning disable MA0114 // Use DateTimeOffset.UnixEpoch where available
+        long unixEpochTicks = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).Ticks;
+        #pragma warning restore MA0114 // Use DateTimeOffset.UnixEpoch where available
+        #pragma warning restore S6588 // DateTimeOffset.UnixEpoch is not available in .NET Standard 2.0
+        
+        _timestamp = DateTimeOffset.UtcNow.Ticks - unixEpochTicks;
+#else
+        _timestamp = ( DateTimeOffset.UtcNow - DateTimeOffset.UnixEpoch ).Ticks;
+#endif
+
         _counter = Counter.Instance.Value;
         _maxLength = maxLength;
-
         _fingerprint = Context.IdentityFingerprint;
         _prefix = Utils.GenerateCharacterPrefix();
         _random = Utils.GenerateRandom(maxLength);
-        _timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+
+        _value = ComputeValue();
     }
 
     /// <summary>
@@ -67,7 +79,10 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
     /// </summary>
     /// <param name="left">The first object to compare.</param>
     /// <param name="right">The second object to compare.</param>
-    /// <returns><c>true</c> if <c>left</c> and <c>right</c> are equal; otherwise, <c>false</c>.</returns>
+    /// <returns>
+    ///     <see langword="true" /> if <paramref name="left" /> and <paramref name="right" /> are equal; otherwise,
+    ///     <see langword="false" />.
+    /// </returns>
     public static bool operator ==(Cuid2 left, Cuid2 right)
     {
         return left.Equals(right);
@@ -78,29 +93,52 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
     /// </summary>
     /// <param name="left">The first object to compare.</param>
     /// <param name="right">The second object to compare.</param>
-    /// <returns><c>true</c> if <c>left</c> and <c>right</c> are not equal; otherwise, <c>false</c>.</returns>
+    /// <returns>
+    ///     <see langword="true" /> if <paramref name="left" /> and <paramref name="right" /> are not equal; otherwise,
+    ///     <see langword="false" />.
+    /// </returns>
     public static bool operator !=(Cuid2 left, Cuid2 right)
     {
         return !left.Equals(right);
     }
 
     /// <inheritdoc />
-    [SuppressMessage("ReSharper", "SimplifyConditionalTernaryExpression")]
     public bool Equals(Cuid2 other)
     {
-        return ( _counter == other._counter &&
-                 _fingerprint == null ) || ( _fingerprint.SequenceEqual(other._fingerprint) &&
-                                             _prefix == other._prefix &&
-                                             _random == null ) || ( _random.SequenceEqual(other._random) &&
-                                                                    _timestamp == other._timestamp );
+        // Check all scalar fields first (fast path)
+        if ( _counter != other._counter ||
+             _maxLength != other._maxLength ||
+             _prefix != other._prefix ||
+             _timestamp != other._timestamp )
+        {
+            return false;
+        }
+
+        // Handle null arrays (default struct case)
+        bool bothNull = _fingerprint == null && other._fingerprint == null &&
+                        _random == null && other._random == null;
+
+        if ( bothNull )
+        {
+            return true;
+        }
+
+        // If only one side has null arrays, they're not equal
+        bool eitherNull = _fingerprint == null || other._fingerprint == null ||
+                          _random == null || other._random == null;
+
+        if ( eitherNull )
+        {
+            return false;
+        }
+
+        // Check reference equality (optimization) or compare array contents
+        return ( ReferenceEquals(_fingerprint, other._fingerprint) || _fingerprint.SequenceEqual(other._fingerprint) ) &&
+               ( ReferenceEquals(_random, other._random) || _random.SequenceEqual(other._random) );
     }
 
     /// <inheritdoc />
-#if NET8_0_OR_GREATER
-    public override bool Equals(object? obj)
-#else
-	public override bool Equals(object obj)
-#endif
+    public override bool Equals(object obj)
     {
         return obj is Cuid2 other && Equals(other);
     }
@@ -108,7 +146,15 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
     /// <inheritdoc />
     public override int GetHashCode()
     {
-        return HashCode.Combine(_counter, StructuralComparisons.StructuralEqualityComparer.GetHashCode(_fingerprint), _prefix, _random, _timestamp);
+        int fingerprintHash = _fingerprint != null
+                                  ? StructuralComparisons.StructuralEqualityComparer.GetHashCode(_fingerprint)
+                                  : 0;
+
+        int randomHash = _random != null
+                             ? StructuralComparisons.StructuralEqualityComparer.GetHashCode(_random)
+                             : 0;
+
+        return HashCode.Combine(_counter, _maxLength, fingerprintHash, _prefix, randomHash, _timestamp);
     }
 
     /// <summary>
@@ -117,16 +163,11 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
     /// <returns>The value of this <see cref="Cuid2" />.</returns>
     public override string ToString()
     {
-        if ( _counter == 0 ||
-             _fingerprint == null ||
-             _maxLength == 0 ||
-             _prefix == char.MinValue ||
-             _random == null ||
-             _timestamp == 0 )
-        {
-            return new string('0', DefaultLength);
-        }
+        return _value ?? new string('0', DefaultLength);
+    }
 
+    private string ComputeValue()
+    {
         Span<byte> buffer = stackalloc byte[16];
 
         BinaryPrimitives.WriteInt64LittleEndian(buffer[..8], _timestamp);
@@ -138,9 +179,10 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
         digest.BlockUpdate(_fingerprint, 0, _fingerprint.Length);
         digest.BlockUpdate(_random, 0, _random.Length);
 
-        byte[] hash = new byte[digest.GetByteLength()];
-        digest.DoFinal(hash, 0);
+        int hashLength = digest.GetByteLength();
+        byte[] hash = new byte[hashLength];
 
+        digest.DoFinal(hash, 0);
         return _prefix + Utils.Encode(hash)[..( _maxLength - 1 )];
     }
 

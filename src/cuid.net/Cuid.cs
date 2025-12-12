@@ -1,15 +1,16 @@
-﻿namespace Visus.Cuid;
+﻿#pragma warning disable CA1724 // Type name conflicts with namespace name
+#pragma warning disable MA0049 // Type names should not match namespaces
+#pragma warning disable S1133 // Deprecated code should not be used
 
-using System;
+namespace Visus.Cuid;
+
 using System.Buffers.Binary;
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json.Serialization;
-using System.Threading;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
@@ -17,9 +18,6 @@ using Abstractions;
 using CommunityToolkit.Diagnostics;
 using Extensions;
 using Serialization.Json.Converters;
-#if NETSTANDARD2_0 || NET472
-using System.Collections.Generic;
-#endif
 
 /// <summary>
 ///     Represents a collision resistant unique identifier (CUID).
@@ -27,10 +25,10 @@ using System.Collections.Generic;
 [StructLayout(LayoutKind.Sequential)]
 [JsonConverter(typeof(CuidConverter))]
 [XmlRoot("cuid")]
-#if NET8_0_OR_GREATER
-[Obsolete(Obsoletions.CuidMessage, DiagnosticId = Obsoletions.CuidDiagId)]
-#else
+#if NETSTANDARD
 [Obsolete(Obsoletions.CuidMessage)]
+#else
+[Obsolete(Obsoletions.CuidMessage, DiagnosticId = Obsoletions.CuidDiagId)]
 #endif
 public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, IXmlSerializable
 {
@@ -40,6 +38,10 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
     public static readonly Cuid Empty;
 
     private const int BlockSize = 4;
+
+    // Maximum value that fits in 8 base-36 characters (BlockSize * 2)
+    // This is 36^8 - 1 = 2,821,109,907,455
+    private const ulong MaxRandomValue = 2821109907455UL;
 
     private const string Prefix = "c";
 
@@ -52,6 +54,8 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
     private readonly ulong _random;
 
     private readonly long _timestamp;
+
+    private readonly string _value;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="Cuid" /> structure by using the value represented by the specified
@@ -76,12 +80,25 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
     /// <returns>A new CUID object.</returns>
     public static Cuid NewCuid()
     {
+        // Use 10-microsecond precision (ticks / 10000) to fit in 8 base-36 characters
+#if NETSTANDARD
+        #pragma warning disable S6588 // DateTimeOffset.UnixEpoch is not available in .NET Standard 2.0
+        #pragma warning disable MA0114 // Use DateTimeOffset.UnixEpoch where available
+        long unixEpochTicks = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).Ticks;
+        #pragma warning restore MA0114 // Use DateTimeOffset.UnixEpoch where available
+        #pragma warning restore S6588 // DateTimeOffset.UnixEpoch is not available in .NET Standard 2.0
+
+        long timestamp = ( DateTimeOffset.UtcNow.Ticks - unixEpochTicks ) / 10000;
+#else
+        long timestamp = ( DateTimeOffset.UtcNow - DateTimeOffset.UnixEpoch ).Ticks / 10000;
+#endif
+
         CuidResult result = new()
         {
-            _counter = Counter.Instance.Value,
+            _timestamp = timestamp,
+            _counter = (ulong)Counter.Instance.Value,
             _fingerprint = Context.IdentityFingerprint,
-            _random = BinaryPrimitives.ReadInt64LittleEndian(Utils.GenerateRandom()),
-            _timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
+            _random = BinaryPrimitives.ReadUInt64LittleEndian(Utils.GenerateRandom()) % MaxRandomValue,
         };
 
         return result.ToCuid();
@@ -92,7 +109,10 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
     /// </summary>
     /// <param name="left">The first object to compare.</param>
     /// <param name="right">The second object to compare.</param>
-    /// <returns><c>true</c> if <c>left</c> and <c>right</c> are equal; otherwise, <c>false</c>.</returns>
+    /// <returns>
+    ///     <see langword="true" /> if <paramref name="left" /> and <paramref name="right" /> are equal; otherwise,
+    ///     <see langword="false" />.
+    /// </returns>
     public static bool operator ==(Cuid left, Cuid right)
     {
         return left.Equals(right);
@@ -103,7 +123,10 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
     /// </summary>
     /// <param name="left">The first object to compare.</param>
     /// <param name="right">The second object to compare.</param>
-    /// <returns><c>true</c> if <c>left</c> is greater than <c>right</c>; otherwise, <c>false</c>.</returns>
+    /// <returns>
+    ///     <see langword="true" /> if <paramref name="left" /> is greater than <paramref name="right" />; otherwise,
+    ///     <see langword="false" />.
+    /// </returns>
     public static bool operator >(Cuid left, Cuid right)
     {
         return left.CompareTo(right) > 0;
@@ -114,7 +137,10 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
     /// </summary>
     /// <param name="left">The first object to compare.</param>
     /// <param name="right">The second object to compare.</param>
-    /// <returns><c>true</c> if <c>left</c> is greater than or equal to <c>right</c>; otherwise, <c>false</c>.</returns>
+    /// <returns>
+    ///     <see langword="true" /> if <paramref name="left" /> is greater than or equal to <paramref name="right" />;
+    ///     otherwise, <see langword="false" />.
+    /// </returns>
     public static bool operator >=(Cuid left, Cuid right)
     {
         return left.CompareTo(right) >= 0;
@@ -125,7 +151,10 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
     /// </summary>
     /// <param name="left">The first object to compare.</param>
     /// <param name="right">The second object to compare.</param>
-    /// <returns><c>true</c> if <c>left</c> and <c>right</c> are not equal; otherwise, <c>false</c>.</returns>
+    /// <returns>
+    ///     <see langword="true" /> if <paramref name="left" /> and <paramref name="right" /> are not equal; otherwise,
+    ///     <see langword="false" />.
+    /// </returns>
     public static bool operator !=(Cuid left, Cuid right)
     {
         return !left.Equals(right);
@@ -136,7 +165,10 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
     /// </summary>
     /// <param name="left">The first object to compare.</param>
     /// <param name="right">The second object to compare.</param>
-    /// <returns><c>true</c> if <c>left</c> is less than <c>right</c>; otherwise, <c>false</c>.</returns>
+    /// <returns>
+    ///     <see langword="true" /> if <paramref name="left" /> is less than <paramref name="right" />; otherwise,
+    ///     <see langword="false" />.
+    /// </returns>
     public static bool operator <(Cuid left, Cuid right)
     {
         return left.CompareTo(right) < 0;
@@ -147,7 +179,10 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
     /// </summary>
     /// <param name="left">The first object to compare.</param>
     /// <param name="right">The second object to compare.</param>
-    /// <returns><c>true</c> if <c>left</c> is less than or equal to <c>right</c>; otherwise, <c>false</c>.</returns>
+    /// <returns>
+    ///     <see langword="true" /> if <paramref name="left" /> is less than or equal to <paramref name="right" />;
+    ///     otherwise, <see langword="false" />.
+    /// </returns>
     public static bool operator <=(Cuid left, Cuid right)
     {
         return left.CompareTo(right) <= 0;
@@ -184,10 +219,11 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
     /// </summary>
     /// <param name="input">A span containing the characters representing the CUID to convert.</param>
     /// <param name="result">
-    ///     When this method returns, contains the parsed value. If the method returns <c>true</c>,
-    ///     <c>result</c> contains a valid Guid. If the method returns <c>false</c>, result equals <see cref="Empty" />.
+    ///     When this method returns, contains the parsed value. If the method returns <see langword="true" />,
+    ///     <c>result</c> contains a valid Guid. If the method returns <see langword="false" />, result equals
+    ///     <see cref="Empty" />.
     /// </param>
-    /// <returns><c>true</c> if the parse operation was successful; otherwise, <c>false</c>.</returns>
+    /// <returns><see langword="true" /> if the parse operation was successful; otherwise, <see langword="false" />.</returns>
     public static bool TryParse(ReadOnlySpan<char> input, out Cuid result)
     {
         CuidResult parseResult = new();
@@ -207,15 +243,12 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
     /// </summary>
     /// <param name="input">A string containing the CUID to convert.</param>
     /// <param name="result">
-    ///     When this method returns, contains the parsed value. If the method returns <c>true</c>,
-    ///     <c>result</c> contains a valid Guid. If the method returns <c>false</c>, result equals <see cref="Empty" />.
+    ///     When this method returns, contains the parsed value. If the method returns <see langword="true" />,
+    ///     <c>result</c> contains a valid Guid. If the method returns <see langword="false" />, result equals
+    ///     <see cref="Empty" />.
     /// </param>
-    /// <returns><c>true</c> if the parse operation was successful; otherwise, <c>false</c>.</returns>
-#if NET8_0_OR_GREATER
-    public static bool TryParse([NotNullWhen(true)] string? input, out Cuid result)
-#else
-    public static bool TryParse([AllowNull] string input, out Cuid result)
-#endif
+    /// <returns><see langword="true" /> if the parse operation was successful; otherwise, <see langword="false" />.</returns>
+    public static bool TryParse([NotNullWhen(true)] string input, out Cuid result)
     {
         if ( !string.IsNullOrWhiteSpace(input) )
         {
@@ -227,20 +260,29 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
     }
 
     /// <inheritdoc />
-#if NET8_0_OR_GREATER
-    public int CompareTo(object? obj)
-#else
     public int CompareTo(object obj)
-#endif
     {
-        if ( ReferenceEquals(null, obj) )
+        if ( obj is null )
         {
             return 1;
         }
 
         return obj is Cuid other
                    ? CompareTo(other)
-                   : throw new ArgumentException($"Object must be of type {nameof(Cuid)}");
+                   : throw new ArgumentException($@"must be of type {nameof(Cuid)}", nameof(obj));
+    }
+
+    /// <inheritdoc />
+    public int CompareTo(Cuid other)
+    {
+        int counterComparison = _counter.CompareTo(other._counter);
+        if ( counterComparison != 0 )
+        {
+            return counterComparison;
+        }
+
+        int randomComparison = _random.CompareTo(other._random);
+        return randomComparison != 0 ? randomComparison : _timestamp.CompareTo(other._timestamp);
     }
 
     /// <inheritdoc />
@@ -260,11 +302,7 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
     }
 
     /// <inheritdoc />
-#if NET8_0_OR_GREATER
-    public override bool Equals(object? obj)
-#else
     public override bool Equals(object obj)
-#endif
     {
         return obj is Cuid other && Equals(other);
     }
@@ -276,8 +314,17 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
     }
 
     /// <inheritdoc />
-    public void ReadXml(XmlReader reader)
+    [ExcludeFromCodeCoverage]
+    public XmlSchema GetSchema()
     {
+        return null;
+    }
+
+    /// <inheritdoc />
+    public void ReadXml([NotNull] XmlReader reader)
+    {
+        Guard.IsNotNull(reader);
+
         reader.Read();
 
         CuidResult result = new();
@@ -293,42 +340,17 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
     /// <returns>The value of this <see cref="Cuid" />.</returns>
     public override string ToString()
     {
-#if NET8_0_OR_GREATER
-        return string.Create(25, ( _t: _timestamp, _c: _counter, _f: _fingerprint, _r: _random ),
-                             (dest, buffer) =>
-                             {
-                                 Prefix.WriteTo(ref dest);
-
-                                 Utils.Encode((ulong) buffer._t)
-                                      .WriteTo(ref dest);
-
-                                 Utils.Encode(buffer._c)
-                                      .TrimPad(BlockSize)
-                                      .WriteTo(ref dest);
-
-                                 Encoding.UTF8.GetString(buffer._f).WriteTo(ref dest);
-
-                                 Utils.Encode(buffer._r)
-                                      .TrimPad(BlockSize * 2)
-                                      .WriteTo(ref dest);
-                             });
-#else
-        List<string> items =
-        [
-            Prefix,
-            Utils.Encode((ulong) _timestamp),
-            Utils.Encode(_counter).TrimPad(BlockSize),
-            Encoding.UTF8.GetString(_fingerprint),
-            Utils.Encode(_random).TrimPad(BlockSize * 2)
-        ];
-
-        return string.Join(string.Empty, items);
-#endif
+        return _value ?? string.Empty;
     }
 
     /// <inheritdoc />
-    public void WriteXml(XmlWriter writer)
+    public void WriteXml([NotNull] XmlWriter writer)
     {
+        if ( Equals(Empty) )
+        {
+            return; // Write nothing for empty Cuid (results in xsi:nil="true")
+        }
+
         writer.WriteString(ToString());
     }
 
@@ -336,7 +358,7 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
     {
         foreach ( char t in input )
         {
-            if ( !char.IsLetterOrDigit(t) )
+            if ( !char.IsLetterOrDigit(t) || char.IsUpper(t) )
             {
                 return false;
             }
@@ -348,7 +370,9 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
     private static bool TryParseCuid(ReadOnlySpan<char> cuidString, bool throwException, ref CuidResult result)
     {
         cuidString = cuidString.Trim();
-        if ( cuidString.Length != ValueLength || !cuidString.StartsWith(Prefix.AsSpan()) || !IsAlphaNum(cuidString) )
+        if ( cuidString.Length != ValueLength ||
+             !cuidString.StartsWith(Prefix.AsSpan(), StringComparison.Ordinal) ||
+             !IsAlphaNum(cuidString) )
         {
             if ( throwException )
             {
@@ -363,28 +387,28 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
         ReadOnlySpan<char> fingerprint = cuidString[13..^8];
         ReadOnlySpan<char> random = cuidString[^8..];
 
-        result._counter = Utils.Decode(counter);
+        result._counter = Utils.DecodeUlong(counter);
         result._fingerprint = Encoding.UTF8.GetBytes(fingerprint.ToString());
-        result._random = Utils.Decode(random);
+        result._random = Utils.DecodeUlong(random);
         result._timestamp = Utils.Decode(timestamp);
 
         return true;
     }
 
-    [ExcludeFromCodeCoverage]
-#if NET8_0_OR_GREATER
-    XmlSchema? IXmlSerializable.GetSchema()
-#else
-    XmlSchema IXmlSerializable.GetSchema()
-#endif
-    {
-        return null;
-    }
-
     [SuppressMessage("ReSharper", "InconsistentNaming")]
-    [StructLayout(LayoutKind.Explicit)]
+    [StructLayout(LayoutKind.Sequential)]
     private struct CuidResult : IEquatable<CuidResult>
     {
+        internal ulong _counter;
+
+        internal byte[] _fingerprint;
+
+        internal ulong _random;
+
+        internal long _timestamp;
+
+        internal string _value;
+
         public static bool operator ==(CuidResult left, CuidResult right)
         {
             return left.Equals(right);
@@ -395,41 +419,36 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
             return !left.Equals(right);
         }
 
-        public bool Equals(CuidResult other)
+        public readonly bool Equals(CuidResult other)
         {
             return _counter == other._counter
                 && _fingerprint.Equals(other._fingerprint)
                 && _random == other._random
-                && _timestamp == other._timestamp;
+                && _timestamp == other._timestamp
+                && string.Equals(_value, other._value, StringComparison.Ordinal);
         }
 
-#if NET8_0_OR_GREATER
-        public override bool Equals(object? obj)
-#else
-        public override bool Equals(object obj)
-#endif
+        public override readonly bool Equals(object obj)
         {
             return obj is CuidResult other && Equals(other);
         }
 
-        public override int GetHashCode()
+        public override readonly int GetHashCode()
         {
-            return HashCode.Combine(_counter, _fingerprint, _random, _timestamp);
+            return HashCode.Combine(_counter, _fingerprint, _random, _timestamp, _value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly Cuid ToCuid()
         {
-#if NET8_0_OR_GREATER
             CuidResult result = this;
-            return Unsafe.As<CuidResult, Cuid>(ref Unsafe.AsRef(ref result));
-#else
-            return Unsafe.As<CuidResult, Cuid>(ref Unsafe.AsRef(in this));
-#endif
+            result._value = result.ComputeValue();
+            return Unsafe.As<CuidResult, Cuid>(ref Unsafe.AsRef(in result));
         }
 
         #pragma warning disable CA1822
         #pragma warning disable S2325
+        #pragma warning disable MA0038 
         [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Local")]
         internal readonly void SetFailure(string message)
         {
@@ -437,20 +456,56 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
         }
         #pragma warning restore CA1822
         #pragma warning restore S2325
+        #pragma warning restore MA0038
 
-        #pragma warning disable S4487
-        [FieldOffset(8)]
-        internal long _counter;
+        private readonly string ComputeValue()
+        {
+            if ( _fingerprint == null )
+            {
+                return string.Empty;
+            }
 
-        [FieldOffset(0)]
-        internal byte[] _fingerprint;
+#if NETSTANDARD2_0
+            char[] buffer = new char[ValueLength];
+            Span<char> dest = buffer;
 
-        [FieldOffset(16)]
-        internal long _random;
+            Prefix.WriteTo(ref dest);
 
-        [FieldOffset(24)]
-        internal long _timestamp;
-        #pragma warning restore S4487
+            Utils.Encode((ulong)_timestamp)
+                 .WriteTo(ref dest);
+
+            Utils.Encode(_counter)
+                 .TrimPad(BlockSize)
+                 .WriteTo(ref dest);
+
+            Encoding.UTF8.GetString(_fingerprint).WriteTo(ref dest);
+
+            Utils.Encode(_random)
+                 .TrimPad(BlockSize * 2)
+                 .WriteTo(ref dest);
+
+            return new string(buffer);
+#else
+            return string.Create(ValueLength, ( _t: _timestamp, _c: _counter, _f: _fingerprint, _r: _random ),
+                (dest, buffer) =>
+                {
+                    Prefix.WriteTo(ref dest);
+
+                    Utils.Encode((ulong)buffer._t)
+                         .WriteTo(ref dest);
+
+                    Utils.Encode(buffer._c)
+                         .TrimPad(BlockSize)
+                         .WriteTo(ref dest);
+
+                    Encoding.UTF8.GetString(buffer._f).WriteTo(ref dest);
+
+                    Utils.Encode(buffer._r)
+                         .TrimPad(BlockSize * 2)
+                         .WriteTo(ref dest);
+                });
+#endif
+        }
     }
 
     private static class Context
@@ -463,7 +518,7 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
         // ReSharper disable once InconsistentNaming
         private static readonly Lazy<Counter> _counter = new(() => new Counter());
 
-        private static readonly long DiscreteValues = (long) Math.Pow(36, 4);
+        private static readonly long DiscreteValues = (long)Math.Pow(36, 4);
 
         private volatile int _value;
 
@@ -480,17 +535,6 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
             }
         }
     }
-
-    /// <inheritdoc />
-    public int CompareTo(Cuid other)
-    {
-        int counterComparison = _counter.CompareTo(other._counter);
-        if ( counterComparison != 0 )
-        {
-            return counterComparison;
-        }
-
-        int randomComparison = _random.CompareTo(other._random);
-        return randomComparison != 0 ? randomComparison : _timestamp.CompareTo(other._timestamp);
-    }
 }
+
+#pragma warning restore CA1724

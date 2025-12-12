@@ -1,22 +1,27 @@
 ﻿namespace Visus.Cuid;
 
-using System;
 using System.Buffers.Binary;
 using System.Collections;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Abstractions;
 using Extensions;
-#if NETSTANDARD2_0 || NET472
+#if NETSTANDARD
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 #endif
 
 internal static class Fingerprint
 {
+    private static readonly Lazy<byte[]> CachedEnvironmentVariables = new(ComputeEnvironmentVariables);
+
+#if NETSTANDARD
+    private static readonly int CachedProcessId = Process.GetCurrentProcess().Id;
+#else
+    private static readonly int CachedProcessId = Environment.ProcessId;
+#endif
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static byte[] Generate(FingerprintVersion version = FingerprintVersion.Two)
     {
@@ -25,19 +30,35 @@ internal static class Fingerprint
                    : GenerateIdentity();
     }
 
+    private static byte[] ComputeEnvironmentVariables()
+    {
+        IEnumerable<string> data = from DictionaryEntry item in Environment.GetEnvironmentVariables()
+                                   orderby item.Key
+                                   select $"{item.Key}={item.Value}";
+
+        return Encoding.UTF8.GetBytes(string.Join(string.Empty, data));
+    }
+
     private static byte[] GenerateIdentity()
     {
-        ReadOnlySpan<byte> identity = Encoding.UTF8.GetBytes(GetSystemName());
-        ReadOnlySpan<byte> process = GetProcessIdentifier();
-        ReadOnlySpan<byte> environment = GetEnvironmentVariables();
+        string systemName = GetSystemName();
+        byte[] environment = CachedEnvironmentVariables.Value;
 
+#if NETSTANDARD2_0
+        byte[] identity = Encoding.UTF8.GetBytes(systemName);
         Span<byte> buffer = stackalloc byte[identity.Length + sizeof(int) + environment.Length];
 
         identity.CopyTo(buffer[..identity.Length]);
-        process.CopyTo(buffer[identity.Length..]);
-        environment.CopyTo(buffer[( identity.Length + sizeof(int) )..]);
+        BinaryPrimitives.WriteInt32LittleEndian(buffer[identity.Length..(identity.Length + sizeof(int))], CachedProcessId);
+        environment.CopyTo(buffer[(identity.Length + sizeof(int))..]);
+#else
+        int systemNameByteCount = Encoding.UTF8.GetByteCount(systemName);
+        Span<byte> buffer = stackalloc byte[systemNameByteCount + sizeof(int) + environment.Length];
 
-        Utils.GenerateRandom(32).CopyTo(buffer[^32..]);
+        Encoding.UTF8.GetBytes(systemName, buffer[..systemNameByteCount]);
+        BinaryPrimitives.WriteInt32LittleEndian(buffer[systemNameByteCount..( systemNameByteCount + sizeof(int) )], CachedProcessId);
+        environment.CopyTo(buffer[( systemNameByteCount + sizeof(int) )..]);
+#endif
 
         return buffer.ToArray();
     }
@@ -49,23 +70,26 @@ internal static class Fingerprint
         int machineIdentifier = machineName.Length + 36;
         machineIdentifier = machineName.Aggregate(machineIdentifier, (i, c) => i + c);
 
-#if NET8_0_OR_GREATER
-        string result = string.Create(4, machineIdentifier, (dest, _) =>
-                                                            {
-                                                                Environment.ProcessId
-                                                                           .ToString(CultureInfo.InvariantCulture)
-                                                                           .TrimPad(2).WriteTo(ref dest);
-                                                                machineIdentifier.ToString(CultureInfo.InvariantCulture)
-                                                                                 .TrimPad(2).WriteTo(ref dest);
-                                                            });
-#else
-        List<string> items =
-        [
-            Process.GetCurrentProcess().Id.ToString(CultureInfo.InvariantCulture).TrimPad(2),
-            machineIdentifier.ToString(CultureInfo.InvariantCulture).TrimPad(2)
-        ];
+#if NETSTANDARD2_0
+        char[] buffer = new char[4];
+        Span<char> dest = buffer;
 
-        string result = string.Join(string.Empty, items);
+        CachedProcessId.ToString(CultureInfo.InvariantCulture)
+                       .TrimPad(2).WriteTo(ref dest);
+
+        machineIdentifier.ToString(CultureInfo.InvariantCulture)
+                         .TrimPad(2).WriteTo(ref dest);
+
+        string result = new(buffer);
+#else
+        string result = string.Create(4, machineIdentifier, (dest, _) =>
+        {
+            CachedProcessId.ToString(CultureInfo.InvariantCulture)
+                           .TrimPad(2).WriteTo(ref dest);
+
+            machineIdentifier.ToString(CultureInfo.InvariantCulture)
+                             .TrimPad(2).WriteTo(ref dest);
+        });
 #endif
 
         return Encoding.UTF8.GetBytes(result);
@@ -75,40 +99,18 @@ internal static class Fingerprint
     {
         byte[] bytes = Utils.GenerateRandom(32);
 
-#if NET8_0_OR_GREATER
-        string hostname = Convert.ToHexString(bytes).ToUpperInvariant();
-        return OperatingSystem.IsWindows()
+#if NETSTANDARD
+        bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+        string hostname = string.Concat(Array.ConvertAll(bytes,
+            b => b.ToString("X2", CultureInfo.InvariantCulture)));
+#else
+        bool isWindows = OperatingSystem.IsWindows();
+        string hostname = Convert.ToHexString(bytes);
+#endif
+
+        return isWindows
                    ? hostname[..15] // windows hostnames are limited to 15 characters 
                    : hostname;
-#else
-        string hostname = BitConverter.ToString(bytes);
-        return RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                   ? hostname[..15]
-                   : hostname;
-#endif
-    }
-
-    private static ReadOnlySpan<byte> GetEnvironmentVariables()
-    {
-        IEnumerable<string> data = from DictionaryEntry item in Environment.GetEnvironmentVariables()
-                                   select $"{item.Key}={item.Value}";
-
-        return Encoding.UTF8.GetBytes(string.Join(string.Empty, data));
-    }
-
-    private static ReadOnlySpan<byte> GetProcessIdentifier()
-    {
-        Span<byte> result = stackalloc byte[sizeof(int)];
-
-#if NET8_0_OR_GREATER
-        int processId = Environment.ProcessId;
-#else
-        int processId = Process.GetCurrentProcess().Id;
-#endif
-
-        BinaryPrimitives.WriteInt32LittleEndian(result, processId);
-
-        return result.ToArray();
     }
 
     private static string GetSystemName()

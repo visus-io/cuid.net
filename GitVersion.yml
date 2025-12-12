@@ -1,9 +1,9 @@
-next-version: 6.0.0
+next-version: 7.0.0
 branches:
     develop:
-        tag: beta
+        label: beta
         mode: ContinuousDeployment
     release:
-        tag: rc
+        label: rc
         mode: ContinuousDeployment
 assembly-file-versioning-format: '{Major}.{Minor}.{Patch}.{env:GITHUB_RUN_NUMBER ?? 0}'
