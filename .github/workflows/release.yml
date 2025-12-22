@@ -6,12 +6,21 @@ on:
     tags:
       - '*'
 
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
 jobs:
   release:
     name: Release
     runs-on: windows-latest
+    timeout-minutes: 30
+    environment: production
     env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
 
     steps:
       - name: Checkout
@@ -64,6 +73,29 @@ jobs:
             -p:PackageVersion=${{ steps.gitversion.outputs.fullSemVer }} `
             -p:PackageOutputPath=${{ runner.temp }}/packages
 
+      - name: Upload packages
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: nuget-packages
+          path: ${{ runner.temp }}/packages/*.nupkg
+          retention-days: 90
+          if-no-files-found: error
+
       - name: Push
-        run: dotnet nuget push *.nupkg -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push *.nupkg -k $env:NUGET_TOKEN -s https://api.nuget.org/v3/index.json --skip-duplicate
         working-directory: ${{ runner.temp }}/packages
+
+      - name: Generate job summary
+        if: success()
+        shell: pwsh
+        run: |
+          echo "## :rocket: Release Published" >> $env:GITHUB_STEP_SUMMARY
+          echo "" >> $env:GITHUB_STEP_SUMMARY
+          echo "**Version:** ${{ steps.gitversion.outputs.fullSemVer }}" >> $env:GITHUB_STEP_SUMMARY
+          echo "**Semantic Version:** ${{ steps.gitversion.outputs.semVer }}" >> $env:GITHUB_STEP_SUMMARY
+          echo "**Assembly Version:** ${{ steps.gitversion.outputs.assemblySemVer }}" >> $env:GITHUB_STEP_SUMMARY
+          echo "" >> $env:GITHUB_STEP_SUMMARY
+          echo "### Published Packages" >> $env:GITHUB_STEP_SUMMARY
+          Get-ChildItem "${{ runner.temp }}/packages/*.nupkg" | ForEach-Object {
+            echo "- ``$($_.Name)``" >> $env:GITHUB_STEP_SUMMARY
+          }
