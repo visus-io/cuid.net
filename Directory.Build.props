@@ -15,7 +15,7 @@
     <AnalysisLevel>latest</AnalysisLevel>
   </PropertyGroup>
   
-  <PropertyGroup Condition="'$(CI)' == 'true'">
+  <PropertyGroup Condition="'$(CI)' == 'true' AND '$(SONAR_ANALYSIS)' != 'true'">
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
 </Project>

@@ -30,6 +30,7 @@ jobs:
       contents: read
     env:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SONAR_ANALYSIS: true
 
     steps:
       - name: Checkout
