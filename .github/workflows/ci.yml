@@ -21,101 +21,10 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-permissions:
-  contents: read
-  checks: write
-  pull-requests: write
-
 jobs:
-  unit-tests:
-    name: Unit Tests (${{ matrix.framework }})
+  test-and-analysis:
+    name: Test & Analysis
     runs-on: windows-latest
-    timeout-minutes: 30
-    strategy:
-      fail-fast: false
-      matrix:
-        framework: [net8.0, net10.0, net48]
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-        with:
-          fetch-depth: 0
-          show-progress: false
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@2016bd2012dba4e32de620c46fe006a3ac9f0602 # v5.0.1
-        with:
-          global-json-file: global.json
-          cache: true
-          cache-dependency-path: '**/Directory.Packages.props'
-
-      - name: Restore dependencies
-        run: dotnet restore
-
-      - name: Run tests
-        shell: powershell
-        run: |
-            dotnet test -c Release --framework ${{ matrix.framework }} `
-              --no-restore `
-              --coverage `
-              --coverage-output "${{ runner.temp }}\coverage-${{ matrix.framework }}.coverage" `
-              --report-trx `
-              --results-directory "${{ runner.temp }}\TestResults"
-
-      - name: Upload coverage
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: coverage-${{ matrix.framework }}
-          path: ${{ runner.temp }}\coverage-${{ matrix.framework }}.coverage
-          retention-days: 1
-
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: test-results-${{ matrix.framework }}
-          path: ${{ runner.temp }}\TestResults\*.trx
-          retention-days: 1
-
-  publish-test-results:
-    name: Publish Test Results
-    runs-on: ubuntu-latest
-    needs: unit-tests
-    if: always()
-    timeout-minutes: 10
-    permissions:
-      contents: read
-      checks: write
-      pull-requests: write
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-        with:
-          fetch-depth: 1
-          show-progress: false
-
-      - name: Download all test results
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
-        with:
-          pattern: test-results-*
-          path: test-results
-          merge-multiple: true
-
-      - name: Publish test results
-        uses: dorny/test-reporter@31a54ee7ebcacc03a09ea97a7e5465a47b84aea5 # v1.9.1
-        with:
-          name: Test Results
-          path: test-results/*.trx
-          reporter: dotnet-trx
-          fail-on-error: false
-
-  sonarcloud:
-    name: SonarCloud Analysis
-    runs-on: windows-latest
-    needs: unit-tests
-    if: always() && github.actor != 'dependabot[bot]'
     timeout-minutes: 30
     permissions:
       contents: read
@@ -136,62 +45,80 @@ jobs:
           cache: true
           cache-dependency-path: '**/Directory.Packages.props'
 
-      - name: Setup Java
-        uses: actions/setup-java@c1e323688fd81a25caa38c78aa6df2d33d3e20d9 # v4.8.0
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      - name: Cache SonarCloud scanner
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
-        with:
-          path: .sonar\scanner
-          key: ${{ runner.os }}-sonar-scanner
-          restore-keys: ${{ runner.os }}-sonar-scanner
-
-      - name: Download all coverage artifacts
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
-        with:
-          pattern: coverage-*
-          path: coverage
-          merge-multiple: true
-
-      - name: Download all test result artifacts
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
-        with:
-          pattern: test-results-*
-          path: test-results
-          merge-multiple: true
-
       - name: Restore dependencies
         run: dotnet restore
 
       - name: Install SonarCloud scanner
+        if: github.actor != 'dependabot[bot]'
         shell: powershell
         run: dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
 
-      - name: Install dotnet-coverage
-        run: dotnet tool install -g dotnet-coverage
-
-      - name: Merge and convert coverage
-        shell: powershell
-        run: |
-          dotnet-coverage merge coverage\*.coverage `
-            --output coverage\coverage-report.xml `
-            --output-format xml
-
-      - name: Run SonarCloud analysis
+      - name: Begin SonarCloud analysis
+        if: github.actor != 'dependabot[bot]'
         shell: powershell
         run: |
           .\.sonar\scanner\dotnet-sonarscanner begin `
             /k:"visus:cuid.net" `
             /o:"visus" `
             /d:sonar.token="$env:SONAR_TOKEN" `
-            /d:sonar.cs.vscoveragexml.reportsPaths="coverage\coverage-report.xml" `
-            /d:sonar.cs.vstest.reportsPaths="test-results\*.trx" `
-            /d:sonar.host.url="https://sonarcloud.io"
+            /d:sonar.host.url="https://sonarcloud.io" `
+            /d:sonar.cs.vscoveragexml.reportsPaths="**/TestResults/**/*.xml" `
+            /d:sonar.cs.vstest.reportsPaths="**/TestResults/**/*.trx"
 
-          dotnet build -c Release --no-restore
+      - name: Build
+        run: dotnet build -c Release --no-restore
 
+      - name: Run tests
+        shell: powershell
+        run: |
+          dotnet test -c Release --no-build --no-restore -- `
+            --coverage `
+            --coverage-output-format xml `
+            --report-trx
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: test-results
+          path: "**/TestResults/*.trx"
+          retention-days: 1
+
+      - name: End SonarCloud analysis
+        if: github.actor != 'dependabot[bot]'
+        shell: powershell
+        run: |
           .\.sonar\scanner\dotnet-sonarscanner end `
             /d:sonar.token="$env:SONAR_TOKEN"
+
+  publish-test-results:
+    name: Publish Test Results
+    runs-on: ubuntu-latest
+    needs: test-and-analysis
+    if: always()
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          fetch-depth: 1
+          show-progress: false
+
+      - name: Download test results
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: test-results
+          path: test-results
+
+      - name: Publish test results
+        uses: dorny/test-reporter@31a54ee7ebcacc03a09ea97a7e5465a47b84aea5 # v1.9.1
+        with:
+          name: Test Results
+          path: test-results/**/*.trx
+          reporter: dotnet-trx
+          fail-on-error: false
