@@ -29,7 +29,6 @@ namespace Visus.Cuid
         public static bool operator >(Visus.Cuid.Cuid left, Visus.Cuid.Cuid right) { }
         public static bool operator >=(Visus.Cuid.Cuid left, Visus.Cuid.Cuid right) { }
     }
-    [System.Xml.Serialization.XmlRoot("cuid2")]
     public readonly struct Cuid2 : System.IEquatable<Visus.Cuid.Cuid2>
     {
         public Cuid2() { }

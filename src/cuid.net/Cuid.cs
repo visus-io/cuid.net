@@ -376,7 +376,7 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
         {
             if ( throwException )
             {
-                result.SetFailure(Resources.Resources.Format_CuidUnrecognized);
+                result.SetFailure("Unrecognized Cuid format.");
             }
 
             return false;

@@ -3,7 +3,6 @@
 using System.Buffers.Binary;
 using System.Collections;
 using System.Runtime.InteropServices;
-using System.Xml.Serialization;
 using CommunityToolkit.Diagnostics;
 using Org.BouncyCastle.Crypto.Digests;
 
@@ -11,7 +10,6 @@ using Org.BouncyCastle.Crypto.Digests;
 ///     Represents a collision resistant unique identifier (CUID).
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
-[XmlRoot("cuid2")]
 public readonly struct Cuid2 : IEquatable<Cuid2>
 {
     private const int DefaultLength = 24;
