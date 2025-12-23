@@ -7,6 +7,7 @@
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
     <File Path=".gitignore" />
+    <File Path="CODE_OF_CONDUCT.md" />
     <File Path="Directory.Build.props" />
     <File Path="Directory.Packages.props" />
     <File Path="GitVersion.yml" />
@@ -15,6 +16,7 @@
     <File Path="nuget.config" />
     <File Path="README.md" />
     <File Path="renovate.json" />
+    <File Path="SECURITY.md" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/cuid.net.tests/cuid.net.tests.csproj" />
