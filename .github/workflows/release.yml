@@ -66,8 +66,7 @@ jobs:
           if-no-files-found: error
 
       - name: Push
-        run: dotnet nuget push ./*.nupkg -k $env:NUGET_TOKEN -s https://api.nuget.org/v3/index.json --skip-duplicate
-        working-directory: ${{ runner.temp }}/packages
+        run: dotnet nuget push "${{ runner.temp }}/packages/*.nupkg" -k $env:NUGET_TOKEN -s https://api.nuget.org/v3/index.json --skip-duplicate
 
       - name: Generate job summary
         if: success()
