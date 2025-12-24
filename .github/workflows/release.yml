@@ -66,7 +66,6 @@ jobs:
           if-no-files-found: error
 
       - name: Push
-        if: false
         run: dotnet nuget push ./*.nupkg -k $env:NUGET_TOKEN -s https://api.nuget.org/v3/index.json --skip-duplicate
         working-directory: ${{ runner.temp }}/packages
 
