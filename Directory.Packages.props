@@ -4,20 +4,21 @@
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
   <ItemGroup>
-    <PackageVersion Include="AwesomeAssertions" Version="9.3.0"/>
-    <PackageVersion Include="AwesomeAssertions.Analyzers" Version="9.0.8"/>
-    <PackageVersion Include="BouncyCastle.Cryptography" Version="2.6.2"/>
-    <PackageVersion Include="CommunityToolkit.Diagnostics" Version="8.4.0"/>
-    <PackageVersion Include="Meziantou.Analyzer" Version="2.0.264"/>
-    <PackageVersion Include="Microsoft.Bcl.HashCode" Version="6.0.0"/>
-    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0"/>
-    <PackageVersion Include="PolySharp" Version="1.15.0"/>
-    <PackageVersion Include="PublicApiGenerator" Version="11.5.4"/>
-    <PackageVersion Include="System.Text.Json" Version="10.0.1"/>
-    <PackageVersion Include="TUnit" Version="1.6.5"/>
-    <PackageVersion Include="Verify" Version="31.9.0"/>
-    <PackageVersion Include="Verify.DiffPlex" Version="3.1.2"/>
-    <PackageVersion Include="Verify.TUnit" Version="31.9.0"/>
+    <PackageVersion Include="AwesomeAssertions" Version="9.3.0" />
+    <PackageVersion Include="AwesomeAssertions.Analyzers" Version="9.0.8" />
+    <PackageVersion Include="BouncyCastle.Cryptography" Version="2.6.2" />
+    <PackageVersion Include="CommunityToolkit.Diagnostics" Version="8.4.0" />
+    <PackageVersion Include="Meziantou.Analyzer" Version="2.0.264" />
+    <PackageVersion Include="Microsoft.Bcl.HashCode" Version="6.0.0" />
+    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0" />
+    <PackageVersion Include="MinVer" Version="6.0.0" />
+    <PackageVersion Include="PolySharp" Version="1.15.0" />
+    <PackageVersion Include="PublicApiGenerator" Version="11.5.4" />
+    <PackageVersion Include="System.Text.Json" Version="10.0.1" />
+    <PackageVersion Include="TUnit" Version="1.6.5" />
+    <PackageVersion Include="Verify" Version="31.9.0" />
+    <PackageVersion Include="Verify.DiffPlex" Version="3.1.2" />
+    <PackageVersion Include="Verify.TUnit" Version="31.9.0" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Meziantou.Analyzer">
@@ -26,15 +27,15 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup Condition="'$(IsTestProject)' == 'true'">
-    <PackageReference Include="AwesomeAssertions"/>
+    <PackageReference Include="AwesomeAssertions" />
     <PackageReference Include="AwesomeAssertions.Analyzers">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="PolySharp"/>
-    <PackageReference Include="PublicApiGenerator"/>
-    <PackageReference Include="Verify"/>
-    <PackageReference Include="Verify.DiffPlex"/>
-    <PackageReference Include="Verify.TUnit"/>
+    <PackageReference Include="PolySharp" />
+    <PackageReference Include="PublicApiGenerator" />
+    <PackageReference Include="Verify" />
+    <PackageReference Include="Verify.DiffPlex" />
+    <PackageReference Include="Verify.TUnit" />
   </ItemGroup>
 </Project>

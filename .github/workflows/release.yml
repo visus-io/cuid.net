@@ -35,41 +35,26 @@ jobs:
           cache: true
           cache-dependency-path: '**/Directory.Packages.props'
 
-      - name: Cache GitVersion
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
-        with:
-          path: ~/.dotnet/tools
-          key: ${{ runner.os }}-gitversion-5.x
-          restore-keys: ${{ runner.os }}-gitversion-
-
-      - name: Install GitVersion
-        uses: gittools/actions/gitversion/setup@d0139503a9321f76b4a417dfdc8aebcec24decdd # v4.2.0
-        with:
-          versionSpec: '5.x'
+      - name: Install MinVer CLI
+        run: dotnet tool install --global minver-cli
 
       - name: Determine Version
-        id: gitversion
-        uses: gittools/actions/gitversion/execute@d0139503a9321f76b4a417dfdc8aebcec24decdd # v4.2.0
-        with:
-          useConfigFile: true
+        id: minver
+        run: |
+          $version = minver -v e -b ${{ github.run_number }}
+          echo "version=$version" >> $env:GITHUB_OUTPUT
+          echo "MinVer calculated version: $version"
 
       - name: Restore
         run: dotnet restore --verbosity Quiet
 
       - name: Build
-        run: |
-          dotnet build -c release --no-restore `
-            -p:Version=${{ steps.gitversion.outputs.assemblySemVer }} `
-            -p:FileVersion=${{ steps.gitversion.outputs.assemblySemFileVer }} `
-            -p:InformationalVersion=${{ steps.gitversion.outputs.informationalVersion }}
-
-      - name: Test
-        run: dotnet test -c release --no-restore --no-build
+        run: dotnet build -c release --no-restore -p:MinVerBuildMetadata=${{ github.run_number }}
 
       - name: Pack
         run: |
           dotnet pack -c release --no-restore --no-build `
-            -p:PackageVersion=${{ steps.gitversion.outputs.fullSemVer }} `
+            -p:MinVerBuildMetadata=${{ github.run_number }} `
             -p:PackageOutputPath=${{ runner.temp }}/packages
 
       - name: Upload packages
@@ -81,7 +66,8 @@ jobs:
           if-no-files-found: error
 
       - name: Push
-        run: dotnet nuget push *.nupkg -k $env:NUGET_TOKEN -s https://api.nuget.org/v3/index.json --skip-duplicate
+        if: false
+        run: dotnet nuget push ./*.nupkg -k $env:NUGET_TOKEN -s https://api.nuget.org/v3/index.json --skip-duplicate
         working-directory: ${{ runner.temp }}/packages
 
       - name: Generate job summary
@@ -90,9 +76,7 @@ jobs:
         run: |
           echo "## :rocket: Release Published" >> $env:GITHUB_STEP_SUMMARY
           echo "" >> $env:GITHUB_STEP_SUMMARY
-          echo "**Version:** ${{ steps.gitversion.outputs.fullSemVer }}" >> $env:GITHUB_STEP_SUMMARY
-          echo "**Semantic Version:** ${{ steps.gitversion.outputs.semVer }}" >> $env:GITHUB_STEP_SUMMARY
-          echo "**Assembly Version:** ${{ steps.gitversion.outputs.assemblySemVer }}" >> $env:GITHUB_STEP_SUMMARY
+          echo "**Version:** ${{ steps.minver.outputs.version }}" >> $env:GITHUB_STEP_SUMMARY
           echo "" >> $env:GITHUB_STEP_SUMMARY
           echo "### Published Packages" >> $env:GITHUB_STEP_SUMMARY
           Get-ChildItem "${{ runner.temp }}/packages/*.nupkg" | ForEach-Object {

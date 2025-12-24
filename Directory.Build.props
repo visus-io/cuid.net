@@ -1,6 +1,5 @@
 <Project>
   <PropertyGroup>
-    <Version>0.0.1</Version>
     <Copyright>Copyright (c) 2023-2025 Visus Development Team</Copyright>
     <LangVersion>14</LangVersion>
     <ImplicitUsings>true</ImplicitUsings>
