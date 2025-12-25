@@ -15,10 +15,10 @@
     <PackageVersion Include="PolySharp" Version="1.15.0" />
     <PackageVersion Include="PublicApiGenerator" Version="11.5.4" />
     <PackageVersion Include="System.Text.Json" Version="10.0.1" />
-    <PackageVersion Include="TUnit" Version="1.6.27" />
-    <PackageVersion Include="Verify" Version="31.9.0" />
+    <PackageVersion Include="TUnit" Version="1.6.28" />
+    <PackageVersion Include="Verify" Version="31.9.2" />
     <PackageVersion Include="Verify.DiffPlex" Version="3.1.2" />
-    <PackageVersion Include="Verify.TUnit" Version="31.9.0" />
+    <PackageVersion Include="Verify.TUnit" Version="31.9.2" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Meziantou.Analyzer">
