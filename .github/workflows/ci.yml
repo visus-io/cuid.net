@@ -50,12 +50,12 @@ jobs:
         run: dotnet restore
 
       - name: Install SonarCloud scanner
-        if: github.actor != 'dependabot[bot]'
+        if: github.actor != 'dependabot[bot]' && github.actor != 'renovate[bot]'
         shell: powershell
         run: dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
 
       - name: Begin SonarCloud analysis
-        if: github.actor != 'dependabot[bot]'
+        if: github.actor != 'dependabot[bot]' && github.actor != 'renovate[bot]'
         shell: powershell
         run: |
           .\.sonar\scanner\dotnet-sonarscanner begin `
@@ -86,7 +86,7 @@ jobs:
           retention-days: 1
 
       - name: End SonarCloud analysis
-        if: github.actor != 'dependabot[bot]'
+        if: github.actor != 'dependabot[bot]' && github.actor != 'renovate[bot]'
         shell: powershell
         run: |
           .\.sonar\scanner\dotnet-sonarscanner end `
