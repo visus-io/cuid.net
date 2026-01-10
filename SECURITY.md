@@ -46,7 +46,7 @@ Please do not report security vulnerabilities through public GitHub issues.
 - Click "Report a vulnerability"
 - Provide detailed information about the issue
 
-**Alternative:** Email the maintainers directly at [security@example.com] (replace with actual contact)
+**Alternative:** Email the maintainers directly at security@projects.visus.io
 
 ### 3. Include These Details
 
@@ -125,4 +125,4 @@ For security-related questions that are not vulnerabilities, you can:
 
 ---
 
-Last updated: 2025-12-23
+Last updated: 2025-01-10
