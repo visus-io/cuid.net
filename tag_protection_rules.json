@@ -1,0 +1,1 @@
+{"rules":[{"match":"*","allowed_teams":["@visus-io/project-administrators"],"permissions":{"create":true,"update":true,"delete":true}}]}
