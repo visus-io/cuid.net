@@ -1,5 +1,11 @@
 blank_issues_enabled: false
 contact_links:
-  - name: cuid.net Community Support
-    url: https://github.com/xaevik/cuid.net/discussions
-    about: For general discussions, questions, and answers
+  - name: Ask a Question
+    url: https://github.com/visus-io/cuid.net/discussions/new?category=q-a
+    about: Ask questions and get help using the library in Discussions
+  - name: CUID Specification
+    url: https://github.com/paralleldrive/cuid2
+    about: Learn about the CUID specification and design principles
+  - name: View Documentation
+    url: https://github.com/visus-io/cuid.net#readme
+    about: Read the full library documentation and examples

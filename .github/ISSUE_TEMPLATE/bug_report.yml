@@ -1,0 +1,154 @@
+name: Bug Report
+description: Report a bug or unexpected behavior in cuid.net
+title: '[Bug]: '
+labels: ['bug', 'needs-triage']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill out the following information to help us investigate.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of the bug
+      placeholder: What happened that shouldn't have?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Detailed steps to reproduce the bug
+      placeholder: |
+        1. Create a new Cuid2 with...
+        2. Call method...
+        3. Observe error...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+      placeholder: Describe the expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened?
+      placeholder: Describe what actually happened
+    validations:
+      required: true
+
+  - type: textarea
+    id: code
+    attributes:
+      label: Code Sample
+      description: Minimal code to reproduce the issue
+      render: csharp
+      placeholder: |
+        using Visus.Cuid;
+
+        var id = Cuid2.Generate();
+        // Your code here
+    validations:
+      required: false
+
+  - type: textarea
+    id: error
+    attributes:
+      label: Error Message / Stack Trace
+      description: Any error messages or stack traces
+      render: shell
+      placeholder: Paste the error message or stack trace here
+    validations:
+      required: false
+
+  - type: input
+    id: version
+    attributes:
+      label: cuid.net Version
+      description: Which version of cuid.net are you using?
+      placeholder: e.g., 3.1.0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: target-framework
+    attributes:
+      label: Target Framework
+      description: Which .NET framework are you targeting?
+      options:
+        - .NET 8
+        - .NET 9
+        - .NET 10
+        - .NET Standard 2.0
+        - .NET Standard 2.1
+        - .NET Framework 4.8
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: runtime
+    attributes:
+      label: Runtime Environment
+      description: Where are you running the library?
+      options:
+        - Windows
+        - Linux
+        - macOS
+        - Docker Container
+        - Azure Functions
+        - AWS Lambda
+        - Other Cloud Environment
+        - Other
+    validations:
+      required: false
+
+  - type: dropdown
+    id: api-area
+    attributes:
+      label: API Area
+      description: Which part of the library is affected?
+      multiple: true
+      options:
+        - Cuid (v1)
+        - Cuid2 (v2)
+        - JSON Serialization (System.Text.Json)
+        - XML Serialization
+        - Equality / Comparison
+        - ToString / Formatting
+        - Parsing / Validation
+        - Other
+    validations:
+      required: false
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: Any other context about the problem
+      placeholder: Add any other context, screenshots, or information here
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      description: Please confirm the following
+      options:
+        - label: I have searched existing issues to ensure this bug hasn't been reported already
+          required: true
+        - label: I am using a supported version of .NET
+          required: false
+        - label: I have included a minimal code sample that reproduces the issue
+          required: false

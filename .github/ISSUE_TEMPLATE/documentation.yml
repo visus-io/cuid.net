@@ -1,0 +1,111 @@
+name: Documentation Improvement
+description: Report issues with documentation or suggest improvements
+title: '[Docs]: '
+labels: ['documentation', 'needs-review']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve our documentation!
+
+  - type: dropdown
+    id: doc-type
+    attributes:
+      label: Documentation Type
+      description: What type of documentation needs improvement?
+      options:
+        - README
+        - XML Documentation Comments
+        - Code Examples
+        - CLAUDE.md (project instructions)
+        - GitHub Wiki
+        - NuGet Package Description
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: issue-type
+    attributes:
+      label: Issue Type
+      description: What kind of documentation issue is this?
+      options:
+        - Missing documentation
+        - Incorrect/outdated information
+        - Unclear explanation
+        - Typo or formatting issue
+        - Missing examples
+        - Broken links
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: location
+    attributes:
+      label: Location
+      description: Where is the documentation issue located?
+      placeholder: |
+        File: README.md
+        Section: ## Usage with Cuid2
+        Line: 45-50
+    validations:
+      required: true
+
+  - type: textarea
+    id: current
+    attributes:
+      label: Current Documentation
+      description: What does the current documentation say? (copy/paste if applicable)
+      placeholder: Current text or description of what's there now
+    validations:
+      required: false
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What's wrong or confusing about the current documentation?
+      placeholder: This is confusing because...
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested Improvement
+      description: How should the documentation be improved?
+      placeholder: |
+        The documentation should explain...
+        Or provide a better example like...
+    validations:
+      required: true
+
+  - type: textarea
+    id: example
+    attributes:
+      label: Proposed Example (if applicable)
+      description: If suggesting new examples, provide them here
+      render: csharp
+      placeholder: |
+        // Your example code here
+    validations:
+      required: false
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: Any other context or screenshots
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I have checked that this documentation issue hasn't been reported already
+          required: true
+        - label: I am willing to submit a pull request to fix this
+          required: false
