@@ -225,6 +225,7 @@ resharper_csharp_place_record_field_attribute_on_same_line = true
 resharper_csharp_place_simple_initializer_on_single_line = true
 resharper_csharp_wrap_object_and_collection_initializer_style = chop_always
 resharper_csharp_wrap_array_initializer_style = chop_always
+resharper_csharp_trailing_comma_in_multiline_lists = true
 
 # Naming conventions
 resharper_csharp_naming_rule.enum_member = PascalCase
@@ -251,9 +252,8 @@ dotnet_diagnostic.IDE0052.severity = none
 dotnet_diagnostic.IDE0060.severity = none
 dotnet_diagnostic.S1144.severity = suggestion
 
-# Disable CA1707 for test sources only
-[tests/**.cs]
+# Disable CA1031, CA1308, CA1707 for test sources only
+[{**/*.UnitTests,**/*.IntegrationTests,**/*.UiTests,**/*.Tests}/**/*.cs]
 dotnet_diagnostic.CA1031.severity = none
 dotnet_diagnostic.CA1308.severity = none
 dotnet_diagnostic.CA1707.severity = none
-dotnet_diagnostic.MA0038.severity = none
