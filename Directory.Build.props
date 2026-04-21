@@ -1,8 +1,9 @@
 <Project>
   <PropertyGroup>
-    <Copyright>Copyright (c) 2023-2025 Visus Development Team</Copyright>
+    <Copyright>Copyright (c) 2023-2026 Visus Development Team</Copyright>
     <LangVersion>14</LangVersion>
     <ImplicitUsings>true</ImplicitUsings>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -16,5 +17,6 @@
   
   <PropertyGroup Condition="'$(CI)' == 'true' AND '$(SONAR_ANALYSIS)' != 'true'">
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <RestoreLockedMode>true</RestoreLockedMode>
   </PropertyGroup>
 </Project>
