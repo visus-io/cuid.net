@@ -1,0 +1,1 @@
+See [AGENTS.md](AGENTS.md) for the full developer and AI-agent guide — project overview, repository layout, build/test commands, architecture, code conventions, testing conventions, dependency management, commit format, CI/CD, and multi-targeting guidelines.
