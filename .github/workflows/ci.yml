@@ -117,7 +117,7 @@ jobs:
           path: test-results
 
       - name: Publish test results
-        uses: dorny/test-reporter@31a54ee7ebcacc03a09ea97a7e5465a47b84aea5 # v1.9.1
+        uses: dorny/test-reporter@df6247429542221bc30d46a036ee47af1102c451 # v2.7.0
         with:
           name: Test Results
           path: test-results/**/*.trx
