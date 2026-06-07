@@ -32,12 +32,6 @@
           "Microsoft.NETFramework.ReferenceAssemblies.net48": "1.0.3"
         }
       },
-      "Polyfill": {
-        "type": "Direct",
-        "requested": "[10.3.0, )",
-        "resolved": "10.3.0",
-        "contentHash": "5GDzIb+7qvrftxO+POQc2HAInFnQIw2NKdxjqmAVJ7l+P10djdmKW6dcjnHitUX59TTQZ/Ok0qcHUSasl/Cs1A=="
-      },
       "PolySharp": {
         "type": "Direct",
         "requested": "[1.15.0, )",
