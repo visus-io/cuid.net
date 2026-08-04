@@ -9,11 +9,11 @@
 ![Downloads](https://img.shields.io/nuget/dt/cuid.net?style=for-the-badge&logo=nuget)
 ![GitHub](https://img.shields.io/github/license/visus-io/cuid.net?style=for-the-badge)
 
-A .NET implementation of collision-resistant unique identifiers (CUIDs) designed for horizontal scalability and security in distributed environments. This library provides robust alternatives to traditional GUIDs with improved readability, sortability, and security characteristics.
+cuid.net is a .NET library. It generates collision-resistant unique identifiers (CUIDs). Use CUIDs in distributed systems. CUIDs are an alternative to GUIDs. CUIDs are more readable than GUIDs. Some CUIDs are sortable. CUIDs have better security characteristics than GUIDs.
 
-For more information about CUIDs, visit the official projects: [CUID](https://github.com/paralleldrive/cuid) and [CUID2](https://github.com/paralleldrive/cuid2).
+For more information about CUIDs, go to the official projects: [CUID](https://github.com/paralleldrive/cuid) and [CUID2](https://github.com/paralleldrive/cuid2).
 
-A command-line utility, [cuidgen](https://github.com/visus-io/cuidgen/), is also available for leveraging CUIDs in scripting environments.
+A command-line tool, [cuidgen](https://github.com/visus-io/cuidgen/), is also available. Use cuidgen to generate CUIDs in scripts.
 
 <details>
 <summary>Table of Contents</summary>
@@ -41,26 +41,26 @@ A command-line utility, [cuidgen](https://github.com/visus-io/cuidgen/), is also
 
 ## Features
 
-- **Two Implementations**: CUIDv1 (deprecated) and CUIDv2 (recommended)
-- **Collision Resistance**: Cryptographically strong identifiers with negligible collision probability
-- **Horizontal Scalability**: Safe for distributed generation across multiple machines without coordination
-- **URL-Safe Format**: Base-36 encoding (0-9, a-z) for clean, readable identifiers
-- **Configurable Length**: CUIDv2 supports 4-32 character lengths (default: 24)
-- **Type Safety**: Immutable structures with full type safety and equality support
-- **Framework Support**: Targets .NET Standard 2.0, .NET Standard 2.1, .NET 8.0, and .NET 10.0
-- **Serialization**: Built-in JSON and XML serialization support for CUIDv1
-- **Trimming Support**: Optimized for .NET trimming in .NET 8+
-- **Compiler Warnings**: CUIDv1 usage emits diagnostic `VISLIB0001` to encourage migration
+- **Two implementations**: CUIDv1 (deprecated) and CUIDv2 (recommended).
+- **Collision resistance**: The library generates cryptographically strong identifiers. The probability of a collision is negligible.
+- **Horizontal scalability**: Generate identifiers on many machines at the same time. The machines do not need to coordinate.
+- **URL-safe format**: The library uses base-36 encoding (0-9, a-z). The identifiers are clean and readable.
+- **Configurable length**: CUIDv2 supports lengths from 4 to 32 characters. The default length is 24 characters.
+- **Type safety**: The identifiers are immutable structures. They have full type safety and equality support.
+- **Framework support**: The library targets .NET Standard 2.0, .NET Standard 2.1, .NET 8.0, and .NET 10.0.
+- **Serialization**: The library has built-in JSON and XML serialization support for CUIDv1.
+- **Trimming support**: The library is optimized for .NET trimming in .NET 8 and later.
+- **Compiler warnings**: Use of CUIDv1 emits diagnostic `VISLIB0001`. This warning tells you to migrate to CUIDv2.
 
 ## Installation
 
-Install cuid.net via NuGet Package Manager:
+Install cuid.net with the NuGet Package Manager:
 
 ```shell
 dotnet add package cuid.net
 ```
 
-Or via the Package Manager Console:
+Or install cuid.net with the Package Manager Console:
 
 ```shell
 Install-Package cuid.net
@@ -68,30 +68,30 @@ Install-Package cuid.net
 
 ### Requirements
 
-**Supported Platforms:**
-- .NET 8.0+
-- .NET Core 2.0+
-- .NET Framework 4.6.1+
-- Mono 5.4+
-- Xamarin.iOS 10.14+
-- Xamarin.Mac 3.8+
-- Xamarin.Android 8.0+
-- Universal Windows Platform 10.0.16299+
+**Supported platforms:**
+- .NET 8.0 and later
+- .NET Core 2.0 and later
+- .NET Framework 4.6.1 and later
+- Mono 5.4 and later
+- Xamarin.iOS 10.14 and later
+- Xamarin.Mac 3.8 and later
+- Xamarin.Android 8.0 and later
+- Universal Windows Platform 10.0.16299 and later
 
 **Dependencies:**
 
-The library automatically includes the following runtime dependencies via NuGet:
+NuGet installs the following runtime dependencies with the library.
 
 *All platforms:*
-- **BouncyCastle.Cryptography** - SHA-3 hashing for CUIDv2
-- **CommunityToolkit.Diagnostics** - Guard clauses and validation
+- **BouncyCastle.Cryptography** — provides SHA-3 hashing for CUIDv2.
+- **CommunityToolkit.Diagnostics** — provides guard clauses and validation.
 
 *.NET Standard 2.0/2.1 only:*
-- **Microsoft.Bcl.HashCode** - HashCode support for older frameworks
-- **System.Text.Json** - JSON serialization support for CUIDv1
+- **Microsoft.Bcl.HashCode** — provides `HashCode` support for older frameworks.
+- **System.Text.Json** — provides JSON serialization support for CUIDv1.
 
 > [!NOTE]
-> While .NET Framework 4.6.1 is the minimum supported version, .NET Framework 4.7.2+ is recommended for optimal compatibility.
+> .NET Framework 4.6.1 is the minimum supported version. For best compatibility, use .NET Framework 4.7.2 or later.
 
 ## Quick Start
 
@@ -114,33 +114,33 @@ Console.WriteLine(legacyId); // cmjj07yka00016337xrs9mj24
 ## CUIDv2 (Recommended)
 
 > [!NOTE]
-> `Cuid2` is the recommended implementation for all new projects. It provides cryptographically strong identifiers suitable for security-sensitive contexts.
+> Use `Cuid2` for all new projects. `Cuid2` generates cryptographically strong identifiers. These identifiers are suitable for security-sensitive contexts.
 
-`Cuid2` is an immutable structure that generates collision-resistant identifiers using SHA-3 hashing. Unlike CUIDv1, it is designed with security as a primary concern and does not leak information about generation time or location.
+`Cuid2` is an immutable structure. It generates collision-resistant identifiers with SHA-3 hashing. Unlike CUIDv1, `Cuid2` treats security as a primary goal. `Cuid2` does not leak the generation time or location.
 
 ### CUIDv2 Features
 
-- **Cryptographically Strong**: Uses SHA-3 512-bit hashing via BouncyCastle
-- **No Information Leakage**: Cannot derive when or where the identifier was created
-- **Variable Length**: Supports 4-32 character identifiers (default: 24)
-- **Not Sortable**: Intentionally does not implement `IComparable` for security
-- **Equality Support**: Implements `IEquatable<Cuid2>` for comparisons
-- **No Built-in Serialization**: Use `.ToString()` for string representation
+- **Cryptographically strong**: `Cuid2` uses SHA-3 512-bit hashing through BouncyCastle.
+- **No information leakage**: You cannot derive when or where the library created the identifier.
+- **Variable length**: `Cuid2` supports identifiers from 4 to 32 characters. The default length is 24 characters.
+- **Not sortable**: `Cuid2` does not implement `IComparable`. This is a deliberate security choice.
+- **Equality support**: `Cuid2` implements `IEquatable<Cuid2>` for comparisons.
+- **No built-in serialization**: Use `.ToString()` to get the string representation.
 
 ### CUIDv2 Structure
 
-CUIDv2 values use a variable-length structure with no predefined pattern. The generation process:
+A CUIDv2 value has a variable-length structure. The structure has no fixed pattern. The library generates a CUIDv2 value with this process:
 
-1. **Input Components**:
-   - **Prefix**: Single random character (a-z)
-   - **Timestamp**: Unix timestamp in ticks
-   - **Counter**: Session counter (initialized with cryptographic RNG, then incremented)
-   - **Fingerprint**: Host-specific data (hostname + process ID + environment variables)
-   - **Random Data**: Cryptographically strong random bytes (length matches requested identifier length)
+1. **Input components**:
+   - **Prefix**: One random character (a-z).
+   - **Timestamp**: The Unix timestamp, in ticks.
+   - **Counter**: A session counter. The library initializes the counter with a cryptographic RNG, then increments it.
+   - **Fingerprint**: Host-specific data. This data includes the hostname, the process ID, and environment variables.
+   - **Random data**: Cryptographically strong random bytes. The length matches the requested identifier length.
 
-2. **Hash Computation**: All components except the prefix are hashed using SHA-3 512-bit
+2. **Hash computation**: The library hashes all components except the prefix with SHA-3 512-bit.
 
-3. **Encoding**: Hash is base-36 encoded, then truncated to requested length minus 1, with the random prefix prepended
+3. **Encoding**: The library encodes the hash in base-36. It truncates the result to the requested length minus 1. It prepends the random prefix to the result.
 
 **Example:**
 ```
@@ -215,15 +215,15 @@ bool isEmpty = string.IsNullOrEmpty(defaultId.ToString());
 ```
 
 > [!IMPORTANT]
-> **Technical Details:**
-> - The fingerprint size is variable (depends on hostname length and environment variables)
-> - The random data size matches the requested identifier length
-> - The timestamp precision is in ticks (100-nanosecond intervals), not milliseconds
-> - SHA-3 is the NIST-standardized algorithm (FIPS 202), not the original Keccak submission
+> **Technical details:**
+> - The fingerprint size varies. It depends on the hostname length and the environment variables.
+> - The random data size matches the requested identifier length.
+> - The timestamp precision is in ticks (100-nanosecond intervals). It is not in milliseconds.
+> - SHA-3 is the NIST-standardized algorithm (FIPS 202). It is not the original Keccak submission.
 
 ### CUIDv2 Validation
 
-CUIDv2 validates length during construction:
+`Cuid2` validates the length during construction:
 
 ```csharp
 using Visus.Cuid;
@@ -248,32 +248,32 @@ Cuid2 valid3 = new Cuid2(32);  // Maximum
 ## CUIDv1 (Deprecated)
 
 > [!CAUTION]
-> CUIDv1 has been deprecated for security reasons. Migrate to `Cuid2` for all new projects and security-sensitive applications.
+> CUIDv1 is deprecated for security reasons. Migrate to `Cuid2` for all new projects and for security-sensitive applications.
 
 > [!WARNING]
-> It is possible to derive with a degree of certainty when and where a CUIDv1 was created, making it unsuitable for security-sensitive contexts.
+> An observer can derive, with a degree of certainty, when and where the library created a CUIDv1 value. Do not use CUIDv1 in security-sensitive contexts.
 
 > [!NOTE]
-> Usage of CUIDv1 will emit the compiler warning `VISLIB0001` to encourage migration to CUIDv2.
+> Use of CUIDv1 emits the compiler warning `VISLIB0001`. This warning tells you to migrate to CUIDv2.
 
-`Cuid` is an immutable structure designed for horizontal scaling and binary searches. It provides a sortable, "string-safe" alternative to `Guid` for scenarios where chronological ordering is needed and security is not a primary concern.
+`Cuid` is an immutable structure. Use `Cuid` for horizontal scaling and binary searches. `Cuid` provides a sortable, string-safe alternative to `Guid`. Use `Cuid` when you need chronological order and security is not a primary concern.
 
 ### Security Considerations
 
-CUIDv1 should be avoided when:
-- Security or privacy is a concern
-- Hiding generation time/location is important
-- Identifiers are exposed in URLs or public APIs
-- Compliance requires non-predictable identifiers
+Do not use CUIDv1 in these cases:
+- Security or privacy is a concern.
+- You must hide the generation time or location.
+- The application exposes identifiers in URLs or public APIs.
+- Compliance rules require non-predictable identifiers.
 
-CUIDv1 may be acceptable for:
-- Internal identifiers in controlled environments
-- Legacy system compatibility
-- Applications where sortability is critical and security is not
+You may use CUIDv1 in these cases:
+- The identifiers are internal, in a controlled environment.
+- You need compatibility with a legacy system.
+- Sortability is critical, and security is not a concern.
 
 ### CUIDv1 Structure
 
-CUIDv1 values are composed of several data points, base-36 encoded to a fixed 25-character length:
+A CUIDv1 value has several data points. The library base-36 encodes the value to a fixed length of 25 characters.
 
 **Example:**
 ```
@@ -288,7 +288,7 @@ cmjj07yka00016337xrs9mj24
 | `6337`     | 4      | Client fingerprint (process ID + hostname) |
 | `xrs9mj24` | 8      | Random data (base-36)                      |
 
-**Total Length:** 25 characters
+**Total length:** 25 characters.
 
 ### CUIDv1 Usage
 
@@ -380,7 +380,7 @@ Dictionary<Cuid, string> lookup = new Dictionary<Cuid, string>
 
 ### CUIDv1 Serialization
 
-CUIDv1 provides built-in serialization support for JSON and XML.
+CUIDv1 has built-in serialization support for JSON and XML.
 
 #### JSON Serialization
 
@@ -445,24 +445,24 @@ using (XmlReader xr = XmlReader.Create(sr))
 
 cuid.net targets multiple frameworks for broad compatibility:
 
-| Target Framework | Version                        |
-|------------------|--------------------------------|
-| .NET Standard    | 2.0, 2.1                       |
-| .NET             | 8.0, 10.0                      |
-| .NET Framework   | 4.6.1+ (via .NET Standard 2.0) |
+| Target Framework | Version                          |
+|-------------------|-----------------------------------|
+| .NET Standard      | 2.0, 2.1                          |
+| .NET                | 8.0, 10.0                         |
+| .NET Framework      | 4.6.1 and later (through .NET Standard 2.0) |
 
 > [!NOTE]
-> While .NET Framework 4.6.1 is the minimum supported version, .NET Framework 4.7.2 or later is recommended for optimal .NET Standard 2.0 compatibility.
+> .NET Framework 4.6.1 is the minimum supported version. For best .NET Standard 2.0 compatibility, use .NET Framework 4.7.2 or later.
 
 ### Platform-Specific Features
 
-**C# Language Features:**
-- Uses C# 14 language features with PolySharp for older frameworks
-- Conditional compilation for framework-specific APIs
+**C# language features:**
+- The library uses C# 14 language features. It uses PolySharp to support older frameworks.
+- The library uses conditional compilation for framework-specific APIs.
 
-**Trimming Support:**
-- Optimized for .NET 8+ trimming (`IsTrimmable=true`)
-- Reduced deployment size for self-contained applications
+**Trimming support:**
+- The library is optimized for .NET 8+ trimming (`IsTrimmable=true`).
+- Trimming reduces the deployment size for self-contained applications.
 
 **Dependencies:**
 
@@ -479,30 +479,30 @@ cuid.net targets multiple frameworks for broad compatibility:
 
 ### CUIDv2 Performance
 
-CUIDv2 uses cryptographic operations (SHA-3 512-bit) for security, which has performance implications:
+CUIDv2 uses cryptographic operations (SHA-3 512-bit) for security. These operations affect performance.
 
-**Generation Speed:**
-- ~100,000-500,000 identifiers per second (single-threaded)
-- Performance varies by platform and .NET version
-- Suitable for most application scenarios
+**Generation speed:**
+- The library generates 100,000 to 500,000 identifiers per second, single-threaded.
+- Performance varies by platform and .NET version.
+- This speed is suitable for most application scenarios.
 
-**Memory Allocation:**
-- Minimal heap allocations (struct type)
-- Stackalloc usage on .NET 8+ for better performance
-- Suitable for high-throughput scenarios
+**Memory allocation:**
+- `Cuid2` is a struct type. It allocates minimal heap memory.
+- On .NET 8 and later, the library uses `stackalloc` for better performance.
+- This behavior is suitable for high-throughput scenarios.
 
-**Optimization Tips:**
-- Generate identifiers asynchronously in batches if needed
-- Consider caching if generating many identifiers rapidly
-- Use shorter lengths (4-10 chars) for non-security contexts
+**Optimization tips:**
+- Generate identifiers asynchronously, in batches, when you need many identifiers.
+- Cache identifiers if you generate many of them rapidly.
+- Use shorter lengths (4-10 characters) for non-security contexts.
 
 ### CUIDv1 Performance
 
-CUIDv1 is faster than CUIDv2 due to simpler generation:
+CUIDv1 generation is simpler than CUIDv2 generation. CUIDv1 is faster.
 
-**Generation Speed:**
-- ~1,000,000+ identifiers per second (single-threaded)
-- Minimal CPU overhead
+**Generation speed:**
+- The library generates over 1,000,000 identifiers per second, single-threaded.
+- CUIDv1 generation has minimal CPU overhead.
 
 **Trade-offs:**
-- Faster generation vs. security (CUIDv2 is recommended)
+- CUIDv1 is faster than CUIDv2. CUIDv2 is more secure. Use `Cuid2` unless you have a specific reason to use `Cuid`.

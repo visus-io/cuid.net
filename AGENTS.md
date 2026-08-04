@@ -1,17 +1,16 @@
 # AGENTS.md — cuid.net
 
-Developer and AI-agent guide for working in this repository.
+Developer and AI-agent guide for this repository.
+This document follows the ASD-STE100 (Simplified Technical English) style: short sentences, one instruction per sentence, active voice.
+
+@ARCHITECTURE.md
 
 ---
 
 ## Project Overview
 
-**cuid.net** is a .NET library providing collision-resistant unique identifiers (CUIDs) for horizontal scalability and security in distributed environments. It ships two identifier types:
-
-| Type    | Status                      | Description                                                                                       |
-|---------|-----------------------------|---------------------------------------------------------------------------------------------------|
-| `Cuid2` | **Recommended**             | Cryptographically strong, variable length (4–32 chars, default 24), SHA-3 512-bit hashing, opaque |
-| `Cuid`  | **Deprecated** (VISLIB0001) | Sortable 25-char identifier with timestamp leakage; kept for backward compatibility               |
+**cuid.net** is a .NET library. It generates collision-resistant unique identifiers (CUIDs) for distributed systems.
+The library ships two identifier types, `Cuid2` (recommended) and `Cuid` (deprecated).
 
 NuGet package: [`cuid.net`](https://www.nuget.org/packages/cuid.net)
 GitHub repository: `https://github.com/visus-io/cuid.net`
@@ -54,6 +53,7 @@ cuid.net/
 ├── nuget.config                    # Single NuGet source: nuget.org
 ├── cuid.net.slnx                   # Solution file
 ├── README.md                       # User-facing documentation
+├── ARCHITECTURE.md                 # Internal design and construction pipeline
 ├── CONTRIBUTING.md                 # Contribution guide
 └── SECURITY.md                     # Security policy
 ```
@@ -62,8 +62,8 @@ cuid.net/
 
 ## Prerequisites
 
-- **.NET SDK 10.0+** — version is pinned in `global.json`; `dotnet --version` must match
-- **Windows** recommended — CI runs on Windows to cover the `net48` target; most work builds fine on macOS/Linux for `net8.0`/`net10.0`
+- **.NET SDK 10.0+**. The version is pinned in `global.json`. Run `dotnet --version` to check the match.
+- **Windows** is the recommended platform. CI runs on Windows to cover the `net48` target. Most work also builds on macOS and Linux for `net8.0` and `net10.0`.
 
 ---
 
@@ -96,44 +96,6 @@ dotnet pack -c release --no-restore --no-build
 
 ---
 
-## Architecture
-
-### Cuid2 (recommended)
-
-`src/cuid.net/Cuid2.cs` — immutable `readonly struct` implementing `IEquatable<Cuid2>`.
-
-Construction pipeline:
-1. Capture `DateTimeOffset.UtcNow` ticks as `_timestamp`
-2. Increment a process-local atomic counter (`Counter`, lazy singleton via `Interlocked.Increment`)
-3. Fetch process fingerprint (`Fingerprint.Generate()` — hostname + PID + env vars, cached in `Context.IdentityFingerprint`)
-4. Generate a random alphabetic prefix via `Utils.GenerateCharacterPrefix()`
-5. Generate random bytes via `Utils.GenerateRandom(maxLength)`
-6. Hash timestamp + counter + fingerprint + random bytes with **SHA-3 512-bit** (BouncyCastle)
-7. Encode result with base-36 (`Utils.Encode`), prepend prefix, truncate to `maxLength`
-
-```csharp
-Cuid2 id = new();            // default length 24
-Cuid2 id = new(32);          // custom length 4–32
-string s  = id.ToString();
-```
-
-### Cuid (deprecated)
-
-`src/cuid.net/Cuid.cs` — `readonly struct` implementing `IComparable<Cuid>`, `IEquatable<Cuid>`, JSON/XML serialization. Emits compiler diagnostic `VISLIB0001` on any usage. Do not use for new code; support only for migration.
-
-### Supporting types
-
-| File                      | Role                                                                                                             |
-|---------------------------|------------------------------------------------------------------------------------------------------------------|
-| `Fingerprint.cs`          | Generates v1/v2 host fingerprints; v2 uses SHA-3 over hostname + PID + env                                       |
-| `Utils.cs`                | `Encode(byte[])` — BigInteger base-36; `GenerateRandom()` — `RandomNumberGenerator`; `GenerateCharacterPrefix()` |
-| `Obsoletions.cs`          | Defines `DiagnosticId = "VISLIB0001"` and the associated message constant                                        |
-| `StringExtensions.cs`     | `TrimPad` / `WriteTo` — zero-allocation helpers                                                                  |
-| `FingerprintVersion` enum | `None = 0`, `One = 1`, `Two = 2`                                                                                 |
-| `CuidConverter.cs`        | `System.Text.Json` converter for `Cuid` (v1 only)                                                                |
-
----
-
 ## Code Conventions
 
 Follow `.editorconfig` exactly. Key rules:
@@ -141,17 +103,17 @@ Follow `.editorconfig` exactly. Key rules:
 - **Language version**: C# 14
 - **Indentation**: 4 spaces (2 for `.json`, `.props` files)
 - **Line endings**: LF
-- **No `var`** — explicit types required everywhere
-- **Private fields**: `_camelCase`; public members: `PascalCase`
-- **`readonly` preferred** for fields
-- **Access modifiers required** on all non-interface members
-- **Null-coalescing** and **collection initializers** preferred
-- **XML doc comments** on every public API member
-- **`[MethodImpl(AggressiveInlining)]`** on hot-path internal methods
-- **`stackalloc` / `Span<T>`** for temporary buffers — avoid heap allocations in hot paths
-- **`#if NETSTANDARD`** guards for APIs missing in netstandard2.0/2.1 (e.g., `DateTimeOffset.UnixEpoch`)
-- **`CommunityToolkit.Diagnostics.Guard`** for all parameter validation (no manual `if`/`throw`)
-- Use `readonly struct` for value types; implement `IEquatable<T>` and override `GetHashCode`
+- **No `var`**. Use explicit types everywhere.
+- **Private fields**: `_camelCase`. Public members: `PascalCase`.
+- Prefer `readonly` for fields.
+- Add access modifiers on all non-interface members.
+- Prefer null-coalescing operators and collection initializers.
+- Add XML doc comments on every public API member.
+- Add `[MethodImpl(AggressiveInlining)]` on hot-path internal methods.
+- Use `stackalloc` and `Span<T>` for temporary buffers. Avoid heap allocations in hot paths.
+- Guard APIs missing from netstandard2.0/2.1 with `#if NETSTANDARD` (for example, `DateTimeOffset.UnixEpoch`).
+- Use `CommunityToolkit.Diagnostics.Guard` for all parameter validation. Do not write manual `if`/`throw` checks.
+- Use `readonly struct` for value types. Implement `IEquatable<T>` and override `GetHashCode`.
 
 ---
 
@@ -159,31 +121,31 @@ Follow `.editorconfig` exactly. Key rules:
 
 Framework: **TUnit** + **AwesomeAssertions** + **Verify** (snapshot)
 
-- Tests target `net48`, `net8.0`, `net10.0` — all must pass
-- `[Property("Category", "…")]` groups tests (e.g., `"Comparison"`, `"Construction"`)
-- `[Arguments(…)]` for parameterized cases
-- Collision-resistance tests run **10 000 iterations** concurrently
-- `ApiTests.cs` uses **PublicApiGenerator** to snapshot the public API surface — if you make intentional API changes, regenerate the snapshot with `dotnet test` after updating the `.verified.txt` files
+- Tests target `net48`, `net8.0`, and `net10.0`. All three must pass.
+- Group tests with `[Property("Category", "…")]` (for example, `"Comparison"`, `"Construction"`).
+- Use `[Arguments(…)]` for parameterized cases.
+- Run collision-resistance tests for **10 000 iterations**, concurrently.
+- `ApiTests.cs` uses **PublicApiGenerator** to snapshot the public API surface. After an intentional API change, regenerate the snapshot: run `dotnet test`, then update the `.verified.txt` files.
 
-When adding a new public API:
-1. Implement with full XML doc comments
-2. Add unit tests covering construction, equality, edge cases
-3. Run `dotnet test` — `ApiTests` will fail; accept the new snapshot
+When you add a new public API:
+1. Implement it with full XML doc comments.
+2. Add unit tests. Cover construction, equality, and edge cases.
+3. Run `dotnet test`. `ApiTests` fails on the first run. Accept the new snapshot.
 
 ---
 
 ## Dependency Management
 
-- Versions are **centralized** in `Directory.Packages.props` — never set a `Version` attribute in individual `.csproj` files
-- `packages.lock.json` is enforced — after any package change run `dotnet restore` to update the lock file and commit it
-- CI runs with `RestoreLockedMode=true`; builds will fail if the lock file is stale
-- Dependency updates are automated via **Renovate** (`renovate.json`)
-- `CentralPackageTransitivePinningEnabled=true` — transitive versions are pinned
+- Versions are **centralized** in `Directory.Packages.props`. Do not set a `Version` attribute in individual `.csproj` files.
+- `packages.lock.json` is enforced. After any package change, run `dotnet restore` to update the lock file, then commit it.
+- CI runs with `RestoreLockedMode=true`. A stale lock file fails the build.
+- **Renovate** (`renovate.json`) automates dependency updates.
+- `CentralPackageTransitivePinningEnabled=true` pins transitive versions.
 
 Key runtime dependencies:
 
 | Package                        | Purpose                                                  |
-|--------------------------------|----------------------------------------------------------|
+|---------------------------------|-----------------------------------------------------------|
 | `BouncyCastle.Cryptography`    | SHA-3 512-bit hashing (Cuid2)                            |
 | `CommunityToolkit.Diagnostics` | Guard clauses / parameter validation                     |
 | `System.Text.Json`             | JSON serialization (netstandard targets only)            |
@@ -193,7 +155,7 @@ Key runtime dependencies:
 
 ## Commit and PR Conventions
 
-Enforced by `.github/workflows/lint_pullrequest.yml`.
+The workflow `.github/workflows/lint_pullrequest.yml` enforces this format.
 
 Format: **Conventional Commits**
 ```
@@ -210,46 +172,45 @@ test: add edge case for minimum length Cuid2
 chore: update BouncyCastle to 2.7.0
 ```
 
-PR title must match the single commit message format. Subject must **not** start with an uppercase letter.
+The PR title must match the single commit message format. The subject must **not** start with an uppercase letter.
 
 ---
 
 ## CI/CD
 
 ### ci.yml (continuous integration)
-- Triggers on push to `main` and all PRs (excludes markdown, `renovate.json`, issue templates)
-- Runs on **Windows** (required for `net48`)
-- Steps: restore → build → test with coverage → SonarCloud upload → publish test results
-- SonarCloud project: `visus:cuid.net` (skipped for bot PRs)
+- Triggers on push to `main` and on all PRs. Excludes markdown files, `renovate.json`, and issue templates.
+- Runs on **Windows** (required to cover `net48`).
+- Steps: restore, build, test with coverage, upload to SonarCloud, publish test results.
+- SonarCloud project: `visus:cuid.net`. Skipped for bot PRs.
 
 ### release.yml
-- Triggered by tag push or manual workflow dispatch
-- Requires `production` environment approval
-- Steps: restore → build with MinVer version → pack → push to nuget.org
+- Triggers on a tag push or a manual workflow dispatch.
+- Requires `production` environment approval.
+- Steps: restore, build with MinVer version, pack, push to nuget.org.
 
 ### lint_pullrequest.yml
-- Validates PR title matches Conventional Commits format
-- Also validates that the single commit on the PR matches the PR title
+- Validates that the PR title matches the Conventional Commits format.
+- Validates that the single commit on the PR matches the PR title.
 
 ---
 
 ## Multi-Targeting Guidelines
 
-The library targets `netstandard2.0`, `netstandard2.1`, `net8.0`, `net10.0`. When adding code:
+The library targets `netstandard2.0`, `netstandard2.1`, `net8.0`, and `net10.0`. When you add code:
 
-- Wrap APIs unavailable on netstandard in `#if NETSTANDARD` / `#if NET8_0_OR_GREATER`
-- `DateTimeOffset.UnixEpoch` — not available in netstandard2.0 (see `Cuid2.cs` pragma pattern)
-- `HashCode` — provided via `Microsoft.Bcl.HashCode` on netstandard targets
-- Prefer APIs from `System.Runtime.InteropServices`, `System.Buffers`, and `System.Security.Cryptography` which have good cross-framework coverage
-- Run tests on all frameworks before submitting: `dotnet test --framework net48 && dotnet test --framework net10.0`
+- Wrap APIs unavailable on netstandard in `#if NETSTANDARD` or `#if NET8_0_OR_GREATER`.
+- `Microsoft.Bcl.HashCode` provides `HashCode` on netstandard targets.
+- Prefer APIs from `System.Runtime.InteropServices`, `System.Buffers`, and `System.Security.Cryptography`. These have good cross-framework coverage.
+- Run tests on all frameworks before you submit: `dotnet test --framework net48 && dotnet test --framework net10.0`.
 
 ---
 
 ## Versioning
 
-- **MinVer** derives version from Git tags (format: `v1.2.3`)
-- Follows Semantic Versioning 2.0:
-  - `MAJOR` — breaking API changes (requires `PublicApiGenerator` snapshot updates)
-  - `MINOR` — new backward-compatible features
-  - `PATCH` — bug fixes
-- Only maintainers push release tags; do not create tags manually
+- **MinVer** derives the version from Git tags (format: `v1.2.3`).
+- The project follows Semantic Versioning 2.0:
+  - `MAJOR` — breaking API changes. Requires `PublicApiGenerator` snapshot updates.
+  - `MINOR` — new backward-compatible features.
+  - `PATCH` — bug fixes.
+- Only maintainers push release tags. Do not create tags manually.
