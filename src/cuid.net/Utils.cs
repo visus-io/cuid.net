@@ -1,14 +1,11 @@
 ﻿namespace Visus.Cuid;
 
 using System.Buffers.Binary;
-using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 
 internal static class Utils
 {
-    private static readonly BigInteger BigRadix = new(36);
-
     private static readonly double BitsPerDigit = Math.Log(36, 2);
 
     private const int Radix = 36;
@@ -46,26 +43,29 @@ internal static class Utils
             return string.Empty;
         }
 
+        int limbCount = ( value.Length + 3 ) / 4;
+
+        Span<uint> limbs = stackalloc uint[limbCount];
+
+        PackLimbs(value, limbs);
+
         int length = (int)Math.Ceiling(value.Length * 8 / BitsPerDigit);
         int i = length;
 
         Span<char> buffer = stackalloc char[length];
 
-#if NETSTANDARD2_0
-        byte[] unsigned = new byte[value.Length + 1];
-        value.CopyTo(unsigned);
+        int end = limbCount;
 
-        BigInteger d = new(unsigned);
-#else
-        BigInteger d = new(value, true);
-#endif
-
-        while ( !d.IsZero )
+        while ( end > 0 )
         {
-            d = BigInteger.DivRem(d, BigRadix, out BigInteger r);
-            int c = (int)r;
+            int digit = DivModRadix(limbs, ref end);
 
-            buffer[--i] = (char)( c is >= 0 and <= 9 ? c + 48 : c + 'a' - 10 );
+            buffer[--i] = (char)( digit is >= 0 and <= 9 ? digit + 48 : digit + 'a' - 10 );
+        }
+
+        if ( length - i == 1 && buffer[i] == '0' )
+        {
+            return string.Empty;
         }
 
 #if NETSTANDARD2_0
@@ -131,5 +131,47 @@ internal static class Utils
 #else
         return RandomNumberGenerator.GetBytes(length);
 #endif
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static int DivModRadix(Span<uint> limbs, ref int end)
+    {
+        ulong remainder = 0;
+        int newEnd = 0;
+
+        for ( int j = end - 1; j >= 0; j-- )
+        {
+            ulong acc = ( remainder << 32 ) | limbs[j];
+            uint q = (uint)( acc / Radix );
+            
+            limbs[j] = q;
+            remainder = acc % Radix;
+
+            if ( q != 0 && newEnd == 0 )
+            {
+                newEnd = j + 1;
+            }
+        }
+
+        end = newEnd;
+        return (int)remainder;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void PackLimbs(ReadOnlySpan<byte> value, Span<uint> limbs)
+    {
+        for ( int limbIndex = 0; limbIndex < limbs.Length; limbIndex++ )
+        {
+            int byteOffset = limbIndex * 4;
+            int limbByteCount = Math.Min(4, value.Length - byteOffset);
+            uint limb = 0;
+
+            for ( int b = 0; b < limbByteCount; b++ )
+            {
+                limb |= (uint)value[byteOffset + b] << ( 8 * b );
+            }
+
+            limbs[limbIndex] = limb;
+        }
     }
 }

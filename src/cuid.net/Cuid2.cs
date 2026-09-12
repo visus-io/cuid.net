@@ -14,6 +14,9 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
 {
     private const int DefaultLength = 24;
 
+    [ThreadStatic]
+    private static Sha3Digest _digest;
+
     private readonly long _counter;
 
     private readonly byte[] _fingerprint;
@@ -164,6 +167,11 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
         return _value ?? new string('0', DefaultLength);
     }
 
+    private static Sha3Digest GetOrCreateDigest()
+    {
+        return _digest ??= new Sha3Digest(512);
+    }
+
     private string ComputeValue()
     {
         Span<byte> buffer = stackalloc byte[16];
@@ -171,16 +179,24 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
         BinaryPrimitives.WriteInt64LittleEndian(buffer[..8], _timestamp);
         BinaryPrimitives.WriteInt64LittleEndian(buffer[^8..], _counter);
 
-        Sha3Digest digest = new(512);
+        Sha3Digest digest = GetOrCreateDigest();
 
+#if NETSTANDARD
         digest.BlockUpdate(buffer.ToArray(), 0, buffer.Length);
         digest.BlockUpdate(_fingerprint, 0, _fingerprint.Length);
         digest.BlockUpdate(_random, 0, _random.Length);
 
-        int hashLength = digest.GetByteLength();
-        byte[] hash = new byte[hashLength];
-
+        byte[] hash = new byte[digest.GetDigestSize()];
         digest.DoFinal(hash, 0);
+#else
+        digest.BlockUpdate(buffer);
+        digest.BlockUpdate(_fingerprint);
+        digest.BlockUpdate(_random);
+
+        Span<byte> hash = stackalloc byte[digest.GetDigestSize()];
+        digest.DoFinal(hash);
+#endif
+
         return _prefix + Utils.Encode(hash)[..( _maxLength - 1 )];
     }
 
