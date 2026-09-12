@@ -1,4 +1,5 @@
 ﻿[assembly: System.Resources.NeutralResourcesLanguage("en")]
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("cuid.net.tests")]
 namespace Visus.Cuid
 {
     [System.Text.Json.Serialization.JsonConverter(typeof(Visus.Cuid.Serialization.Json.Converters.CuidConverter))]
