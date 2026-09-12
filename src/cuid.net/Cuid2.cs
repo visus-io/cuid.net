@@ -186,14 +186,14 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
         digest.BlockUpdate(_fingerprint, 0, _fingerprint.Length);
         digest.BlockUpdate(_random, 0, _random.Length);
 
-        byte[] hash = new byte[digest.GetByteLength()];
+        byte[] hash = new byte[digest.GetDigestSize()];
         digest.DoFinal(hash, 0);
 #else
         digest.BlockUpdate(buffer);
         digest.BlockUpdate(_fingerprint);
         digest.BlockUpdate(_random);
 
-        Span<byte> hash = stackalloc byte[digest.GetByteLength()];
+        Span<byte> hash = stackalloc byte[digest.GetDigestSize()];
         digest.DoFinal(hash);
 #endif
 
