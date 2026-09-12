@@ -1,5 +1,6 @@
 namespace Visus.Cuid.Tests;
 
+using System.Numerics;
 using AwesomeAssertions;
 
 internal sealed class UtilsTests
@@ -203,6 +204,43 @@ internal sealed class UtilsTests
 
     [Test]
     [Property("Category", "Encoding")]
+    public void Encode_WithMaxByteValues_ShouldMatchIndependentBase36Reference()
+    {
+        byte[] value = new byte[64];
+
+        for ( int i = 0; i < value.Length; i++ )
+        {
+            value[i] = byte.MaxValue;
+        }
+
+        string expected = EncodeWithBigIntegerReference(value);
+        string result = Utils.Encode(value);
+
+        result.Should().Be(expected);
+    }
+
+    [Test]
+    [Property("Category", "Encoding")]
+    #pragma warning disable CA5394 // Random is fine for generating deterministic test data
+    public void Encode_WithSha3DigestSizedInput_ShouldMatchIndependentBase36Reference()
+    {
+        Random random = new(2026);
+
+        for ( int iteration = 0; iteration < RoundTripIterations; iteration++ )
+        {
+            byte[] value = new byte[64];
+            random.NextBytes(value);
+
+            string expected = EncodeWithBigIntegerReference(value);
+            string result = Utils.Encode(value);
+
+            result.Should().Be(expected);
+        }
+    }
+    #pragma warning restore CA5394
+
+    [Test]
+    [Property("Category", "Encoding")]
     #pragma warning disable CA5394 // Random is fine for generating deterministic test data
     public void Encode_WithRandomBytes_ShouldRoundTripThroughDecodeUlong()
     {
@@ -295,5 +333,34 @@ internal sealed class UtilsTests
         byte[] result = Utils.GenerateRandom();
 
         result.Should().HaveCount(8);
+    }
+
+    /// <summary>
+    /// Encodes a little-endian byte span to base-36 using <see cref="BigInteger" />, independently
+    /// of <see cref="Utils.Encode(ReadOnlySpan{byte})" />, to validate multi-limb inputs such as the
+    /// 64-byte SHA-3 512 digest that <c>Cuid2</c> encodes.
+    /// </summary>
+    private static string EncodeWithBigIntegerReference(byte[] littleEndianValue)
+    {
+        byte[] unsigned = new byte[littleEndianValue.Length + 1];
+        Array.Copy(littleEndianValue, unsigned, littleEndianValue.Length);
+
+        BigInteger magnitude = new(unsigned);
+
+        if ( magnitude.IsZero )
+        {
+            return string.Empty;
+        }
+
+        const string digits = "0123456789abcdefghijklmnopqrstuvwxyz";
+        System.Text.StringBuilder builder = new();
+
+        while ( magnitude > 0 )
+        {
+            builder.Insert(0, digits[(int)( magnitude % 36 )]);
+            magnitude /= 36;
+        }
+
+        return builder.ToString();
     }
 }
