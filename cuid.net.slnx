@@ -27,6 +27,9 @@
     <File Path="renovate.json" />
     <File Path="SECURITY.md" />
   </Folder>
+  <Folder Name="/benchmarks/">
+    <Project Path="benchmarks/cuid.net.benchmarks/cuid.net.benchmarks.csproj" />
+  </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/cuid.net.tests/cuid.net.tests.csproj" />
   </Folder>
