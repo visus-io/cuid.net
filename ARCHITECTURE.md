@@ -1,37 +1,110 @@
 # ARCHITECTURE.md — cuid.net
 
 This document describes the internal design of the cuid.net library.
+Read it before you change `Cuid2`, `Cuid`, or any of their supporting types.
 
 ---
 
-## Type comparison
+## Solution Layout
+
+The library lives entirely in `src/cuid.net/`. The layout is flat by design:
+
+```
+src/cuid.net/
+├── Cuid2.cs                            Recommended CUID type (CUIDv2)
+├── Cuid.cs                             Deprecated CUID type (CUIDv1, VISLIB0001)
+├── Fingerprint.cs                      Host-identity generation, both fingerprint versions
+├── Utils.cs                            Base-36 encode/decode, random-byte generation
+├── Obsoletions.cs                      Shared diagnostic ID and message for obsoleted APIs
+├── Abstractions/
+│   └── FingerprintVersion.cs           Enum: None, One (Cuid), Two (Cuid2)
+├── Extensions/
+│   └── StringExtensions.cs             Zero-allocation TrimPad/WriteTo span helpers
+└── Serialization/
+    └── Json/Converters/
+        └── CuidConverter.cs            System.Text.Json converter for Cuid (v1 only)
+```
+
+`Cuid2` and `Cuid` do not depend on each other. Each type owns its full
+pipeline: timestamp capture, counter, fingerprint, random bytes, and
+assembly into a string. They share only `Fingerprint.cs` and `Utils.cs`.
+
+---
+
+## Type Comparison
 
 The library ships two identifier types:
 
 | Type    | Status                      | Description                                                                                                   |
 |---------|------------------------------|------------------------------------------------------------------------------------------------------------------|
-| `Cuid2` | **Recommended**              | Cryptographically strong. Variable length (4–32 characters, default 24). Uses SHA-3 512-bit hashing. Opaque.    |
-| `Cuid`  | **Deprecated** (`VISLIB0001`) | Sortable, 25 characters. Leaks the creation timestamp. Kept only for backward compatibility.                    |
+| `Cuid2` | **Recommended**              | It is cryptographically strong. Its length varies from 4 to 32 characters (default 24). It uses SHA-3 512-bit hashing. Its value is opaque. |
+| `Cuid`  | **Deprecated** (`VISLIB0001`) | It is sortable and always 25 characters. It leaks the creation timestamp. The library keeps it only for backward compatibility. |
 
 ---
 
 ## Cuid2 (recommended)
 
-`Cuid2` is an immutable `readonly struct`. It implements `IEquatable<Cuid2>`.
+`Cuid2` is an immutable `readonly struct` with `[StructLayout(LayoutKind.Sequential)]`.
+It implements `IEquatable<Cuid2>`. The constructor sets every field once.
 The implementation is in `src/cuid.net/Cuid2.cs`.
 
-### Construction pipeline
+### Construction Pipeline
 
 The constructor builds an identifier in six steps:
 
-1. Capture `DateTimeOffset.UtcNow` ticks. Store the value in `_timestamp`.
-2. Increment a process-local atomic counter. The counter is a lazy singleton. It uses `Interlocked.Increment`.
-3. Fetch the process fingerprint from `Fingerprint.Generate()`. The fingerprint combines the hostname, the process ID, and environment variables. The result is cached in `Context.IdentityFingerprint`.
-4. Generate a random alphabetic prefix with `Utils.GenerateCharacterPrefix()`.
-5. Generate random bytes with `Utils.GenerateRandom(maxLength)`.
-6. Hash the timestamp, the counter, the fingerprint, and the random bytes together. Use SHA-3 512-bit (BouncyCastle). Encode the hash in base-36 with `Utils.Encode`. Prepend the prefix. Truncate the result to `maxLength`.
+```mermaid
+flowchart TD
+    A["Capture DateTimeOffset.UtcNow\nas ticks since the Unix epoch\n(store in _timestamp)"]
+    B["Increment the process-local Counter\n(lazy singleton, Interlocked.Increment,\nseeded once from random bytes)"]
+    C["Fetch the cached process fingerprint\nContext.IdentityFingerprint\n(Fingerprint.Generate(), computed once)"]
+    D["Generate a random alphabetic prefix\nUtils.GenerateCharacterPrefix()"]
+    E["Generate maxLength random bytes\nUtils.GenerateRandom(maxLength)"]
+    F["Hash timestamp + counter + fingerprint + random\nwith SHA-3 512 (BouncyCastle)"]
+    G["Base-36 encode the hash, prepend the prefix,\ntruncate to maxLength"]
 
-`DateTimeOffset.UnixEpoch` is not available in netstandard2.0. `Cuid2.cs` guards this API with a pragma pattern (`#if NETSTANDARD`).
+    A --> F
+    B --> F
+    C --> F
+    D --> G
+    E --> F
+    F --> G
+```
+
+Step order in code:
+
+1. Capture the timestamp.
+2. Increment the counter.
+3. Fetch the fingerprint.
+4. Generate the prefix.
+5. Generate the random bytes.
+6. Hash the timestamp, counter, fingerprint, and random bytes. Encode the result.
+
+The diagram groups steps by the value they feed into, not by execution order.
+
+### Performance Details
+
+`Cuid2` reuses one `[ThreadStatic] Sha3Digest` instance per thread. It does
+not allocate a new digest on every call. On `net8.0` and `net10.0`, hashing
+runs on `Span<byte>` buffers. `stackalloc` provides the 16-byte
+timestamp/counter block and the hash-output buffer. The netstandard targets
+fall back to array-based `BlockUpdate`/`DoFinal` overloads. `Span<T>`
+overloads are not available there. `Cuid2` computes the process fingerprint
+once per process. It caches the fingerprint in a nested static class,
+`Context.IdentityFingerprint`. Every `Cuid2` instance reads the cached value.
+It does not recompute the fingerprint.
+
+### Equality
+
+`Equals` checks the four scalar fields first (`_counter`, `_maxLength`,
+`_prefix`, `_timestamp`). It returns `false` immediately on any mismatch. If
+all scalars match, `Equals` compares the two byte arrays (`_fingerprint`,
+`_random`). It uses `ReferenceEquals` as a fast path, then falls back to
+`SequenceEqual`. A `default(Cuid2)` has null arrays. `Equals` treats two
+default instances as equal. It treats a default instance as unequal to any
+constructed instance.
+
+`DateTimeOffset.UnixEpoch` is not available in netstandard2.0. `Cuid2.cs`
+guards this API with `#if NETSTANDARD` and computes the epoch manually.
 
 ### Usage
 
@@ -45,21 +118,161 @@ string s  = id.ToString();
 
 ## Cuid (deprecated)
 
-`Cuid` is a `readonly struct`. It implements `IComparable<Cuid>` and `IEquatable<Cuid>`. It supports JSON and XML serialization.
+`Cuid` is a `readonly struct`. It implements `IComparable`, `IComparable<Cuid>`,
+`IEquatable<Cuid>`, and `IXmlSerializable`. `CuidConverter` handles JSON
+serialization. `[XmlRoot("cuid")]` handles XML serialization.
 The implementation is in `src/cuid.net/Cuid.cs`.
 
-`Cuid` emits compiler diagnostic `VISLIB0001` on every use.
-Do not use `Cuid` in new code. The type exists only to support migration from earlier versions.
+`Cuid` carries `[Obsolete(Obsoletions.CuidMessage, DiagnosticId = Obsoletions.CuidDiagId)]`.
+The compiler emits diagnostic `VISLIB0001` for every use.
+Do not use `Cuid` in new code. The type exists only to support migration from
+earlier versions.
+
+### Construction Pipeline
+
+`NewCuid()` builds a fixed 25-character value:
+
+1. Capture the timestamp at 10-microsecond precision (`ticks / 10000`). This
+   fits in 8 base-36 characters.
+2. Read the next `Counter` value. This counter differs from `Cuid2`'s
+   counter: it wraps to zero after `36^4` discrete values. It always fits in
+   4 base-36 characters.
+3. Fetch the cached legacy fingerprint (`FingerprintVersion.One`). This is a
+   4-character value. The library derives it from the process ID and a
+   checksum of the machine name. It differs from the fingerprint `Cuid2`
+   uses.
+4. Generate a random value and reduce it modulo `MaxRandomValue`
+   (`36^8 − 1`). The result fits in 8 base-36 characters.
+5. Assemble the fixed layout with zero-allocation span writes
+   (`TrimPad`/`WriteTo`). The order is: the literal prefix `c`, the
+   8-character timestamp, the 4-character counter, the 4-character
+   fingerprint, and the 8-character random value.
+
+### Parsing
+
+`Parse`, `TryParse`, and the `Cuid(string)` constructor all route through
+`TryParseCuid`. It rejects the string in three cases: the string is not
+exactly 25 characters, the string does not start with `c`, or the string
+contains an uppercase or non-alphanumeric character. On success, it slices
+the five fixed-width segments out of the string. It decodes each segment
+with `Utils.Decode` or `Utils.DecodeUlong`.
+
+### Ordering
+
+`CompareTo` does not compare CUID strings lexically. It compares `_counter`
+first, then `_random`, then `_timestamp`. It returns the first non-zero
+result.
 
 ---
 
-## Supporting types
+## Fingerprint Generation
+
+`Fingerprint.Generate(FingerprintVersion)` produces the host-identity bytes
+that both `Cuid2` and `Cuid` mix into their hash. Each type uses a different
+version. The library computes each fingerprint once per process and caches
+the result.
+
+- **Version Two** (used by `Cuid2`) combines three values: the system name,
+  the cached process ID, and the cached, sorted, concatenated environment
+  variables. The system name normally comes from `Environment.MachineName`.
+  If the machine name is unavailable, the library falls back to a random
+  32-byte hex string, truncated to 15 characters on Windows. The library
+  packs all three values into one buffer and uses that buffer directly as
+  the fingerprint bytes.
+- **Version One** (used by `Cuid`) is a 4-character value. The library
+  computes it from the process ID and an integer checksum of the machine
+  name. This format exists only to keep `Cuid`'s 25-character wire format
+  stable. New code must use Version Two, through `Cuid2`.
+
+The library computes the environment-variable snapshot once and caches it in
+a `Lazy<byte[]>`. It computes the process ID once and caches it in a static
+readonly field. Repeated `Cuid2` or `Cuid` construction does not repeat this
+work.
+
+---
+
+## Supporting Types
 
 | File                      | Role                                                                                                              |
 |---------------------------|---------------------------------------------------------------------------------------------------------------------|
-| `Fingerprint.cs`          | Generates v1 and v2 host fingerprints. Version 2 hashes the hostname, the process ID, and environment variables with SHA-3. |
-| `Utils.cs`                | `Encode(byte[])` encodes a `BigInteger` in base-36. `GenerateRandom()` produces random bytes with `RandomNumberGenerator`. `GenerateCharacterPrefix()` produces the random alphabetic prefix. |
-| `Obsoletions.cs`          | Defines the `DiagnosticId` constant `"VISLIB0001"` and the associated message.                                     |
-| `StringExtensions.cs`     | Defines `TrimPad` and `WriteTo`. Both are zero-allocation helpers.                                                 |
-| `FingerprintVersion` enum | Defines three values: `None = 0`, `One = 1`, `Two = 2`.                                                            |
-| `CuidConverter.cs`        | A `System.Text.Json` converter for `Cuid` (version 1 only).                                                        |
+| `Fingerprint.cs`          | Generates Version One and Version Two host fingerprints. See [Fingerprint Generation](#fingerprint-generation).    |
+| `Utils.cs`                | `Encode` base-36 encodes a byte span or a `ulong`. `Decode`/`DecodeUlong` reverse the encoding. `GenerateRandom()` produces random bytes with `RandomNumberGenerator`. `GenerateCharacterPrefix()` produces the random lowercase-alphabetic prefix used by `Cuid2`. |
+| `Obsoletions.cs`          | Defines the `DiagnosticId` constant `"VISLIB0001"` and the associated obsoletion message. Every future deprecation should reuse this pattern instead of inlining a new diagnostic ID. |
+| `Extensions/StringExtensions.cs` | Defines `TrimPad` and `WriteTo`. Both are internal, zero-allocation span helpers. `Cuid`'s netstandard2.0 construction path and `Fingerprint`'s legacy identity path use them to avoid `string.Create`, which is unavailable there. |
+| `Abstractions/FingerprintVersion.cs` | Internal enum: `None = 0`, `One = 1` (used by `Cuid`), `Two = 2` (used by `Cuid2`, and the default parameter value on `Fingerprint.Generate`). |
+| `Serialization/Json/Converters/CuidConverter.cs` | A `System.Text.Json` `JsonConverter<Cuid>`. It reads an empty or null string as `Cuid.Empty`. It writes `Cuid.Empty` as JSON `null`. It applies to `Cuid` (version 1) only. `Cuid2` needs no converter. `Cuid2` already serializes as a plain string. |
+
+---
+
+## Multi-Targeting
+
+The library targets `netstandard2.0`, `netstandard2.1`, `net8.0`, and
+`net10.0` (`src/cuid.net/cuid.net.csproj`). `net8.0` and `net10.0` set
+`IsTrimmable`.
+
+Wrap any code that depends on an API missing from a target framework. Use
+`#if NETSTANDARD` for both netstandard versions, or `#if NETSTANDARD2_0` for
+netstandard2.0 only. The library guards `DateTimeOffset.UnixEpoch`,
+`string.Create`, and `Convert.ToHexString` this way, with a manual or
+array-based fallback on the older target.
+
+`Microsoft.Bcl.HashCode` supplies `HashCode` on the netstandard targets.
+`PolySharp` supplies compile-time language polyfills on the netstandard
+targets. These two packages exist only to backfill APIs there. The `net8.0`
+and `net10.0` targets do not reference either package. The runtime already
+provides both types there.
+
+---
+
+## Testing Strategy
+
+Tests live in one project, `tests/cuid.net.tests/cuid.net.tests.csproj`. It
+multi-targets `net48`, `net8.0`, and `net10.0`. It uses **TUnit**,
+**AwesomeAssertions**, and **Verify** (snapshot testing). All three target
+frameworks must pass before you merge a change.
+
+- **`Cuid2Tests.cs`**, **`CuidTests.cs`**, and **`UtilsTests.cs`** group
+  cases with `[Property("Category", "…")]` (for example, `"Construction"`,
+  `"Comparison"`, `"Serialization"`, `"Encoding"`, `"Decoding"`, and
+  `"Random"`). They use `[Arguments(…)]` for parameterized cases.
+- `Cuid2Tests.cs` tests collision resistance with `Parallel.For` over 10,000
+  iterations (`HighConcurrencyIterations`). The test asserts that every
+  generated value is unique. This exercises the process-local counter and
+  the cached fingerprint under concurrent construction. See
+  [Cuid2's performance details](#performance-details) and
+  [Fingerprint Generation](#fingerprint-generation) for the caching this
+  test relies on.
+- **`ApiTests.cs`** generates the full public API surface with
+  **PublicApiGenerator**. It compares the surface against the committed
+  `ApiTests.PublicApi_HasNoBreakingChanges_Async.verified.txt` snapshot,
+  using **Verify**. This is the project's guard against accidental breaking
+  changes. After an intentional API change:
+  1. Run `dotnet test`. The test fails once.
+  2. Accept the new snapshot.
+
+---
+
+## Cross-Cutting Concerns
+
+### Central Package Management
+
+All NuGet version pins live in `Directory.Packages.props`. No `.csproj` in
+this repository sets a `Version` attribute on a `PackageReference`. This
+keeps the library project, the test project, and the benchmarks project on
+identical package versions. Renovate opens the update pull requests.
+
+### Code Style and Analysis
+
+`Directory.Build.props` sets `AnalysisMode` to `AllEnabledByDefault` and
+`AnalysisLevel` to `latest`. It also sets `EnforceCodeStyleInBuild` and
+`GenerateDocumentationFile` to `true`. `.editorconfig` enforces the detailed
+style rules described in `AGENTS.md` (no `var`, explicit access modifiers,
+`_camelCase` private fields, and so on). SonarCloud runs static analysis on
+every CI build.
+
+### Obsoletion Pattern
+
+`Obsoletions.cs` centralizes the diagnostic ID and message for every
+obsoleted API in the library. `Cuid` is the only type that uses it today
+(`VISLIB0001`). A future deprecation should add its constants there rather
+than inlining a new `[Obsolete]` message and ID at the call site.
