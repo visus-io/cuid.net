@@ -215,9 +215,9 @@ internal sealed class UtilsTests
 
             ulong expected = 0;
 
-            for ( int i = 7; i >= 0; i-- )
+            for ( int i = 0; i < 8; i++ )
             {
-                expected = ( expected << 8 ) | bytes[i];
+                expected |= (ulong)bytes[i] << ( 8 * i );
             }
 
             string encoded = Utils.Encode(bytes);
