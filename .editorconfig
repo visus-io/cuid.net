@@ -57,7 +57,7 @@ dotnet_code_quality_unused_parameters = all:suggestion
 
 # Expression-level preferences
 dotnet_style_coalesce_expression = true:suggestion
-dotnet_style_collection_initializer = true:suggestion
+dotnet_style_collection_initializer = true:warning
 dotnet_style_explicit_tuple_names = true:suggestion
 dotnet_style_null_propagation = true:suggestion
 dotnet_style_object_initializer = true:suggestion
@@ -230,13 +230,27 @@ resharper_csharp_trailing_comma_in_multiline_lists = true
 # Naming conventions
 resharper_csharp_naming_rule.enum_member = PascalCase
 
+dotnet_naming_rule.private_static_fields_s_prefix.severity = error
+dotnet_naming_rule.private_static_fields_s_prefix.symbols = private_internal_static_fields
+dotnet_naming_rule.private_static_fields_s_prefix.style = s_camel_case
+
+dotnet_naming_symbols.private_internal_static_fields.applicable_kinds = field
+dotnet_naming_symbols.private_internal_static_fields.applicable_accessibilities = private, internal, private_protected
+dotnet_naming_symbols.private_internal_static_fields.required_modifiers = static
+
+dotnet_naming_style.s_camel_case.required_prefix = s_
+dotnet_naming_style.s_camel_case.capitalization = camel_case
+
 # Diagnostic Severity Overrides
 dotnet_diagnostic.CA2007.severity = error
+dotnet_diagnostic.RCS1225.severity = error
+dotnet_diagnostic.CA1852.severity = error
 dotnet_diagnostic.IDE0290.severity = none
 resharper_convert_to_primary_constructor_highlighting = none
 
 # Meziantou Rules
 dotnet_diagnostic.MA0003.severity = none
+dotnet_diagnostic.MA0038.severity = none
 
 #### Razor Files ####
 
@@ -257,3 +271,6 @@ dotnet_diagnostic.S1144.severity = suggestion
 dotnet_diagnostic.CA1031.severity = none
 dotnet_diagnostic.CA1308.severity = none
 dotnet_diagnostic.CA1707.severity = none
+
+[*.Designer.cs]
+dotnet_diagnostic.CS1591.severity = none

@@ -1,4 +1,4 @@
-# ARCHITECTURE.md — cuid.net
+# ARCHITECTURE
 
 This document describes the internal design of the cuid.net library.
 Read it before you change `Cuid2`, `Cuid`, or any of their supporting types.
@@ -132,6 +132,20 @@ earlier versions.
 
 `NewCuid()` builds a fixed 25-character value:
 
+```mermaid
+flowchart TD
+    A["Capture the timestamp at\n10-microsecond precision (ticks / 10000)\n(8 base-36 characters)"]
+    B["Read the next Counter value\n(wraps at 36^4,\n4 base-36 characters)"]
+    C["Fetch the cached legacy fingerprint\nFingerprintVersion.One\n(process ID + machine-name checksum,\n4 base-36 characters)"]
+    D["Generate a random value,\nreduce it modulo MaxRandomValue (36^8 − 1)\n(8 base-36 characters)"]
+    E["Assemble the fixed layout with\nTrimPad/WriteTo span writes:\nprefix c + timestamp + counter\n+ fingerprint + random"]
+
+    A --> E
+    B --> E
+    C --> E
+    D --> E
+```
+
 1. Capture the timestamp at 10-microsecond precision (`ticks / 10000`). This
    fits in 8 base-36 characters.
 2. Read the next `Counter` value. This counter differs from `Cuid2`'s
@@ -147,6 +161,8 @@ earlier versions.
    (`TrimPad`/`WriteTo`). The order is: the literal prefix `c`, the
    8-character timestamp, the 4-character counter, the 4-character
    fingerprint, and the 8-character random value.
+
+The diagram groups steps by the value they feed into, not by execution order.
 
 ### Parsing
 

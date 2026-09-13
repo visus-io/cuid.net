@@ -17,6 +17,8 @@
     <File Path=".editorconfig" />
     <File Path=".gitignore" />
     <File Path="AGENTS.md" />
+    <File Path="ARCHITECTURE.md" />
+    <File Path="CLAUDE.md" />
     <File Path="CODE_OF_CONDUCT.md" />
     <File Path="Directory.Build.props" />
     <File Path="Directory.Packages.props" />

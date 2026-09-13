@@ -1,157 +1,69 @@
-# AGENTS.md — cuid.net
+# Agent Instructions
 
 Developer and AI-agent guide for this repository.
 This document follows the ASD-STE100 (Simplified Technical English) style: short sentences, one instruction per sentence, active voice.
 
+<!-- architecture -->
 @ARCHITECTURE.md
+<!-- architecture -->
 
----
+## Language and Runtime
 
-## Project Overview
+- Language version is C# 14 (`LangVersion` in `Directory.Build.props`).
+- The library targets `netstandard2.0`, `netstandard2.1`, `net8.0`, and `net10.0`.
+- The test project targets `net48`, `net8.0`, and `net10.0`. All three must pass.
 
-**cuid.net** is a .NET library. It generates collision-resistant unique identifiers (CUIDs) for distributed systems.
-The library ships two identifier types, `Cuid2` (recommended) and `Cuid` (deprecated).
-
-NuGet package: [`cuid.net`](https://www.nuget.org/packages/cuid.net)
-GitHub repository: `https://github.com/visus-io/cuid.net`
-License: MIT
-
----
-
-## Repository Layout
-
-```
-cuid.net/
-├── src/
-│   └── cuid.net/                   # Main library (C# 14, ~1 100 LOC)
-│       ├── Cuid.cs                 # Deprecated CUIDv1 implementation
-│       ├── Cuid2.cs                # Recommended CUIDv2 implementation
-│       ├── Fingerprint.cs          # Host-identity generation (hostname + PID + env)
-│       ├── Utils.cs                # Base-36 encode/decode, RNG helpers
-│       ├── Obsoletions.cs          # Diagnostic ID constant: VISLIB0001
-│       ├── Abstractions/
-│       │   └── FingerprintVersion.cs
-│       ├── Extensions/
-│       │   └── StringExtensions.cs
-│       └── Serialization/
-│           └── Json/Converters/
-│               └── CuidConverter.cs
-├── tests/
-│   ├── cuid.net.tests/             # TUnit test suite (net48, net8.0, net10.0)
-│   │   ├── CuidTests.cs            # CUIDv1 tests
-│   │   ├── Cuid2Tests.cs           # CUIDv2 tests
-│   │   ├── ApiTests.cs             # Public API surface / breaking-change detection
-│   │   └── ModuleInitializer.cs    # Test fixture setup
-│   └── cuid.net.tests.net48/       # .NET Framework 4.8 test target
-├── .github/workflows/
-│   ├── ci.yml                      # CI: build + test + SonarCloud
-│   ├── release.yml                 # Release: pack + publish to nuget.org
-│   └── lint_pullrequest.yml        # PR title semantic validation
-├── Directory.Build.props           # Global build properties (analysis, trimming, docs)
-├── Directory.Packages.props        # Centralized NuGet version management
-├── global.json                     # Pins .NET SDK to 10.0.202
-├── nuget.config                    # Single NuGet source: nuget.org
-├── cuid.net.slnx                   # Solution file
-├── README.md                       # User-facing documentation
-├── ARCHITECTURE.md                 # Internal design and construction pipeline
-├── CONTRIBUTING.md                 # Contribution guide
-└── SECURITY.md                     # Security policy
-```
-
----
-
-## Prerequisites
-
-- **.NET SDK 10.0+**. The version is pinned in `global.json`. Run `dotnet --version` to check the match.
-- **Windows** is the recommended platform. CI runs on Windows to cover the `net48` target. Most work also builds on macOS and Linux for `net8.0` and `net10.0`.
-
----
-
-## Essential Commands
-
-```bash
-# Restore (locked mode; required after any package change)
-dotnet restore
-
-# Build (Release)
-dotnet build -c Release --no-restore
-
-# Build (Debug, fast iteration)
-dotnet build
-
-# Run all tests
-dotnet test -c Release --no-build --no-restore
-
-# Run tests for a specific framework
-dotnet test --framework net8.0
-dotnet test --framework net10.0
-
-# Run tests with coverage (CI format)
-dotnet test -c Release --no-build --no-restore \
-  -- --coverage --coverage-output-format xml --report-trx
-
-# Pack NuGet package
-dotnet pack -c release --no-restore --no-build
-```
-
----
-
-## Code Conventions
+## Code Style
 
 Follow `.editorconfig` exactly. Key rules:
 
-- **Language version**: C# 14
-- **Indentation**: 4 spaces (2 for `.json`, `.props` files)
-- **Line endings**: LF
 - **No `var`**. Use explicit types everywhere.
+- **Allman braces** — opening `{` on its own line (`csharp_new_line_before_open_brace = all`).
+- **Indentation**: 4 spaces (2 for `.json`, `.props` files). **Line endings**: LF.
 - **Private fields**: `_camelCase`. Public members: `PascalCase`.
+- **Explicit accessibility modifiers** on every non-interface member.
 - Prefer `readonly` for fields.
-- Add access modifiers on all non-interface members.
+- **Trailing comma** on multiline object/collection initializers.
 - Prefer null-coalescing operators and collection initializers.
-- Add XML doc comments on every public API member.
+- Add XML doc comments on every public API member (`GenerateDocumentationFile` is `true`).
 - Add `[MethodImpl(AggressiveInlining)]` on hot-path internal methods.
 - Use `stackalloc` and `Span<T>` for temporary buffers. Avoid heap allocations in hot paths.
 - Guard APIs missing from netstandard2.0/2.1 with `#if NETSTANDARD` (for example, `DateTimeOffset.UnixEpoch`).
 - Use `CommunityToolkit.Diagnostics.Guard` for all parameter validation. Do not write manual `if`/`throw` checks.
 - Use `readonly struct` for value types. Implement `IEquatable<T>` and override `GetHashCode`.
 
----
+## Project Structure Rules
 
-## Testing Conventions
+- New supporting types go in `src/cuid.net/`, mirroring the existing flat layout (`Abstractions/`, `Extensions/`, `Serialization/Json/Converters/`).
+- `Cuid2` and `Cuid` must not depend on each other. They share only `Fingerprint.cs` and `Utils.cs`.
+- Never add a `Version` attribute to a `<PackageReference>` — all versions are managed centrally in `Directory.Packages.props`.
+- After any package change, run `dotnet restore` to update `packages.lock.json`, then commit it. CI runs with `RestoreLockedMode=true`; a stale lock file fails the build.
+
+## Patterns to Follow
+
+- **Cache expensive per-process work.** Reuse the existing caching patterns — `Context.IdentityFingerprint`, the `Lazy<byte[]>` environment-variable snapshot, and the `[ThreadStatic] Sha3Digest` instance — instead of recomputing fingerprint or hashing state per instance.
+- **Centralize obsoletion messages.** Route every new deprecation through the `Obsoletions.cs` constant pattern (`DiagnosticId`, message) instead of inlining a new `[Obsolete]` id at the call site.
+
+## Testing Requirements
 
 Framework: **TUnit** + **AwesomeAssertions** + **Verify** (snapshot)
 
-- Tests target `net48`, `net8.0`, and `net10.0`. All three must pass.
 - Group tests with `[Property("Category", "…")]` (for example, `"Comparison"`, `"Construction"`).
 - Use `[Arguments(…)]` for parameterized cases.
 - Run collision-resistance tests for **10 000 iterations**, concurrently.
-- `ApiTests.cs` uses **PublicApiGenerator** to snapshot the public API surface. After an intentional API change, regenerate the snapshot: run `dotnet test`, then update the `.verified.txt` files.
+- `ApiTests.cs` uses **PublicApiGenerator** to snapshot the public API surface. After any intentional API change, run `dotnet test`, then accept the new `.verified.txt` snapshot.
 
 When you add a new public API:
 1. Implement it with full XML doc comments.
 2. Add unit tests. Cover construction, equality, and edge cases.
 3. Run `dotnet test`. `ApiTests` fails on the first run. Accept the new snapshot.
 
----
+## Multi-Targeting Guidelines
 
-## Dependency Management
-
-- Versions are **centralized** in `Directory.Packages.props`. Do not set a `Version` attribute in individual `.csproj` files.
-- `packages.lock.json` is enforced. After any package change, run `dotnet restore` to update the lock file, then commit it.
-- CI runs with `RestoreLockedMode=true`. A stale lock file fails the build.
-- **Renovate** (`renovate.json`) automates dependency updates.
-- `CentralPackageTransitivePinningEnabled=true` pins transitive versions.
-
-Key runtime dependencies:
-
-| Package                        | Purpose                                                  |
-|---------------------------------|-----------------------------------------------------------|
-| `BouncyCastle.Cryptography`    | SHA-3 512-bit hashing (Cuid2)                            |
-| `CommunityToolkit.Diagnostics` | Guard clauses / parameter validation                     |
-| `System.Text.Json`             | JSON serialization (netstandard targets only)            |
-| `PolySharp`                    | C# language backport for netstandard (compile-time only) |
-
----
+- Wrap APIs unavailable on netstandard in `#if NETSTANDARD` or `#if NET8_0_OR_GREATER`.
+- `Microsoft.Bcl.HashCode` and `PolySharp` backfill APIs on the netstandard targets only. Do not reference them from `net8.0`/`net10.0` code paths.
+- Prefer APIs from `System.Runtime.InteropServices`, `System.Buffers`, and `System.Security.Cryptography`. These have good cross-framework coverage.
+- Run tests on all frameworks before you submit: `dotnet test --framework net48 && dotnet test --framework net10.0`.
 
 ## Commit and PR Conventions
 
@@ -174,43 +86,17 @@ chore: update BouncyCastle to 2.7.0
 
 The PR title must match the single commit message format. The subject must **not** start with an uppercase letter.
 
----
+## Documentation
 
-## CI/CD
+- Any change to the public API surface, the construction pipeline, or a supporting type's responsibility must update `ARCHITECTURE.md` in the same change.
+- Any change to user-facing behavior (a new option, a changed default, a new supported type) must also update `README.md`.
 
-### ci.yml (continuous integration)
-- Triggers on push to `main` and on all PRs. Excludes markdown files, `renovate.json`, and issue templates.
-- Runs on **Windows** (required to cover `net48`).
-- Steps: restore, build, test with coverage, upload to SonarCloud, publish test results.
-- SonarCloud project: `visus:cuid.net`. Skipped for bot PRs.
+## What NOT to Do
 
-### release.yml
-- Triggers on a tag push or a manual workflow dispatch.
-- Requires `production` environment approval.
-- Steps: restore, build with MinVer version, pack, push to nuget.org.
-
-### lint_pullrequest.yml
-- Validates that the PR title matches the Conventional Commits format.
-- Validates that the single commit on the PR matches the PR title.
-
----
-
-## Multi-Targeting Guidelines
-
-The library targets `netstandard2.0`, `netstandard2.1`, `net8.0`, and `net10.0`. When you add code:
-
-- Wrap APIs unavailable on netstandard in `#if NETSTANDARD` or `#if NET8_0_OR_GREATER`.
-- `Microsoft.Bcl.HashCode` provides `HashCode` on netstandard targets.
-- Prefer APIs from `System.Runtime.InteropServices`, `System.Buffers`, and `System.Security.Cryptography`. These have good cross-framework coverage.
-- Run tests on all frameworks before you submit: `dotnet test --framework net48 && dotnet test --framework net10.0`.
-
----
-
-## Versioning
-
-- **MinVer** derives the version from Git tags (format: `v1.2.3`).
-- The project follows Semantic Versioning 2.0:
-  - `MAJOR` — breaking API changes. Requires `PublicApiGenerator` snapshot updates.
-  - `MINOR` — new backward-compatible features.
-  - `PATCH` — bug fixes.
-- Only maintainers push release tags. Do not create tags manually.
+- Do not use `var` anywhere.
+- Do not write manual `if`/`throw` parameter checks — use `CommunityToolkit.Diagnostics.Guard`.
+- Do not add a `Version` attribute to any `<PackageReference>` — versioning is centralized in `Directory.Packages.props`.
+- Do not push release tags. **MinVer** derives the version from Git tags (`v1.2.3`). Only maintainers push them.
+- Do not skip the `ApiTests` snapshot update after a public API change.
+- Do not inline a new `[Obsolete]` diagnostic id — extend `Obsoletions.cs` instead.
+- Do not introduce a dependency between `Cuid2` and `Cuid`.
