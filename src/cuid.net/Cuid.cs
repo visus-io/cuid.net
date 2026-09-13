@@ -37,15 +37,15 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
     /// </summary>
     public static readonly Cuid Empty;
 
-    private const int BlockSize = 4;
+    private const int s_blockSize = 4;
 
-    // Maximum value that fits in 8 base-36 characters (BlockSize * 2)
+    // Maximum value that fits in 8 base-36 characters (s_blockSize * 2)
     // This is 36^8 - 1 = 2,821,109,907,455
-    private const ulong MaxRandomValue = 2821109907455UL;
+    private const ulong s_maxRandomValue = 2821109907455UL;
 
-    private const string Prefix = "c";
+    private const string s_prefix = "c";
 
-    private const int ValueLength = 25;
+    private const int s_valueLength = 25;
 
     private readonly ulong _counter;
 
@@ -98,7 +98,7 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
             _timestamp = timestamp,
             _counter = (ulong)Counter.Instance.Value,
             _fingerprint = Context.IdentityFingerprint,
-            _random = BinaryPrimitives.ReadUInt64LittleEndian(Utils.GenerateRandom()) % MaxRandomValue,
+            _random = BinaryPrimitives.ReadUInt64LittleEndian(Utils.GenerateRandom()) % s_maxRandomValue,
         };
 
         return result.ToCuid();
@@ -370,8 +370,8 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
     private static bool TryParseCuid(ReadOnlySpan<char> cuidString, bool throwException, ref CuidResult result)
     {
         cuidString = cuidString.Trim();
-        if ( cuidString.Length != ValueLength ||
-             !cuidString.StartsWith(Prefix.AsSpan(), StringComparison.Ordinal) ||
+        if ( cuidString.Length != s_valueLength ||
+             !cuidString.StartsWith(s_prefix.AsSpan(), StringComparison.Ordinal) ||
              !IsAlphaNum(cuidString) )
         {
             if ( throwException )
@@ -466,42 +466,42 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
             }
 
 #if NETSTANDARD2_0
-            char[] buffer = new char[ValueLength];
+            char[] buffer = new char[s_valueLength];
             Span<char> dest = buffer;
 
-            Prefix.WriteTo(ref dest);
+            s_prefix.WriteTo(ref dest);
 
             Utils.Encode((ulong)_timestamp)
                  .WriteTo(ref dest);
 
             Utils.Encode(_counter)
-                 .TrimPad(BlockSize)
+                 .TrimPad(s_blockSize)
                  .WriteTo(ref dest);
 
             Encoding.UTF8.GetString(_fingerprint).WriteTo(ref dest);
 
             Utils.Encode(_random)
-                 .TrimPad(BlockSize * 2)
+                 .TrimPad(s_blockSize * 2)
                  .WriteTo(ref dest);
 
             return new string(buffer);
 #else
-            return string.Create(ValueLength, ( _t: _timestamp, _c: _counter, _f: _fingerprint, _r: _random ),
+            return string.Create(s_valueLength, ( _t: _timestamp, _c: _counter, _f: _fingerprint, _r: _random ),
                 (dest, buffer) =>
                 {
-                    Prefix.WriteTo(ref dest);
+                    s_prefix.WriteTo(ref dest);
 
                     Utils.Encode((ulong)buffer._t)
                          .WriteTo(ref dest);
 
                     Utils.Encode(buffer._c)
-                         .TrimPad(BlockSize)
+                         .TrimPad(s_blockSize)
                          .WriteTo(ref dest);
 
                     Encoding.UTF8.GetString(buffer._f).WriteTo(ref dest);
 
                     Utils.Encode(buffer._r)
-                         .TrimPad(BlockSize * 2)
+                         .TrimPad(s_blockSize * 2)
                          .WriteTo(ref dest);
                 });
 #endif
@@ -516,19 +516,19 @@ public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, 
     private sealed class Counter
     {
         // ReSharper disable once InconsistentNaming
-        private static readonly Lazy<Counter> _counter = new(() => new Counter());
+        private static readonly Lazy<Counter> s_counter = new(() => new Counter());
 
-        private static readonly long DiscreteValues = (long)Math.Pow(36, 4);
+        private static readonly long s_discreteValues = (long)Math.Pow(36, 4);
 
         private volatile int _value;
 
-        public static Counter Instance => _counter.Value;
+        public static Counter Instance => s_counter.Value;
 
         public int Value
         {
             get
             {
-                _value = _value < DiscreteValues ? _value : 0;
+                _value = _value < s_discreteValues ? _value : 0;
                 Interlocked.Increment(ref _value);
 
                 return _value;

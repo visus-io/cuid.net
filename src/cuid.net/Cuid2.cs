@@ -12,10 +12,10 @@ using Org.BouncyCastle.Crypto.Digests;
 [StructLayout(LayoutKind.Sequential)]
 public readonly struct Cuid2 : IEquatable<Cuid2>
 {
-    private const int DefaultLength = 24;
+    private const int s_defaultLength = 24;
 
     [ThreadStatic]
-    private static Sha3Digest _digest;
+    private static Sha3Digest s_digest;
 
     private readonly long _counter;
 
@@ -37,7 +37,7 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
     /// <remarks>The structure will initialize with a default maximum length of 24.</remarks>
     /// <returns>A new CUID object.</returns>
     public Cuid2()
-        : this(DefaultLength)
+        : this(s_defaultLength)
     {
     }
 
@@ -164,12 +164,12 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
     /// <returns>The value of this <see cref="Cuid2" />.</returns>
     public override string ToString()
     {
-        return _value ?? new string('0', DefaultLength);
+        return _value ?? new string('0', s_defaultLength);
     }
 
     private static Sha3Digest GetOrCreateDigest()
     {
-        return _digest ??= new Sha3Digest(512);
+        return s_digest ??= new Sha3Digest(512);
     }
 
     private string ComputeValue()
@@ -208,7 +208,7 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
     private sealed class Counter
     {
         // ReSharper disable once InconsistentNaming
-        private static readonly Lazy<Counter> _counter = new(() => new Counter());
+        private static readonly Lazy<Counter> s_counter = new(() => new Counter());
 
         private long _value;
 
@@ -217,7 +217,7 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
             _value = BinaryPrimitives.ReadInt64LittleEndian(Utils.GenerateRandom()) * 476782367;
         }
 
-        public static Counter Instance => _counter.Value;
+        public static Counter Instance => s_counter.Value;
 
         public long Value => Interlocked.Increment(ref _value);
     }
