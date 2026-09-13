@@ -3,7 +3,6 @@
 using System.Buffers.Binary;
 using System.Collections;
 using System.Globalization;
-using System.Runtime.CompilerServices;
 using System.Text;
 using Abstractions;
 using Extensions;
@@ -22,7 +21,6 @@ internal static class Fingerprint
     private static readonly int CachedProcessId = Environment.ProcessId;
 #endif
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static byte[] Generate(FingerprintVersion version = FingerprintVersion.Two)
     {
         return version == FingerprintVersion.One

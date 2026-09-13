@@ -1,6 +1,8 @@
 ﻿namespace Visus.Cuid;
 
+#if NETSTANDARD
 using System.Buffers.Binary;
+#endif
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 
@@ -133,7 +135,6 @@ internal static class Utils
 #endif
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static int DivModRadix(Span<uint> limbs, ref int end)
     {
         ulong remainder = 0;
@@ -157,7 +158,6 @@ internal static class Utils
         return (int)remainder;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void PackLimbs(ReadOnlySpan<byte> value, Span<uint> limbs)
     {
         for ( int limbIndex = 0; limbIndex < limbs.Length; limbIndex++ )
