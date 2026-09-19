@@ -33,7 +33,7 @@ jobs:
         with:
           global-json-file: global.json
           cache: true
-          cache-dependency-path: '**/packages.lock.json'
+          cache-dependency-path: '**/Directory.Packages.props'
 
       - name: Install MinVer CLI
         run: dotnet tool install --global minver-cli
