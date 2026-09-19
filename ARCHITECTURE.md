@@ -155,7 +155,7 @@ flowchart TD
     A["Capture the timestamp at\n10-microsecond precision (ticks / 10000)\n(8 base-36 characters)"]
     B["Read the next Counter value\n(wraps at 36^4,\n4 base-36 characters)"]
     C["Fetch the cached legacy fingerprint\nFingerprintVersion.One\n(process ID + machine-name checksum,\n4 base-36 characters)"]
-    D["Generate a random value,\nreduce it modulo MaxRandomValue (36^8 − 1)\n(8 base-36 characters)"]
+    D["Generate a random value,\nreduce it modulo s_maxRandomValue (36^8 − 1)\n(8 base-36 characters)"]
     E["Assemble the fixed layout with\nTrimPad/WriteTo span writes:\nprefix c + timestamp + counter\n+ fingerprint + random"]
 
     A --> E
@@ -173,7 +173,7 @@ flowchart TD
    4-character value. The library derives it from the process ID and a
    checksum of the machine name. It differs from the fingerprint `Cuid2`
    uses.
-4. Generate a random value and reduce it modulo `MaxRandomValue`
+4. Generate a random value and reduce it modulo `s_maxRandomValue`
    (`36^8 − 1`). The result fits in 8 base-36 characters.
 5. Assemble the fixed layout with zero-allocation span writes
    (`TrimPad`/`WriteTo`). The order is: the literal prefix `c`, the
