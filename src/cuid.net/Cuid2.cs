@@ -254,9 +254,6 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
     }
 
 #if !NETSTANDARD
-    /// <remarks>
-    /// Not disposed: the native digest is a SafeHandle; it finalizes on its own when this thread ends.
-    /// </remarks>
     private static IncrementalHash GetOrCreateNativeDigest()
     {
         return s_nativeDigest ??= IncrementalHash.CreateHash(HashAlgorithmName.SHA3_512);
