@@ -1,0 +1,14 @@
+extends: default
+
+rules:
+  document-start: disable
+  line-length: disable
+  truthy:
+    check-keys: false
+  hyphens:
+    max-spaces-after: -1
+  comments:
+    min-spaces-from-content: 1
+  indentation:
+    spaces: consistent
+    indent-sequences: consistent

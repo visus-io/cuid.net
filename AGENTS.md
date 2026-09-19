@@ -66,6 +66,11 @@ When you add a new public API:
 - Prefer APIs from `System.Runtime.InteropServices`, `System.Buffers`, and `System.Security.Cryptography`. These have good cross-framework coverage.
 - Run tests on all frameworks before you submit: `dotnet test --framework net48 && dotnet test --framework net10.0`.
 
+## YAML and Workflow Files
+
+- Before finishing any change that touches a `.yml`/`.yaml` file, check whether `yamllint` is available (`command -v yamllint`) and, if so, run it against the changed file(s) (config lives at `.yamllint.yml`). Skip silently only if the tool is not installed.
+- If the changed `.yml` file is a GitHub Actions workflow under `.github/workflows/`, additionally check whether `actionlint` is available (`command -v actionlint`) and, if so, run it against the changed file(s). Skip silently only if the tool is not installed.
+
 ## Commit and PR Conventions
 
 The workflow `.github/workflows/lint_pullrequest.yml` enforces this format.
