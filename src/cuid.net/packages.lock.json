@@ -19,9 +19,9 @@
       },
       "Meziantou.Analyzer": {
         "type": "Direct",
-        "requested": "[3.0.253, )",
-        "resolved": "3.0.253",
-        "contentHash": "JA3gez8sMSIdN8pk9iFUlS/iCMTmW/CFE6kGsQs5eKiNQuUrQz1RvyhuL/bZK3ZhGY4CX6Jc2z474xmowBqnRw=="
+        "requested": "[3.0.262, )",
+        "resolved": "3.0.262",
+        "contentHash": "MSERmHeDpo4m1l6LbcyXsbNu4GhGtEAvvMZlxCmchQVgh/zWmhdg+S7V/U1QcpAXMz0yuQIlVKB6er0EE5EZZA=="
       },
       "Microsoft.Bcl.HashCode": {
         "type": "Direct",
@@ -183,9 +183,9 @@
       },
       "Meziantou.Analyzer": {
         "type": "Direct",
-        "requested": "[3.0.253, )",
-        "resolved": "3.0.253",
-        "contentHash": "JA3gez8sMSIdN8pk9iFUlS/iCMTmW/CFE6kGsQs5eKiNQuUrQz1RvyhuL/bZK3ZhGY4CX6Jc2z474xmowBqnRw=="
+        "requested": "[3.0.262, )",
+        "resolved": "3.0.262",
+        "contentHash": "MSERmHeDpo4m1l6LbcyXsbNu4GhGtEAvvMZlxCmchQVgh/zWmhdg+S7V/U1QcpAXMz0yuQIlVKB6er0EE5EZZA=="
       },
       "Microsoft.Bcl.HashCode": {
         "type": "Direct",
@@ -285,9 +285,9 @@
       },
       "Meziantou.Analyzer": {
         "type": "Direct",
-        "requested": "[3.0.253, )",
-        "resolved": "3.0.253",
-        "contentHash": "JA3gez8sMSIdN8pk9iFUlS/iCMTmW/CFE6kGsQs5eKiNQuUrQz1RvyhuL/bZK3ZhGY4CX6Jc2z474xmowBqnRw=="
+        "requested": "[3.0.262, )",
+        "resolved": "3.0.262",
+        "contentHash": "MSERmHeDpo4m1l6LbcyXsbNu4GhGtEAvvMZlxCmchQVgh/zWmhdg+S7V/U1QcpAXMz0yuQIlVKB6er0EE5EZZA=="
       },
       "Microsoft.NET.ILLink.Tasks": {
         "type": "Direct",
@@ -346,9 +346,9 @@
       },
       "Meziantou.Analyzer": {
         "type": "Direct",
-        "requested": "[3.0.253, )",
-        "resolved": "3.0.253",
-        "contentHash": "JA3gez8sMSIdN8pk9iFUlS/iCMTmW/CFE6kGsQs5eKiNQuUrQz1RvyhuL/bZK3ZhGY4CX6Jc2z474xmowBqnRw=="
+        "requested": "[3.0.262, )",
+        "resolved": "3.0.262",
+        "contentHash": "MSERmHeDpo4m1l6LbcyXsbNu4GhGtEAvvMZlxCmchQVgh/zWmhdg+S7V/U1QcpAXMz0yuQIlVKB6er0EE5EZZA=="
       },
       "Microsoft.NET.ILLink.Tasks": {
         "type": "Direct",
