@@ -20,6 +20,11 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
     [ThreadStatic]
     private static Sha3Digest s_digest;
 
+#if !NETSTANDARD
+    [ThreadStatic]
+    private static IncrementalHash s_nativeDigest;
+#endif
+
     private readonly long _counter;
 
     private readonly byte[] _fingerprint;
@@ -214,30 +219,6 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
         return _prefix + Utils.Encode(hash)[..( _maxLength - 1 )];
     }
 
-#if !NETSTANDARD
-    private string ComputeValueNative()
-    {
-        Span<byte> buffer = stackalloc byte[16];
-
-        BinaryPrimitives.WriteInt64LittleEndian(buffer[..8], _timestamp);
-        BinaryPrimitives.WriteInt64LittleEndian(buffer[^8..], _counter);
-
-        using IncrementalHash incrementalHash = IncrementalHash.CreateHash(HashAlgorithmName.SHA3_512);
-
-        incrementalHash.AppendData(buffer);
-        incrementalHash.AppendData(_fingerprint);
-        incrementalHash.AppendData(_random);
-
-        Span<byte> hash = stackalloc byte[incrementalHash.HashLengthInBytes];
-        if ( incrementalHash.TryGetHashAndReset(hash, out int bytesWritten) && bytesWritten == hash.Length )
-        {
-            return _prefix + Utils.Encode(hash)[..( _maxLength - 1 )];
-        }
-
-        return string.Empty;
-    }
-#endif
-
     private static class Context
     {
         public static readonly byte[] IdentityFingerprint = Fingerprint.Generate();
@@ -259,4 +240,33 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
 
         public long Value => Interlocked.Increment(ref _value);
     }
+
+#if !NETSTANDARD
+    private static IncrementalHash GetOrCreateNativeDigest()
+    {
+        return s_nativeDigest ??= IncrementalHash.CreateHash(HashAlgorithmName.SHA3_512);
+    }
+
+    private string ComputeValueNative()
+    {
+        Span<byte> buffer = stackalloc byte[16];
+
+        BinaryPrimitives.WriteInt64LittleEndian(buffer[..8], _timestamp);
+        BinaryPrimitives.WriteInt64LittleEndian(buffer[^8..], _counter);
+
+        IncrementalHash incrementalHash = GetOrCreateNativeDigest();
+
+        incrementalHash.AppendData(buffer);
+        incrementalHash.AppendData(_fingerprint);
+        incrementalHash.AppendData(_random);
+
+        Span<byte> hash = stackalloc byte[incrementalHash.HashLengthInBytes];
+        if ( incrementalHash.TryGetHashAndReset(hash, out int bytesWritten) && bytesWritten == hash.Length )
+        {
+            return _prefix + Utils.Encode(hash)[..( _maxLength - 1 )];
+        }
+
+        return string.Empty;
+    }
+#endif
 }

@@ -59,7 +59,7 @@ flowchart TD
     C["Fetch the cached process fingerprint\nContext.IdentityFingerprint\n(Fingerprint.Generate(), computed once)"]
     D["Generate a random alphabetic prefix\nUtils.GenerateCharacterPrefix()"]
     E["Generate maxLength random bytes\nUtils.GenerateRandom(maxLength)"]
-    F["Hash timestamp + counter + fingerprint + random\nwith SHA-3 512 (BouncyCastle)"]
+    F["Hash timestamp + counter + fingerprint + random\nwith SHA-3 512\n(native IncrementalHash, or BouncyCastle Sha3Digest\nas fallback)"]
     G["Base-36 encode the hash, prepend the prefix,\ntruncate to maxLength"]
 
     A --> F
@@ -83,15 +83,29 @@ The diagram groups steps by the value they feed into, not by execution order.
 
 ### Performance Details
 
-`Cuid2` reuses one `[ThreadStatic] Sha3Digest` instance per thread. It does
-not allocate a new digest on every call. On `net8.0` and `net10.0`, hashing
-runs on `Span<byte>` buffers. `stackalloc` provides the 16-byte
-timestamp/counter block and the hash-output buffer. The netstandard targets
-fall back to array-based `BlockUpdate`/`DoFinal` overloads. `Span<T>`
-overloads are not available there. `Cuid2` computes the process fingerprint
-once per process. It caches the fingerprint in a nested static class,
-`Context.IdentityFingerprint`. Every `Cuid2` instance reads the cached value.
-It does not recompute the fingerprint.
+`Cuid2` hashes through one of two paths. `ComputeValue()` selects the path
+on every call:
+
+- On `net8.0` and `net10.0`, `Cuid2` checks `SHA3_512.IsSupported`. If the OS
+  and runtime provide a native SHA3-512 implementation, `ComputeValueNative()`
+  uses it through `IncrementalHash`. This path reuses one `[ThreadStatic]
+  IncrementalHash` instance per thread. It does not dispose the instance
+  after use. `TryGetHashAndReset` clears the instance's internal state after
+  each hash. The next call on the same thread reuses the cleared instance.
+  `stackalloc` provides the 16-byte timestamp/counter block and the
+  hash-output buffer.
+- The netstandard targets always use the other path. `net8.0` and `net10.0`
+  also use it when the OS or runtime does not provide a native SHA3-512
+  implementation. `ComputeValueFallback()` uses BouncyCastle. `Cuid2` reuses
+  one `[ThreadStatic] Sha3Digest` instance per thread. It does not allocate
+  a new digest on every call. On `net8.0` and `net10.0`, this path also runs
+  on `Span<byte>` buffers. The netstandard targets fall back to array-based
+  `BlockUpdate`/`DoFinal` overloads. They do not have `Span<T>` overloads.
+
+`Cuid2` computes the process fingerprint once per process. It caches the
+fingerprint in a nested static class, `Context.IdentityFingerprint`. Every
+`Cuid2` instance reads the cached value. It does not recompute the
+fingerprint.
 
 ### Equality
 
@@ -123,7 +137,7 @@ string s  = id.ToString();
 serialization. `[XmlRoot("cuid")]` handles XML serialization.
 The implementation is in `src/cuid.net/Cuid.cs`.
 
-`Cuid` carries `[Obsolete(Obsoletions.CuidMessage, DiagnosticId = Obsoletions.CuidDiagId)]`.
+`Cuid` carries `[Obsolete(Obsoletions.s_cuidMessage, DiagnosticId = Obsoletions.s_cuidDiagId)]`.
 The compiler emits diagnostic `VISLIB0001` for every use.
 Do not use `Cuid` in new code. The type exists only to support migration from
 earlier versions.
