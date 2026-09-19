@@ -188,8 +188,10 @@ The diagram groups steps by the value they feed into, not by execution order.
 `TryParseCuid`. It rejects the string in three cases: the string is not
 exactly 25 characters, the string does not start with `c`, or the string
 contains an uppercase or non-alphanumeric character. On success, it slices
-the five fixed-width segments out of the string. It decodes each segment
-with `Utils.Decode` or `Utils.DecodeUlong`.
+four fixed-width fields out of the string: the timestamp, the counter, the
+fingerprint, and the random value. It decodes the timestamp with
+`Utils.Decode`. It decodes the counter and the random value with
+`Utils.DecodeUlong`. It decodes the fingerprint with `Encoding.UTF8.GetBytes`.
 
 ### Ordering
 
@@ -270,7 +272,7 @@ frameworks must pass before you merge a change.
   `"Comparison"`, `"Serialization"`, `"Encoding"`, `"Decoding"`, and
   `"Random"`). They use `[Arguments(…)]` for parameterized cases.
 - `Cuid2Tests.cs` tests collision resistance with `Parallel.For` over 10,000
-  iterations (`HighConcurrencyIterations`). The test asserts that every
+  iterations (`s_highConcurrencyIterations`). The test asserts that every
   generated value is unique. This exercises the process-local counter and
   the cached fingerprint under concurrent construction. See
   [Cuid2's performance details](#performance-details) and

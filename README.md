@@ -82,7 +82,7 @@ Install-Package cuid.net
 NuGet installs the following runtime dependencies with the library.
 
 *All platforms:*
-- **BouncyCastle.Cryptography** — provides SHA-3 hashing for CUIDv2.
+- **BouncyCastle.Cryptography** — provides the SHA-3 fallback hashing for CUIDv2. The library uses this package only when the runtime has no native SHA-3 512-bit implementation.
 - **CommunityToolkit.Diagnostics** — provides guard clauses and validation.
 
 *.NET Standard 2.0/2.1 only:*
@@ -117,7 +117,7 @@ Console.WriteLine(legacyId); // cmjj07yka00016337xrs9mj24
 
 ### CUIDv2 Features
 
-- **Cryptographically strong**: `Cuid2` uses SHA-3 512-bit hashing through BouncyCastle.
+- **Cryptographically strong**: `Cuid2` uses SHA-3 512-bit hashing. On .NET 8.0 and later, the library uses the runtime's native SHA-3 implementation when the OS and hardware support it. Otherwise, the library falls back to BouncyCastle.
 - **No information disclosure**: You cannot derive when or where the library created the identifier.
 - **Variable length**: `Cuid2` supports identifiers from 4 to 32 characters. The default length is 24 characters.
 - **Not sortable**: `Cuid2` does not implement `IComparable`. This design improves security.
@@ -131,11 +131,11 @@ A CUIDv2 value has a variable-length structure. The structure has no fixed patte
 1. **Input components**:
    - **Prefix**: One random character (a-z).
    - **Timestamp**: The Unix timestamp, in ticks.
-   - **Counter**: A session counter. The library initializes the counter with a cryptographic RNG, then increments it.
+   - **Counter**: A session counter. The library seeds the counter from a cryptographic RNG. The library increments the counter for every identifier.
    - **Fingerprint**: Host-specific data. This data includes the hostname, the process ID, and environment variables.
    - **Random data**: Cryptographically strong random bytes. The length matches the requested identifier length.
 
-2. **Hash computation**: The library hashes all components except the prefix with SHA-3 512-bit.
+2. **Hash computation**: The library hashes all components except the prefix with SHA-3 512-bit. It uses a native implementation when the runtime and OS support one. Otherwise, it uses BouncyCastle.
 
 3. **Encoding**: The library encodes the hash in base-36. It truncates the result to the requested length minus 1. It prepends the random prefix to the result.
 
@@ -165,16 +165,17 @@ Console.WriteLine(longId); // zkx5dng1v8r0dg36id29uoqt1dsndmvb
 
 #### String Conversion
 
+`Cuid2` defines no conversion operator. Call `ToString()` to get the string value.
+
 ```csharp
 using Visus.Cuid;
 
 Cuid2 id = new Cuid2();
 
-// Explicit conversion
 string idString = id.ToString();
 
-// Implicit conversion
-string implicit = id;
+// String interpolation also calls ToString()
+string message = $"Generated id: {id}";
 ```
 
 #### Equality Comparison
@@ -198,17 +199,19 @@ HashSet<Cuid2> uniqueIds = new HashSet<Cuid2> { id1, id2, id3 };
 Console.WriteLine(uniqueIds.Count); // 2
 ```
 
-#### Empty/Default Values
+#### Default Values
+
+`Cuid2` has no `Empty` constant. `new Cuid2(0)` throws `ArgumentOutOfRangeException`, because the minimum length is 4.
+
+`default(Cuid2)` is the only zero-value instance. Its `ToString()` method does not return an empty string. It returns a string of 24 zero characters, the default length.
 
 ```csharp
 using Visus.Cuid;
 
-// Default value
 Cuid2 defaultId = default;
-Cuid2 emptyId = new Cuid2(0); // Creates empty instance
 
-// Check for empty
-bool isEmpty = string.IsNullOrEmpty(defaultId.ToString());
+Console.WriteLine(defaultId.ToString()); // 000000000000000000000000
+Console.WriteLine(defaultId == default); // true
 ```
 
 > [!IMPORTANT]
@@ -253,7 +256,7 @@ Cuid2 valid3 = new Cuid2(32);  // Maximum
 > [!NOTE]
 > Use of CUIDv1 emits the compiler warning `VISLIB0001`. This warning tells you to migrate to CUIDv2.
 
-`Cuid` is an immutable structure. `Cuid` provides a sortable, string-safe alternative to `Guid`. Use `Cuid` for horizontal scaling and binary search. Use `Cuid` when you need chronological order. Use `Cuid` only in contexts where security is not a concern.
+`Cuid` is an immutable structure. `Cuid` provides a sortable, string-safe alternative to `Guid`. Use `Cuid` for horizontal scaling and binary search. Use `Cuid` when you need in-process creation order. Use `Cuid` only in contexts where security is not a concern.
 
 ### Security Considerations
 
@@ -328,24 +331,25 @@ else
 
 `Cuid` implements `IComparable`, `IComparable<Cuid>`, and `IEquatable<Cuid>`:
 
+`CompareTo` does not compare CUIDv1 values by timestamp. It compares the session counter first, then the random value, then the timestamp. Within one process, the counter increases with each call to `NewCuid()`. So values created earlier in the same process sort before values created later, until the counter wraps.
+
 ```csharp
 using Visus.Cuid;
 
 Cuid id1 = Cuid.NewCuid();
-Thread.Sleep(10); // Ensure different timestamp
 Cuid id2 = Cuid.NewCuid();
 
 // Comparison operators
-bool isLess = id1 < id2;        // true (earlier timestamp)
+bool isLess = id1 < id2;        // true (id1 has the lower counter value)
 bool isGreater = id2 > id1;     // true
 bool areEqual = id1 == id1;     // true
 
 // CompareTo method
-int comparison = id1.CompareTo(id2); // -1 (id1 is earlier)
+int comparison = id1.CompareTo(id2); // -1 (id1 sorts first)
 
 // Sorting
 List<Cuid> ids = new List<Cuid> { id2, id1 };
-ids.Sort(); // Chronological order: [id1, id2]
+ids.Sort(); // Creation order: [id1, id2]
 
 // Empty comparison
 bool isEmpty = id1 == Cuid.Empty; // false
@@ -474,19 +478,21 @@ The library measures `Cuid2` and `Cuid` performance with BenchmarkDotNet. The `b
 dotnet run -c Release --project benchmarks/cuid.net.benchmarks/cuid.net.benchmarks.csproj -- --filter '*'
 ```
 
-The tables below come from this environment: BenchmarkDotNet v0.15.8, macOS Tahoe 26.6.2, Apple M2 Pro, .NET SDK 10.0.401, .NET 10.0.12 (Arm64 RyuJIT). Each `Guid` row is the baseline for its Ratio column. Your numbers will vary by platform and .NET version.
+The tables below come from this environment: BenchmarkDotNet v0.15.8, macOS 27.0 (26A428), Apple M2 Pro, .NET SDK 10.0.401, .NET 10.0.12 (Arm64 RyuJIT). Each `Guid` row is the baseline for its Ratio column. Your numbers will vary by platform and .NET version.
 
 ### CUIDv2 Performance
 
 | Method                        |          Mean | Ratio | Allocated |
 |--------------------------------|--------------:|------:|----------:|
-| `new Cuid2()` (default length) |      21.63 μs | 91.54 |     416 B |
-| `new Cuid2(32)` (max length)   |      21.55 μs | 91.20 |     456 B |
-| `Guid.NewGuid()` (baseline)     |     236.31 ns |  1.00 |         — |
-| `Guid.ToString()` (baseline)    |       5.98 ns |  1.00 |      96 B |
-| `Cuid2.ToString()`              |       0.01 ns |  0.00 |         — |
+| `new Cuid2()` (default length) |      20.96 μs | 87.19 |     416 B |
+| `new Cuid2(32)` (max length)   |      20.99 μs | 87.32 |     456 B |
+| `Guid.NewGuid()` (baseline)     |     240.38 ns |  1.00 |         — |
+| `Guid.ToString()` (baseline)    |       5.88 ns |  1.00 |      96 B |
+| `Cuid2.ToString()`              |       0.00 ns |  0.00 |         — |
 
 Cuid2 construction costs more than `Guid.NewGuid()`. The SHA-3 512-bit hash causes most of this cost. `Cuid2.ToString()` returns a cached string. It costs close to nothing.
+
+These numbers reflect whichever SHA-3 path this environment's OS and hardware select at run time — native or the BouncyCastle fallback. See [CUIDv2 Features](#cuidv2-features) for the selection rule.
 
 **Optimization tips:**
 - Cache an identifier value instead of creating a new one for the same entity.
@@ -496,9 +502,9 @@ Cuid2 construction costs more than `Guid.NewGuid()`. The SHA-3 512-bit hash caus
 
 | Method                     |          Mean | Ratio | Allocated |
 |-----------------------------|--------------:|------:|----------:|
-| `Cuid.NewCuid()`             |     176.71 ns |  0.74 |     250 B |
-| `Guid.NewGuid()` (baseline)  |     237.81 ns |  1.00 |         — |
-| `Guid.ToString()` (baseline) |       5.94 ns |  1.00 |      96 B |
-| `Cuid.ToString()`            |       0.01 ns |  0.00 |         — |
+| `Cuid.NewCuid()`             |     181.62 ns |  0.75 |     250 B |
+| `Guid.NewGuid()` (baseline)  |     240.77 ns |  1.00 |         — |
+| `Guid.ToString()` (baseline) |       5.98 ns |  1.00 |      96 B |
+| `Cuid.ToString()`            |       0.00 ns |  0.00 |         — |
 
 CUIDv1 construction costs less than `Guid.NewGuid()`. CUIDv1 skips the SHA-3 hash that CUIDv2 uses. Use `Cuid2` in new code. Use `Cuid` only when you have a specific reason to.
