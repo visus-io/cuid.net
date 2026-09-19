@@ -21,6 +21,9 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
     private static Sha3Digest s_digest;
 
 #if !NETSTANDARD
+    /// <remarks>
+    /// Not disposed: the native digest is a SafeHandle; it finalizes on its own when this thread ends.
+    /// </remarks>
     [ThreadStatic]
     private static IncrementalHash s_nativeDigest;
 #endif
@@ -79,6 +82,18 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
         _fingerprint = Context.IdentityFingerprint;
         _prefix = Utils.GenerateCharacterPrefix();
         _random = Utils.GenerateRandom(maxLength);
+
+        _value = ComputeValue();
+    }
+
+    internal Cuid2(long timestamp, long counter, byte[] fingerprint, char prefix, byte[] random, int maxLength)
+    {
+        _timestamp = timestamp;
+        _counter = counter;
+        _fingerprint = fingerprint;
+        _prefix = prefix;
+        _random = random;
+        _maxLength = maxLength;
 
         _value = ComputeValue();
     }
@@ -191,7 +206,7 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
 #endif
     }
 
-    private string ComputeValueFallback()
+    internal string ComputeValueFallback()
     {
         Span<byte> buffer = stackalloc byte[16];
 
@@ -247,7 +262,7 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
         return s_nativeDigest ??= IncrementalHash.CreateHash(HashAlgorithmName.SHA3_512);
     }
 
-    private string ComputeValueNative()
+    internal string ComputeValueNative()
     {
         Span<byte> buffer = stackalloc byte[16];
 

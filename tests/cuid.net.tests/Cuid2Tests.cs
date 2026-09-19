@@ -2,6 +2,9 @@
 
 using System.Text.Json;
 using AwesomeAssertions;
+#if NET
+using System.Security.Cryptography;
+#endif
 
 internal sealed class Cuid2Tests
 {
@@ -202,4 +205,31 @@ internal sealed class Cuid2Tests
             char.IsLetter(firstChar).Should().BeTrue();
         }
     }
+
+#if NET
+    [Test]
+    [Property("Category", "Hashing")]
+    public void ComputeValueFallbackAndNative_ShouldMatchKnownSha3_512Vector()
+    {
+        // SHA3-512 of 24 zero bytes (16-byte zero timestamp/counter block + 4-byte zero
+        // fingerprint + 4-byte zero random), independently verified with Python's hashlib
+        // and `openssl dgst -sha3-512`.
+        byte[] expectedHash = Convert.FromHexString(
+            "b06923bd6534c6d4d435dcfa7593c4887213af25cdc9c3f8e854831af2755e3b229a1f64ed6acaa471e84850d45beb43e46e3aac284e7401c8da98ec41809aa" +
+            "f");
+
+        byte[] fingerprint = new byte[4];
+        byte[] random = new byte[4];
+
+        Cuid2 cuid = new(0, 0, fingerprint, 'a', random, 32);
+        string expected = "a" + Utils.Encode(expectedHash)[..31];
+
+        cuid.ComputeValueFallback().Should().Be(expected);
+
+        if ( SHA3_512.IsSupported )
+        {
+            cuid.ComputeValueNative().Should().Be(expected);
+        }
+    }
+#endif
 }

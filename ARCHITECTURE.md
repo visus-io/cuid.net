@@ -90,8 +90,12 @@ on every call:
   and runtime provide a native SHA3-512 implementation, `ComputeValueNative()`
   uses it through `IncrementalHash`. This path reuses one `[ThreadStatic]
   IncrementalHash` instance per thread. It does not dispose the instance
-  after use. `TryGetHashAndReset` clears the instance's internal state after
-  each hash. The next call on the same thread reuses the cleared instance.
+  after use. The native digest context sits behind a `SafeHandle` (for
+  example `SafeEvpMdCtxHandle` on Linux), which finalizes the native handle
+  on its own once the thread-static reference becomes unreachable, so
+  caching it for the life of the thread does not leak it.
+  `TryGetHashAndReset` clears the instance's internal state after each
+  hash. The next call on the same thread reuses the cleared instance.
   `stackalloc` provides the 16-byte timestamp/counter block and the
   hash-output buffer.
 - The netstandard targets always use the other path. `net8.0` and `net10.0`
