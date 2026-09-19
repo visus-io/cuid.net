@@ -42,6 +42,7 @@ Follow `.editorconfig` exactly. Key rules:
 ## Patterns to Follow
 
 - **Cache expensive per-process work.** Reuse the existing caching patterns — `Context.IdentityFingerprint`, the `Lazy<byte[]>` environment-variable snapshot, and the `[ThreadStatic] Sha3Digest` instance — instead of recomputing fingerprint or hashing state per instance.
+- **Never dispose the cached `[ThreadStatic] IncrementalHash`.** `Cuid2.cs` caches one native `IncrementalHash` per thread for the SHA3-512 path, the same way it caches `[ThreadStatic] Sha3Digest` for the BouncyCastle fallback. `IncrementalHash` wraps its native digest context in a `SafeHandle` (`SafeEvpMdCtxHandle` on Linux, `SafeDigestCtxHandle` on macOS, `SafeBCryptHashHandle` on Windows). A `SafeHandle` finalizes its native handle on its own once the thread-static reference is unreachable, so this does not leak. Wrapping the cached instance in `using` per call reintroduces a per-`Cuid2` allocation on the construction hot path. See `ARCHITECTURE.md`'s Performance Details section for the full explanation.
 - **Centralize obsoletion messages.** Route every new deprecation through the `Obsoletions.cs` constant pattern (`DiagnosticId`, message) instead of inlining a new `[Obsolete]` id at the call site.
 
 ## Testing Requirements
@@ -99,4 +100,5 @@ The PR title must match the single commit message format. The subject must **not
 - Do not push release tags. **MinVer** derives the version from Git tags (`v1.2.3`). Only maintainers push them.
 - Do not skip the `ApiTests` snapshot update after a public API change.
 - Do not inline a new `[Obsolete]` diagnostic id — extend `Obsoletions.cs` instead.
+- Do not dispose or re-create the cached `[ThreadStatic] IncrementalHash` per call. Its `SafeHandle` reclaims native resources on its own. Disposing per call reintroduces the allocation this cache exists to avoid.
 - Do not introduce a dependency between `Cuid2` and `Cuid`.

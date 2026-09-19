@@ -5,7 +5,7 @@ using AwesomeAssertions;
 
 internal sealed class UtilsTests
 {
-    private const int RoundTripIterations = 1000;
+    private const int s_roundTripIterations = 1000;
 
     [Test]
     [Property("Category", "Decoding")]
@@ -120,7 +120,7 @@ internal sealed class UtilsTests
         Random random = new(54321);
         byte[] bytes = new byte[8];
 
-        for ( int iteration = 0; iteration < RoundTripIterations; iteration++ )
+        for ( int iteration = 0; iteration < s_roundTripIterations; iteration++ )
         {
             random.NextBytes(bytes);
 
@@ -226,7 +226,7 @@ internal sealed class UtilsTests
     {
         Random random = new(2026);
 
-        for ( int iteration = 0; iteration < RoundTripIterations; iteration++ )
+        for ( int iteration = 0; iteration < s_roundTripIterations; iteration++ )
         {
             byte[] value = new byte[64];
             random.NextBytes(value);
@@ -246,7 +246,7 @@ internal sealed class UtilsTests
     {
         Random random = new(12345);
 
-        for ( int iteration = 0; iteration < RoundTripIterations; iteration++ )
+        for ( int iteration = 0; iteration < s_roundTripIterations; iteration++ )
         {
             byte[] bytes = new byte[8];
             random.NextBytes(bytes);
@@ -281,7 +281,7 @@ internal sealed class UtilsTests
     {
         HashSet<char> results = [];
 
-        for ( int i = 0; i < RoundTripIterations; i++ )
+        for ( int i = 0; i < s_roundTripIterations; i++ )
         {
             results.Add(Utils.GenerateCharacterPrefix());
         }
@@ -293,7 +293,7 @@ internal sealed class UtilsTests
     [Property("Category", "Random")]
     public void GenerateCharacterPrefix_ShouldReturnLowercaseLetter()
     {
-        for ( int i = 0; i < RoundTripIterations; i++ )
+        for ( int i = 0; i < s_roundTripIterations; i++ )
         {
             char result = Utils.GenerateCharacterPrefix();
 

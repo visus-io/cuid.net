@@ -5,6 +5,9 @@ using System.Collections;
 using System.Runtime.InteropServices;
 using CommunityToolkit.Diagnostics;
 using Org.BouncyCastle.Crypto.Digests;
+#if !NETSTANDARD
+using System.Security.Cryptography;
+#endif
 
 /// <summary>
 ///     Represents a collision resistant unique identifier (CUID).
@@ -16,6 +19,11 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
 
     [ThreadStatic]
     private static Sha3Digest s_digest;
+
+#if !NETSTANDARD
+    [ThreadStatic]
+    private static IncrementalHash s_nativeDigest;
+#endif
 
     private readonly long _counter;
 
@@ -60,7 +68,7 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
         long unixEpochTicks = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).Ticks;
         #pragma warning restore MA0114 // Use DateTimeOffset.UnixEpoch where available
         #pragma warning restore S6588 // DateTimeOffset.UnixEpoch is not available in .NET Standard 2.0
-        
+
         _timestamp = DateTimeOffset.UtcNow.Ticks - unixEpochTicks;
 #else
         _timestamp = ( DateTimeOffset.UtcNow - DateTimeOffset.UnixEpoch ).Ticks;
@@ -71,6 +79,18 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
         _fingerprint = Context.IdentityFingerprint;
         _prefix = Utils.GenerateCharacterPrefix();
         _random = Utils.GenerateRandom(maxLength);
+
+        _value = ComputeValue();
+    }
+
+    internal Cuid2(long timestamp, long counter, byte[] fingerprint, char prefix, byte[] random, int maxLength)
+    {
+        _timestamp = timestamp;
+        _counter = counter;
+        _fingerprint = fingerprint;
+        _prefix = prefix;
+        _random = random;
+        _maxLength = maxLength;
 
         _value = ComputeValue();
     }
@@ -174,6 +194,17 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
 
     private string ComputeValue()
     {
+#if NETSTANDARD
+        return ComputeValueFallback();
+#else
+        return SHA3_512.IsSupported
+                   ? ComputeValueNative()
+                   : ComputeValueFallback();
+#endif
+    }
+
+    internal string ComputeValueFallback()
+    {
         Span<byte> buffer = stackalloc byte[16];
 
         BinaryPrimitives.WriteInt64LittleEndian(buffer[..8], _timestamp);
@@ -221,4 +252,33 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
 
         public long Value => Interlocked.Increment(ref _value);
     }
+
+#if !NETSTANDARD
+    private static IncrementalHash GetOrCreateNativeDigest()
+    {
+        return s_nativeDigest ??= IncrementalHash.CreateHash(HashAlgorithmName.SHA3_512);
+    }
+
+    internal string ComputeValueNative()
+    {
+        Span<byte> buffer = stackalloc byte[16];
+
+        BinaryPrimitives.WriteInt64LittleEndian(buffer[..8], _timestamp);
+        BinaryPrimitives.WriteInt64LittleEndian(buffer[^8..], _counter);
+
+        IncrementalHash incrementalHash = GetOrCreateNativeDigest();
+
+        incrementalHash.AppendData(buffer);
+        incrementalHash.AppendData(_fingerprint);
+        incrementalHash.AppendData(_random);
+
+        Span<byte> hash = stackalloc byte[incrementalHash.HashLengthInBytes];
+        if ( incrementalHash.TryGetHashAndReset(hash, out int bytesWritten) && bytesWritten == hash.Length )
+        {
+            return _prefix + Utils.Encode(hash)[..( _maxLength - 1 )];
+        }
+
+        return string.Empty;
+    }
+#endif
 }

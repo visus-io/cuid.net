@@ -8,9 +8,9 @@ using System.Security.Cryptography;
 
 internal static class Utils
 {
-    private static readonly double BitsPerDigit = Math.Log(36, 2);
+    private static readonly double s_bitsPerDigit = Math.Log(36, 2);
 
-    private const int Radix = 36;
+    private const int s_radix = 36;
 
     internal static long Decode(ReadOnlySpan<char> input)
     {
@@ -19,7 +19,7 @@ internal static class Utils
         foreach ( char c in input )
         {
             int digit = c is >= '0' and <= '9' ? c - '0' : 10 + c - 'a';
-            result = ( result * Radix ) + digit;
+            result = ( result * s_radix ) + digit;
         }
 
         return result;
@@ -32,7 +32,7 @@ internal static class Utils
         foreach ( char c in input )
         {
             ulong digit = c is >= '0' and <= '9' ? (ulong)( c - '0' ) : (ulong)( 10 + c - 'a' );
-            result = ( result * Radix ) + digit;
+            result = ( result * s_radix ) + digit;
         }
 
         return result;
@@ -51,7 +51,7 @@ internal static class Utils
 
         PackLimbs(value, limbs);
 
-        int length = (int)Math.Ceiling(value.Length * 8 / BitsPerDigit);
+        int length = (int)Math.Ceiling(value.Length * 8 / s_bitsPerDigit);
         int i = length;
 
         Span<char> buffer = stackalloc char[length];
@@ -90,10 +90,10 @@ internal static class Utils
 
         do
         {
-            ulong c = value % Radix;
+            ulong c = value % s_radix;
             buffer[--i] = (char)( c <= 9 ? c + 48 : c + 'a' - 10 );
 
-            value /= Radix;
+            value /= s_radix;
         } while ( value > 0 );
 
 #if NETSTANDARD2_0
@@ -143,10 +143,10 @@ internal static class Utils
         for ( int j = end - 1; j >= 0; j-- )
         {
             ulong acc = ( remainder << 32 ) | limbs[j];
-            uint q = (uint)( acc / Radix );
+            uint q = (uint)( acc / s_radix );
             
             limbs[j] = q;
-            remainder = acc % Radix;
+            remainder = acc % s_radix;
 
             if ( q != 0 && newEnd == 0 )
             {

@@ -59,7 +59,7 @@ flowchart TD
     C["Fetch the cached process fingerprint\nContext.IdentityFingerprint\n(Fingerprint.Generate(), computed once)"]
     D["Generate a random alphabetic prefix\nUtils.GenerateCharacterPrefix()"]
     E["Generate maxLength random bytes\nUtils.GenerateRandom(maxLength)"]
-    F["Hash timestamp + counter + fingerprint + random\nwith SHA-3 512 (BouncyCastle)"]
+    F["Hash timestamp + counter + fingerprint + random\nwith SHA-3 512\n(native IncrementalHash, or BouncyCastle Sha3Digest\nas fallback)"]
     G["Base-36 encode the hash, prepend the prefix,\ntruncate to maxLength"]
 
     A --> F
@@ -83,15 +83,33 @@ The diagram groups steps by the value they feed into, not by execution order.
 
 ### Performance Details
 
-`Cuid2` reuses one `[ThreadStatic] Sha3Digest` instance per thread. It does
-not allocate a new digest on every call. On `net8.0` and `net10.0`, hashing
-runs on `Span<byte>` buffers. `stackalloc` provides the 16-byte
-timestamp/counter block and the hash-output buffer. The netstandard targets
-fall back to array-based `BlockUpdate`/`DoFinal` overloads. `Span<T>`
-overloads are not available there. `Cuid2` computes the process fingerprint
-once per process. It caches the fingerprint in a nested static class,
-`Context.IdentityFingerprint`. Every `Cuid2` instance reads the cached value.
-It does not recompute the fingerprint.
+`Cuid2` hashes through one of two paths. `ComputeValue()` selects the path
+on every call:
+
+- On `net8.0` and `net10.0`, `Cuid2` checks `SHA3_512.IsSupported`. If the OS
+  and runtime provide a native SHA3-512 implementation, `ComputeValueNative()`
+  uses it through `IncrementalHash`. This path reuses one `[ThreadStatic]
+  IncrementalHash` instance per thread. It does not dispose the instance
+  after use. The native digest context sits behind a `SafeHandle` (for
+  example `SafeEvpMdCtxHandle` on Linux), which finalizes the native handle
+  on its own once the thread-static reference becomes unreachable, so
+  caching it for the life of the thread does not leak it.
+  `TryGetHashAndReset` clears the instance's internal state after each
+  hash. The next call on the same thread reuses the cleared instance.
+  `stackalloc` provides the 16-byte timestamp/counter block and the
+  hash-output buffer.
+- The netstandard targets always use the other path. `net8.0` and `net10.0`
+  also use it when the OS or runtime does not provide a native SHA3-512
+  implementation. `ComputeValueFallback()` uses BouncyCastle. `Cuid2` reuses
+  one `[ThreadStatic] Sha3Digest` instance per thread. It does not allocate
+  a new digest on every call. On `net8.0` and `net10.0`, this path also runs
+  on `Span<byte>` buffers. The netstandard targets fall back to array-based
+  `BlockUpdate`/`DoFinal` overloads. They do not have `Span<T>` overloads.
+
+`Cuid2` computes the process fingerprint once per process. It caches the
+fingerprint in a nested static class, `Context.IdentityFingerprint`. Every
+`Cuid2` instance reads the cached value. It does not recompute the
+fingerprint.
 
 ### Equality
 
@@ -123,7 +141,7 @@ string s  = id.ToString();
 serialization. `[XmlRoot("cuid")]` handles XML serialization.
 The implementation is in `src/cuid.net/Cuid.cs`.
 
-`Cuid` carries `[Obsolete(Obsoletions.CuidMessage, DiagnosticId = Obsoletions.CuidDiagId)]`.
+`Cuid` carries `[Obsolete(Obsoletions.s_cuidMessage, DiagnosticId = Obsoletions.s_cuidDiagId)]`.
 The compiler emits diagnostic `VISLIB0001` for every use.
 Do not use `Cuid` in new code. The type exists only to support migration from
 earlier versions.
@@ -137,7 +155,7 @@ flowchart TD
     A["Capture the timestamp at\n10-microsecond precision (ticks / 10000)\n(8 base-36 characters)"]
     B["Read the next Counter value\n(wraps at 36^4,\n4 base-36 characters)"]
     C["Fetch the cached legacy fingerprint\nFingerprintVersion.One\n(process ID + machine-name checksum,\n4 base-36 characters)"]
-    D["Generate a random value,\nreduce it modulo MaxRandomValue (36^8 − 1)\n(8 base-36 characters)"]
+    D["Generate a random value,\nreduce it modulo s_maxRandomValue (36^8 − 1)\n(8 base-36 characters)"]
     E["Assemble the fixed layout with\nTrimPad/WriteTo span writes:\nprefix c + timestamp + counter\n+ fingerprint + random"]
 
     A --> E
@@ -155,7 +173,7 @@ flowchart TD
    4-character value. The library derives it from the process ID and a
    checksum of the machine name. It differs from the fingerprint `Cuid2`
    uses.
-4. Generate a random value and reduce it modulo `MaxRandomValue`
+4. Generate a random value and reduce it modulo `s_maxRandomValue`
    (`36^8 − 1`). The result fits in 8 base-36 characters.
 5. Assemble the fixed layout with zero-allocation span writes
    (`TrimPad`/`WriteTo`). The order is: the literal prefix `c`, the
