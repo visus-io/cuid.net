@@ -5,6 +5,9 @@ using System.Collections;
 using System.Runtime.InteropServices;
 using CommunityToolkit.Diagnostics;
 using Org.BouncyCastle.Crypto.Digests;
+#if !NETSTANDARD
+using System.Security.Cryptography;
+#endif
 
 /// <summary>
 ///     Represents a collision resistant unique identifier (CUID).
@@ -60,7 +63,7 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
         long unixEpochTicks = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).Ticks;
         #pragma warning restore MA0114 // Use DateTimeOffset.UnixEpoch where available
         #pragma warning restore S6588 // DateTimeOffset.UnixEpoch is not available in .NET Standard 2.0
-        
+
         _timestamp = DateTimeOffset.UtcNow.Ticks - unixEpochTicks;
 #else
         _timestamp = ( DateTimeOffset.UtcNow - DateTimeOffset.UnixEpoch ).Ticks;
@@ -174,6 +177,17 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
 
     private string ComputeValue()
     {
+#if NETSTANDARD
+        return ComputeValueFallback();
+#else
+        return SHA3_512.IsSupported
+                   ? ComputeValueNative()
+                   : ComputeValueFallback();
+#endif
+    }
+
+    private string ComputeValueFallback()
+    {
         Span<byte> buffer = stackalloc byte[16];
 
         BinaryPrimitives.WriteInt64LittleEndian(buffer[..8], _timestamp);
@@ -199,6 +213,30 @@ public readonly struct Cuid2 : IEquatable<Cuid2>
 
         return _prefix + Utils.Encode(hash)[..( _maxLength - 1 )];
     }
+
+#if !NETSTANDARD
+    private string ComputeValueNative()
+    {
+        Span<byte> buffer = stackalloc byte[16];
+
+        BinaryPrimitives.WriteInt64LittleEndian(buffer[..8], _timestamp);
+        BinaryPrimitives.WriteInt64LittleEndian(buffer[^8..], _counter);
+
+        using IncrementalHash incrementalHash = IncrementalHash.CreateHash(HashAlgorithmName.SHA3_512);
+
+        incrementalHash.AppendData(buffer);
+        incrementalHash.AppendData(_fingerprint);
+        incrementalHash.AppendData(_random);
+
+        Span<byte> hash = stackalloc byte[incrementalHash.HashLengthInBytes];
+        if ( incrementalHash.TryGetHashAndReset(hash, out int bytesWritten) && bytesWritten == hash.Length )
+        {
+            return _prefix + Utils.Encode(hash)[..( _maxLength - 1 )];
+        }
+
+        return string.Empty;
+    }
+#endif
 
     private static class Context
     {

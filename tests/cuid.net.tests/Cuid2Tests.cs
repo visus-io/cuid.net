@@ -6,14 +6,14 @@ using AwesomeAssertions;
 internal sealed class Cuid2Tests
 {
     // CUID v2 Length Constants
-    private const int DefaultCuid2Length = 24;
+    private const int s_defaultCuid2Length = 24;
 
-    private const int HashDistributionThreshold = 950;
-    private const int HighConcurrencyIterations = 10000;
-    private const int MediumConcurrencyIterations = 1000;
+    private const int s_hashDistributionThreshold = 950;
+    private const int s_highConcurrencyIterations = 10000;
+    private const int s_mediumConcurrencyIterations = 1000;
 
     // Test Iteration Constants
-    private const int StandardTestIterations = 100;
+    private const int s_standardTestIterations = 100;
 
     [Test]
     [Property("Category", "Construction")]
@@ -131,20 +131,20 @@ internal sealed class Cuid2Tests
     {
         HashSet<int> hashes = [];
 
-        for ( int i = 0; i < MediumConcurrencyIterations; i++ )
+        for ( int i = 0; i < s_mediumConcurrencyIterations; i++ )
         {
             hashes.Add(new Cuid2().GetHashCode());
         }
 
         // Expect good distribution - allow for some collisions
-        hashes.Count.Should().BeGreaterThan(HashDistributionThreshold);
+        hashes.Count.Should().BeGreaterThan(s_hashDistributionThreshold);
     }
     
     [Test]
     [Property("Category", "Concurrency")]
     public void NewCuid2_ShouldGenerateUniqueIds_InParallel()
     {
-        HashSet<string> cuids = new(HighConcurrencyIterations, StringComparer.Ordinal);
+        HashSet<string> cuids = new(s_highConcurrencyIterations, StringComparer.Ordinal);
 
 #if NET10_0_OR_GREATER
         Lock lockObj = new();
@@ -152,7 +152,7 @@ internal sealed class Cuid2Tests
         object lockObj = new();
 #endif
 
-        Parallel.For(0, HighConcurrencyIterations, _ =>
+        Parallel.For(0, s_highConcurrencyIterations, _ =>
         {
             Cuid2 cuid = new();
             string cuidString = cuid.ToString();
@@ -163,7 +163,7 @@ internal sealed class Cuid2Tests
             }
         });
 
-        cuids.Should().HaveCount(HighConcurrencyIterations);
+        cuids.Should().HaveCount(s_highConcurrencyIterations);
     }
 
     [Test]
@@ -173,7 +173,7 @@ internal sealed class Cuid2Tests
         Cuid2 defaultCuid = default;
         string result = defaultCuid.ToString();
 
-        result.Should().Be(new string('0', DefaultCuid2Length));
+        result.Should().Be(new string('0', s_defaultCuid2Length));
     }
 
     [Test]
@@ -192,7 +192,7 @@ internal sealed class Cuid2Tests
     [Property("Category", "Format")]
     public void ToString_ShouldStartWithLowercaseLetter()
     {
-        for ( int i = 0; i < StandardTestIterations; i++ )
+        for ( int i = 0; i < s_standardTestIterations; i++ )
         {
             Cuid2 cuid = new();
             string result = cuid.ToString();

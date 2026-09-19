@@ -13,12 +13,12 @@ using System.Runtime.InteropServices;
 
 internal static class Fingerprint
 {
-    private static readonly Lazy<byte[]> CachedEnvironmentVariables = new(ComputeEnvironmentVariables);
+    private static readonly Lazy<byte[]> s_cachedEnvironmentVariables = new(ComputeEnvironmentVariables);
 
 #if NETSTANDARD
-    private static readonly int CachedProcessId = Process.GetCurrentProcess().Id;
+    private static readonly int s_cachedProcessId = Process.GetCurrentProcess().Id;
 #else
-    private static readonly int CachedProcessId = Environment.ProcessId;
+    private static readonly int s_cachedProcessId = Environment.ProcessId;
 #endif
 
     public static byte[] Generate(FingerprintVersion version = FingerprintVersion.Two)
@@ -40,21 +40,21 @@ internal static class Fingerprint
     private static byte[] GenerateIdentity()
     {
         string systemName = GetSystemName();
-        byte[] environment = CachedEnvironmentVariables.Value;
+        byte[] environment = s_cachedEnvironmentVariables.Value;
 
 #if NETSTANDARD2_0
         byte[] identity = Encoding.UTF8.GetBytes(systemName);
         Span<byte> buffer = stackalloc byte[identity.Length + sizeof(int) + environment.Length];
 
         identity.CopyTo(buffer[..identity.Length]);
-        BinaryPrimitives.WriteInt32LittleEndian(buffer[identity.Length..(identity.Length + sizeof(int))], CachedProcessId);
+        BinaryPrimitives.WriteInt32LittleEndian(buffer[identity.Length..(identity.Length + sizeof(int))], s_cachedProcessId);
         environment.CopyTo(buffer[(identity.Length + sizeof(int))..]);
 #else
         int systemNameByteCount = Encoding.UTF8.GetByteCount(systemName);
         Span<byte> buffer = stackalloc byte[systemNameByteCount + sizeof(int) + environment.Length];
 
         Encoding.UTF8.GetBytes(systemName, buffer[..systemNameByteCount]);
-        BinaryPrimitives.WriteInt32LittleEndian(buffer[systemNameByteCount..( systemNameByteCount + sizeof(int) )], CachedProcessId);
+        BinaryPrimitives.WriteInt32LittleEndian(buffer[systemNameByteCount..( systemNameByteCount + sizeof(int) )], s_cachedProcessId);
         environment.CopyTo(buffer[( systemNameByteCount + sizeof(int) )..]);
 #endif
 
@@ -72,7 +72,7 @@ internal static class Fingerprint
         char[] buffer = new char[4];
         Span<char> dest = buffer;
 
-        CachedProcessId.ToString(CultureInfo.InvariantCulture)
+        s_cachedProcessId.ToString(CultureInfo.InvariantCulture)
                        .TrimPad(2).WriteTo(ref dest);
 
         machineIdentifier.ToString(CultureInfo.InvariantCulture)
@@ -82,7 +82,7 @@ internal static class Fingerprint
 #else
         string result = string.Create(4, machineIdentifier, (dest, _) =>
         {
-            CachedProcessId.ToString(CultureInfo.InvariantCulture)
+            s_cachedProcessId.ToString(CultureInfo.InvariantCulture)
                            .TrimPad(2).WriteTo(ref dest);
 
             machineIdentifier.ToString(CultureInfo.InvariantCulture)

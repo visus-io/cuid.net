@@ -26,9 +26,9 @@ using Serialization.Json.Converters;
 [JsonConverter(typeof(CuidConverter))]
 [XmlRoot("cuid")]
 #if NETSTANDARD
-[Obsolete(Obsoletions.CuidMessage)]
+[Obsolete(Obsoletions.s_cuidMessage)]
 #else
-[Obsolete(Obsoletions.CuidMessage, DiagnosticId = Obsoletions.CuidDiagId)]
+[Obsolete(Obsoletions.s_cuidMessage, DiagnosticId = Obsoletions.s_cuidDiagId)]
 #endif
 public readonly struct Cuid : IComparable, IComparable<Cuid>, IEquatable<Cuid>, IXmlSerializable
 {
